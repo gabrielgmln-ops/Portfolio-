@@ -1,4 +1,9 @@
 ---
-// Placeholder até o time de front-end entregar a página real.
+// Placeholder do líder até o front-end entregar a página real.
+// Chama o contrato para que as validações de coleção (arcano/slug únicos,
+// seções do estudo de caso) rodem em todo build.
+import { getProjetosVisiveis, getPerfil } from '../lib/conteudo';
+const perfil = getPerfil();
+await getProjetosVisiveis();
 ---
-<html lang="pt-BR"><head><meta charset="utf-8" /><title>Gabriel Moraes</title></head><body><h1>Gabriel Moraes</h1></body></html>
+<html lang="pt-BR"><head><meta charset="utf-8" /><title>{perfil.nome}</title></head><body><h1>{perfil.nome}</h1></body></html>
