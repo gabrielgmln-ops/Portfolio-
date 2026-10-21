@@ -8,7 +8,11 @@ export const TETO_ROTEIRO = 4;
 type Aviso = (msg: string) => void;
 const avisoPadrao: Aviso = (m) => console.warn(m);
 
-export interface EntradaProjeto { id: string; data: DadosProjeto; body?: string | undefined }
+export interface EntradaProjeto {
+  id: string;
+  data: DadosProjeto;
+  body?: string | undefined;
+}
 export interface Recursos {
   artes: Record<string, ImageMetadata>; // nome do arquivo -> imagem
   verso: ImageMetadata;
@@ -50,10 +54,18 @@ export function montarProjeto(e: EntradaProjeto, r: Recursos): Project {
   const concluido = d.status === 'concluido';
   const github = d.githubRepo && r.lerGithub ? r.lerGithub(d.githubRepo) : undefined;
   const p: Project = {
-    slug: d.slug, titulo: d.titulo, ordem: d.ordem, status: d.status, trilha: d.trilha,
+    slug: d.slug,
+    titulo: d.titulo,
+    ordem: d.ordem,
+    status: d.status,
+    trilha: d.trilha,
     arcano: montarArcano(d.arcano, r.artes),
-    tecnologias: d.tecnologias, competencias: d.competencias,
-    estudoDeCaso: d.estudoDeCaso, ano: d.ano, atualizadoEm: d.atualizadoEm, changelog: d.changelog,
+    tecnologias: d.tecnologias,
+    competencias: d.competencias,
+    estudoDeCaso: d.estudoDeCaso,
+    ano: d.ano,
+    atualizadoEm: d.atualizadoEm,
+    changelog: d.changelog,
   };
   if (d.resumo !== undefined) p.resumo = d.resumo;
   if (d.papel !== undefined) p.papel = d.papel;
@@ -110,7 +122,10 @@ export function carta(p: Project, verso: ImageMetadata): Carta {
 export function marcos(ms: readonly { data: DadosMarco }[]): Milestone[] {
   return ms
     .map(({ data: d }): Milestone => ({
-      data: d.data, titulo: d.titulo, tipo: d.tipo, planejado: d.planejado,
+      data: d.data,
+      titulo: d.titulo,
+      tipo: d.tipo,
+      planejado: d.planejado,
       ...(d.descricao && !d.descricao.includes(PENDENTE) ? { descricao: d.descricao } : {}),
     }))
     .sort((a, b) => a.data.getTime() - b.data.getTime());

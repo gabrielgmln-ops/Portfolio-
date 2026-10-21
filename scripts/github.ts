@@ -4,10 +4,16 @@ import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export interface EntradaGithub {
-  url: string; ultimoCommit: string; linguagens: Record<string, number>; buscadoEm: string;
+  url: string;
+  ultimoCommit: string;
+  linguagens: Record<string, number>;
+  buscadoEm: string;
 }
 export type Cache = Record<string, EntradaGithub>;
-export interface Log { info(m: string): void; warn(m: string): void; }
+export interface Log {
+  info(m: string): void;
+  warn(m: string): void;
+}
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
 const API = 'https://api.github.com';
@@ -39,7 +45,9 @@ export async function descobrirRepos(dir: string): Promise<string[]> {
 
 async function getJson(fetchFn: Fetch, url: string, token: string | undefined): Promise<unknown> {
   const headers: Record<string, string> = {
-    Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'portfolio-build',
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'portfolio-build',
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetchFn(url, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) });
@@ -67,11 +75,18 @@ async function comRetry<T>(fn: () => Promise<T>, repo: string, log: Log): Promis
 }
 
 async function buscar(repo: string, fetchFn: Fetch, token: string | undefined, agora: Date): Promise<EntradaGithub> {
-  const info = (await getJson(fetchFn, `${API}/repos/${repo}`, token)) as { html_url?: unknown; default_branch?: unknown };
+  const info = (await getJson(fetchFn, `${API}/repos/${repo}`, token)) as {
+    html_url?: unknown;
+    default_branch?: unknown;
+  };
   if (typeof info.html_url !== 'string' || typeof info.default_branch !== 'string') {
     throw new ErroDefinitivo('resposta sem html_url/default_branch');
   }
-  const commit = (await getJson(fetchFn, `${API}/repos/${repo}/commits/${encodeURIComponent(info.default_branch)}`, token)) as {
+  const commit = (await getJson(
+    fetchFn,
+    `${API}/repos/${repo}/commits/${encodeURIComponent(info.default_branch)}`,
+    token,
+  )) as {
     commit?: { committer?: { date?: unknown } };
   };
   const data = commit.commit?.committer?.date;
@@ -86,7 +101,12 @@ async function buscar(repo: string, fetchFn: Fetch, token: string | undefined, a
 }
 
 export async function atualizar(opts: {
-  repos: string[]; fetch: Fetch; cacheAnterior: Cache; log: Log; token?: string | undefined; agora?: Date;
+  repos: string[];
+  fetch: Fetch;
+  cacheAnterior: Cache;
+  log: Log;
+  token?: string | undefined;
+  agora?: Date;
 }): Promise<Cache> {
   const { repos, fetch: fetchFn, cacheAnterior, log, token } = opts;
   const agora = opts.agora ?? new Date();
@@ -112,7 +132,11 @@ export async function atualizar(opts: {
 export function serializar(c: Cache): string {
   const ordenar = (v: unknown): unknown =>
     v && typeof v === 'object' && !Array.isArray(v)
-      ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, ordenar((v as Record<string, unknown>)[k])]))
+      ? Object.fromEntries(
+          Object.keys(v)
+            .sort()
+            .map((k) => [k, ordenar((v as Record<string, unknown>)[k])]),
+        )
       : v;
   return `${JSON.stringify(ordenar(c), null, 2)}\n`;
 }
