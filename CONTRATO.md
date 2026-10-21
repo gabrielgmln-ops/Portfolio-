@@ -30,3 +30,9 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
   - Diferenças em relação ao rascunho do prompt: `resumo`, `papel` e `prova` são **opcionais** (`[PENDENTE]` → `undefined`).
   - `trilha` sempre array (pode ser `[]` quando pendente).
   - `Perfil` definido: `nome`, `apresentacao?`, `email?`, `github?: { usuario, url }`, `linkedin?`, `idiomas`.
+- 2026-10-21 · v1.1
+  - Contato: `src/lib/contato.ts` com `enviarContato`, `validarContato`, `montarMailto`, `HONEYPOT_CAMPO = 'site'`.
+    Lançamento usa `mailto:`; o erro `'limite'` fica reservado para uma futura função serverless.
+  - `validarContato` devolve `{ ok: true }` sem `dados` quando o honeypot vem preenchido (descarte silencioso).
+  - SEO: `src/lib/seo.ts` (`jsonLdPerson()`, metas OG/canonical) para o layout do front usar.
+  - Restrições da CSP para o front: nada de `<script is:inline>` nem atributo `style`.
