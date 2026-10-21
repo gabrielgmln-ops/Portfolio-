@@ -1,1 +1,12 @@
-{}
+{
+  "gabrielgmln-ops/Projeto-B-A": {
+    "buscadoEm": "2026-10-21T22:24:02.798Z",
+    "linguagens": {
+      "Dockerfile": 647,
+      "Java": 94637,
+      "PLpgSQL": 1005
+    },
+    "ultimoCommit": "2026-10-21T21:50:29.000Z",
+    "url": "https://github.com/gabrielgmln-ops/Projeto-B-A"
+  }
+}
