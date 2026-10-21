@@ -1,0 +1,40 @@
+---
+titulo: "Ledger API"
+slug: ledger-api
+ordem: 7
+status: concluido
+trilha: bancos
+arcano: justica
+resumo: "[PENDENTE]"
+papel: "[PENDENTE]"
+tecnologias: []
+competencias: []
+prova: "Critério de prova: 1.000 transferências simultâneas sem perder um centavo (ainda não medido)."
+resultado: "Idempotência e bloqueio de saldo negativo verificados na API publicada"
+medidoEm: 2026-10-30
+repo: "https://github.com/gabrielgmln-ops/Projeto-B-A"
+githubRepo: "gabrielgmln-ops/Projeto-B-A"
+demo: "https://ledger-api-sk0d.onrender.com/swagger-ui.html"
+destaque: principal
+estudoDeCaso: false
+ano: 2026
+atualizadoEm: 2026-10-30
+changelog: []
+---
+
+## Resultado medido
+
+Teste de fumaça contra a API publicada:
+
+- Saúde: `status=UP`, banco `UP`, actuator `UP`; Swagger UI responde HTTP 200.
+- Idempotência: a mesma transferência enviada 2 vezes com a mesma chave retornou HTTP 201 nas duas, a segunda marcada `repetida=true`; não duplicou.
+- Saldo insuficiente: transferir R$ 500 com saldo de R$ 100 foi bloqueado com HTTP 422.
+- Saldos finais: A = 75,00 e B = 25,00 (o valor saiu uma única vez); extrato de A com 2 lançamentos.
+
+## Critério de prova
+
+1.000 transferências simultâneas sem perder um centavo. Ainda não medido.
+
+## Demo
+
+A demo está em hospedagem gratuita do Render e pode levar alguns segundos para acordar.
