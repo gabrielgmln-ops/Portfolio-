@@ -2,7 +2,7 @@
 // (o `astro preview` não aplica cabeçalhos da hospedagem, então não serviria para checar a CSP).
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 
 const raiz = resolve('dist');
 const porta = Number(process.env.PORT ?? 4321);
@@ -27,7 +27,10 @@ const tipos = {
 function cabecalhos(caminho) {
   const out = {};
   for (const regra of vercel.headers) {
-    const re = new RegExp(`^${regra.source.replace(/\(\.\*\)/g, '.*')}$`);
+    // Só suportamos literais e "(.*)"; qualquer outra sintaxe aborta em vez de não casar em silêncio.
+    const partes = regra.source.split('(.*)');
+    if (partes.some((p) => /[:{}?+*()[\]]/.test(p))) throw new Error(`source não suportado: ${regra.source}`);
+    const re = new RegExp(`^${partes.map((p) => p.replace(/[.\\^$|/]/g, '\\$&')).join('.*')}$`);
     if (re.test(caminho)) for (const h of regra.headers) out[h.key] = h.value;
   }
   return out;
@@ -43,9 +46,10 @@ async function arquivo(p) {
 
 createServer(async (req, res) => {
   const caminho = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname);
-  const alvo = normalize(join(raiz, caminho));
+  const alvo = resolve(raiz, '.' + caminho);
+  const dentro = alvo === raiz || alvo.startsWith(raiz + sep);
   let status = 200;
-  let f = alvo.startsWith(raiz)
+  let f = dentro
     ? ((await arquivo(alvo)) ?? (await arquivo(join(alvo, 'index.html'))) ?? (await arquivo(`${alvo}.html`)))
     : undefined;
   if (!f) {
