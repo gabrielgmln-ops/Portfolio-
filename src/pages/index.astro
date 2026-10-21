@@ -3,7 +3,35 @@
 // Chama o contrato para que as validações de coleção (arcano/slug únicos,
 // seções do estudo de caso) rodem em todo build.
 import { getProjetosVisiveis, getPerfil } from '../lib/conteudo';
+import { jsonLdPerson, metaPagina, serializarJsonLd } from '../lib/seo';
 const perfil = getPerfil();
 await getProjetosVisiveis();
+const meta = metaPagina({
+  titulo: perfil.nome,
+  descricao: perfil.apresentacao,
+  caminho: Astro.url.pathname,
+  site: Astro.site,
+  nomeSite: perfil.nome,
+});
+const ld = serializarJsonLd(jsonLdPerson(perfil, Astro.site));
 ---
-<html lang="pt-BR"><head><meta charset="utf-8" /><title>{perfil.nome}</title></head><body><h1>{perfil.nome}</h1></body></html>
+
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>{meta.titulo}</title>
+    {meta.descricao && <meta name="description" content={meta.descricao} />}
+    {meta.canonical && <link rel="canonical" href={meta.canonical} />}
+    {meta.og.map((m) => (
+      <meta property={m.property} content={m.content} />
+    ))}
+    <script type="application/ld+json" is:inline set:html={ld} />
+  </head>
+  <body>
+    <main>
+      <h1>{perfil.nome}</h1>
+    </main>
+  </body>
+</html>

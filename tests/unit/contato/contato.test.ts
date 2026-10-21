@@ -41,7 +41,9 @@ describe('montarMailto / enviarContato', () => {
     const url = montarMailto({ nome: 'João & Cia', email: 'j@ex.com', mensagem: 'Olá\nlinha 2 & mais' });
     expect(url.startsWith(`mailto:${getPerfil().email}?subject=`)).toBe(true);
     const q = new URLSearchParams(url.split('?')[1]);
-    expect(decodeURIComponent(url.split('subject=')[1]!.split('&body=')[0]!)).toBe('Contato pelo portfólio — João & Cia');
+    expect(decodeURIComponent(url.split('subject=')[1]!.split('&body=')[0]!)).toBe(
+      'Contato pelo portfólio — João & Cia',
+    );
     expect(url).toContain('%0A');
     expect(url).not.toMatch(/[ \n]/);
     expect(url.match(/&/g)).toHaveLength(1);

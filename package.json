@@ -14,7 +14,14 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
-    "github": "tsx scripts/github.ts"
+    "github": "tsx scripts/github.ts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:e2e": "playwright test",
+    "lhci:mobile": "lhci autorun --config=lighthouserc.cjs",
+    "lhci:desktop": "lhci autorun --config=lighthouserc.desktop.cjs",
+    "lhci": "lhci autorun --config=lighthouserc.cjs && lhci autorun --config=lighthouserc.desktop.cjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.0",
@@ -24,9 +31,19 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",
+    "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.5",
+    "astro-eslint-parser": "^3.2.0",
+    "eslint": "^10.13.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0",
     "vitest": "^5.0.5"
   }
 }

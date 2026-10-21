@@ -20,12 +20,9 @@ export const contatoSchema = z.object({
 export type DadosContato = z.infer<typeof contatoSchema>;
 
 export type ResultadoValidacao =
-  | { ok: true; dados?: DadosContato }
-  | { ok: false; erro: 'validacao'; campos: string[] };
+  { ok: true; dados?: DadosContato } | { ok: false; erro: 'validacao'; campos: string[] };
 
-export type ResultadoEnvio =
-  | { ok: true }
-  | { ok: false; erro: 'validacao' | 'limite' | 'rede'; campos?: string[] };
+export type ResultadoEnvio = { ok: true } | { ok: false; erro: 'validacao' | 'limite' | 'rede'; campos?: string[] };
 
 function honeypotPreenchido(dados: unknown): boolean {
   if (typeof dados !== 'object' || dados === null) return false;

@@ -1,0 +1,24 @@
+---
+// Placeholder de D até o front-end entregar a 404 real.
+import { getPerfil } from '../lib/conteudo';
+const perfil = getPerfil();
+---
+
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Página não encontrada." />
+    <title>Página não encontrada · {perfil.nome}</title>
+  </head>
+  <body>
+    <main>
+      <h1>Página não encontrada</h1>
+      <p>
+        <a href="/">Voltar ao início</a>
+      </p>
+    </main>
+  </body>
+</html>

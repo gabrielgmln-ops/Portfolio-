@@ -6,7 +6,17 @@ const arcs = ['mago', 'sacerdotisa', 'imperador', 'hierofante', 'enamorados', 'c
 const entradas = [
   ...arcs.map((a, i) => ({ id: a, data: dados({ slug: a, arcano: a, ordem: 10 + i }) })),
   { id: 'dev', data: dados({ slug: 'dev', arcano: 'louco', ordem: 0, status: 'em-desenvolvimento', ano: 2025 }) },
-  { id: 'ok', data: dados({ slug: 'ok', arcano: 'justica', ordem: 7, status: 'concluido', resultado: 'r', medidoEm: '2026-10-30' }) },
+  {
+    id: 'ok',
+    data: dados({
+      slug: 'ok',
+      arcano: 'justica',
+      ordem: 7,
+      status: 'concluido',
+      resultado: 'r',
+      medidoEm: '2026-10-30',
+    }),
+  },
 ];
 
 describe('regras de exibição', () => {
@@ -28,8 +38,15 @@ describe('regras de exibição', () => {
   it('[PENDENTE] chega como undefined, inclusive aninhado', () => {
     const avisos: string[] = [];
     const p = core.montarProjeto(
-      { id: 'x', data: dados({ papel: '[PENDENTE]', repo: '[PENDENTE]', tecnologias: ['TS', '[PENDENTE]'],
-        changelog: [{ data: '2026-01-01', texto: '[PENDENTE]' }] }) },
+      {
+        id: 'x',
+        data: dados({
+          papel: '[PENDENTE]',
+          repo: '[PENDENTE]',
+          tecnologias: ['TS', '[PENDENTE]'],
+          changelog: [{ data: '2026-01-01', texto: '[PENDENTE]' }],
+        }),
+      },
       { ...recursos, aviso: (m) => avisos.push(m) },
     );
     expect(p.papel).toBeUndefined();

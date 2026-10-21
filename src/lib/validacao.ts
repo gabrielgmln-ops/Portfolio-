@@ -49,7 +49,10 @@ export const projetoBaseSchema = z.object({
   resultadoNumero: z.number().optional(),
   medidoEm: z.coerce.date().optional(),
   repo: urlOuPendente.optional(),
-  githubRepo: z.string().regex(/^[\w.-]+\/[\w.-]+$/, 'githubRepo deve ser "usuario/repo"').optional(),
+  githubRepo: z
+    .string()
+    .regex(/^[\w.-]+\/[\w.-]+$/, 'githubRepo deve ser "usuario/repo"')
+    .optional(),
   demo: urlOuPendente.optional(),
   destaque: z.enum(['principal', 'secundario']).optional(),
   plataforma: z.literal('bank-platform').optional(),
@@ -64,11 +67,23 @@ export type DadosProjeto = z.output<typeof projetoBaseSchema>;
 /** Regras 1, 2 e 5 (por entrada) + warning de [PENDENTE]. A regra 3 vem do enum. */
 export function refinarProjeto(d: DadosProjeto, ctx: z.RefinementCtx, aviso: Aviso = avisoPadrao): void {
   if (d.resultado !== undefined && d.status !== 'concluido')
-    ctx.addIssue({ code: 'custom', path: ['resultado'], message: 'regra 1: "resultado" só é permitido com status "concluido"' });
+    ctx.addIssue({
+      code: 'custom',
+      path: ['resultado'],
+      message: 'regra 1: "resultado" só é permitido com status "concluido"',
+    });
   if (d.status === 'concluido' && (d.resultado === undefined || d.medidoEm === undefined))
-    ctx.addIssue({ code: 'custom', path: ['status'], message: 'regra 2: status "concluido" exige "resultado" e "medidoEm"' });
+    ctx.addIssue({
+      code: 'custom',
+      path: ['status'],
+      message: 'regra 2: status "concluido" exige "resultado" e "medidoEm"',
+    });
   if (d.resultadoNumero !== undefined && d.resultado === undefined)
-    ctx.addIssue({ code: 'custom', path: ['resultadoNumero'], message: '"resultadoNumero" só é permitido junto com "resultado"' });
+    ctx.addIssue({
+      code: 'custom',
+      path: ['resultadoNumero'],
+      message: '"resultadoNumero" só é permitido junto com "resultado"',
+    });
   for (const c of encontrarStrings(d, (s) => s.includes(PREENCHER)))
     ctx.addIssue({ code: 'custom', path: [c], message: `regra 5: campo "${c}" contém ${PREENCHER}` });
   const pend = encontrarStrings(d, (s) => s.includes(PENDENTE));
@@ -91,13 +106,15 @@ export type DadosMarco = z.output<typeof marcoSchema>;
 
 /** Seções obrigatórias ausentes num corpo MDX bruto (headings "## X"). */
 export function secoesAusentes(corpo: string): string[] {
-  const titulos = new Set(
-    [...corpo.matchAll(/^##\s+(.+?)\s*#*\s*$/gm)].map((m) => (m[1] ?? '').trim().toLowerCase()),
-  );
+  const titulos = new Set([...corpo.matchAll(/^##\s+(.+?)\s*#*\s*$/gm)].map((m) => (m[1] ?? '').trim().toLowerCase()));
   return SECOES_ESTUDO.filter((s) => !titulos.has(s.toLowerCase()));
 }
 
-export interface EntradaValidavel { id: string; data: DadosProjeto; body?: string | undefined }
+export interface EntradaValidavel {
+  id: string;
+  data: DadosProjeto;
+  body?: string | undefined;
+}
 
 /** Regras de coleção: 4 (arcano/slug duplicado) e 6 (seções do estudo de caso). Devolve erros. */
 export function validarColecao(entradas: readonly EntradaValidavel[]): string[] {

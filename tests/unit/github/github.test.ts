@@ -16,17 +16,25 @@ function fetchOk() {
 }
 const log = () => ({ info: vi.fn(), warn: vi.fn() });
 const cache: Cache = {
-  [R]: { url: 'https://github.com/dono/repo', ultimoCommit: '2025-01-01T00:00:00.000Z', linguagens: { Go: 1 }, buscadoEm: '2025-01-02T00:00:00.000Z' },
+  [R]: {
+    url: 'https://github.com/dono/repo',
+    ultimoCommit: '2025-01-01T00:00:00.000Z',
+    linguagens: { Go: 1 },
+    buscadoEm: '2025-01-02T00:00:00.000Z',
+  },
 };
-const headersDe = (f: ReturnType<typeof fetchOk>) => (f.mock.calls[0]![1] as RequestInit).headers as Record<string, string>;
+const headersDe = (f: ReturnType<typeof fetchOk>) =>
+  (f.mock.calls[0]![1] as RequestInit).headers as Record<string, string>;
 
 describe('atualizar', () => {
   it('sucesso', async () => {
     const f = fetchOk();
     const r = await atualizar({ repos: [R], fetch: f, cacheAnterior: {}, log: log(), agora });
     expect(r[R]).toEqual({
-      url: 'https://github.com/dono/repo', ultimoCommit: '2026-10-01T10:00:00.000Z',
-      linguagens: { CSS: 5, TypeScript: 100 }, buscadoEm: agora.toISOString(),
+      url: 'https://github.com/dono/repo',
+      ultimoCommit: '2026-10-01T10:00:00.000Z',
+      linguagens: { CSS: 5, TypeScript: 100 },
+      buscadoEm: agora.toISOString(),
     });
     expect(headersDe(f)['Authorization']).toBeUndefined();
     expect((f.mock.calls[0]![1] as RequestInit).signal).toBeInstanceOf(AbortSignal);
@@ -40,13 +48,21 @@ describe('atualizar', () => {
 
   it('falha com cache mantém entrada anterior', async () => {
     const l = log();
-    const r = await atualizar({ repos: [R], fetch: vi.fn(async () => json({}, 500)), cacheAnterior: cache, log: l, agora });
+    const r = await atualizar({
+      repos: [R],
+      fetch: vi.fn(async () => json({}, 500)),
+      cacheAnterior: cache,
+      log: l,
+      agora,
+    });
     expect(r[R]).toEqual(cache[R]);
     expect(l.warn).toHaveBeenCalledWith(expect.stringContaining('mantendo cache'));
   });
 
   it('falha sem cache: entrada não existe', async () => {
-    const f = vi.fn(async () => { throw new TypeError('fetch failed'); });
+    const f = vi.fn(async () => {
+      throw new TypeError('fetch failed');
+    });
     const r = await atualizar({ repos: [R], fetch: f, cacheAnterior: {}, log: log(), agora });
     expect(r).toEqual({});
     expect(f).toHaveBeenCalledTimes(2);

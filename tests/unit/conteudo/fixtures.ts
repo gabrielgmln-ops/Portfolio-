@@ -6,9 +6,22 @@ export const recursos = { artes: { '08-justica.jpg': img('justica') }, verso: im
 
 export function bruto(over: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    titulo: 'X', slug: 'x', ordem: 1, status: 'planejado', trilha: 'bancos', arcano: 'mago',
-    resumo: 'r', papel: 'p', tecnologias: [], competencias: [], prova: 'p', estudoDeCaso: false,
-    ano: 2026, atualizadoEm: '2026-10-21', changelog: [], ...over,
+    titulo: 'X',
+    slug: 'x',
+    ordem: 1,
+    status: 'planejado',
+    trilha: 'bancos',
+    arcano: 'mago',
+    resumo: 'r',
+    papel: 'p',
+    tecnologias: [],
+    competencias: [],
+    prova: 'p',
+    estudoDeCaso: false,
+    ano: 2026,
+    atualizadoEm: '2026-10-21',
+    changelog: [],
+    ...over,
   };
 }
 export function dados(over: Record<string, unknown> = {}): DadosProjeto {

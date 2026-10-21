@@ -5,16 +5,16 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
 
 ## Funções
 
-| Função | Retorno | Garantia |
-|---|---|---|
-| `getProjetosVisiveis()` | `Promise<Project[]>` | só `em-desenvolvimento` e `concluido`; ano desc, depois `ordem` asc |
-| `getRoteiro(n = 4)` | `Promise<Project[]>` | só `planejado`, `ordem` asc, **no máximo 4** (n é limitado a [0, 4]) |
-| `getProjeto(slug)` | `Promise<Project \| undefined>` | um projeto por vez |
-| `getCarta(p)` | `Carta` | planejado → `verso`; em-desenvolvimento → arte (o front aplica o filtro); concluido → `revelada`; `alt` nunca vazio |
-| `getMarcos()` | `Promise<Milestone[]>` | ordem cronológica |
-| `getCompetencias()` | `Promise<Record<string, Project[]>>` | só projetos visíveis |
-| `getPerfil()` | `Perfil` | campos pendentes vêm `undefined` |
-| `enviarContato(dados)` | ver `src/lib/contato.ts` | `{ ok: true } \| { ok: false; erro; campos? }` |
+| Função                  | Retorno                              | Garantia                                                                                                            |
+| ----------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `getProjetosVisiveis()` | `Promise<Project[]>`                 | só `em-desenvolvimento` e `concluido`; ano desc, depois `ordem` asc                                                 |
+| `getRoteiro(n = 4)`     | `Promise<Project[]>`                 | só `planejado`, `ordem` asc, **no máximo 4** (n é limitado a [0, 4])                                                |
+| `getProjeto(slug)`      | `Promise<Project \| undefined>`      | um projeto por vez                                                                                                  |
+| `getCarta(p)`           | `Carta`                              | planejado → `verso`; em-desenvolvimento → arte (o front aplica o filtro); concluido → `revelada`; `alt` nunca vazio |
+| `getMarcos()`           | `Promise<Milestone[]>`               | ordem cronológica                                                                                                   |
+| `getCompetencias()`     | `Promise<Record<string, Project[]>>` | só projetos visíveis                                                                                                |
+| `getPerfil()`           | `Perfil`                             | campos pendentes vêm `undefined`                                                                                    |
+| `enviarContato(dados)`  | ver `src/lib/contato.ts`             | `{ ok: true } \| { ok: false; erro; campos? }`                                                                      |
 
 ## Regras garantidas (com teste)
 
