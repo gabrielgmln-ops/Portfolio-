@@ -47,7 +47,12 @@ CSP `script-src 'self'; style-src 'self'` sem `unsafe-inline`. Exceções: `img-
 placeholder) e `form-action mailto:` (contato). JSON-LD (`application/ld+json`) não é executado e não
 precisa de exceção. **Front-end: `<script is:inline>` e `style=""` violam a CSP e o teste e2e acusa.**
 
-## Deploy (não feito)
+## Deploy
+
+No ar em https://gabriel-moraes-portfolio.vercel.app (projeto Vercel `gabriel-moraes-portfolio`, `SITE_URL` já configurado lá).
+Deploy manual: `npx vercel deploy --prod`. Deploy automático a cada push só depois de instalar o app da Vercel no GitHub.
+
+### Passos originais
 
 1. Importar o repositório na Vercel (framework Astro, comando `pnpm build`, saída `dist`).
 2. Definir `SITE_URL` com o domínio.
