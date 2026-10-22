@@ -5,10 +5,33 @@ ordem: 7
 status: concluido
 trilha: bancos
 arcano: justica
-resumo: '[PENDENTE]'
-papel: '[PENDENTE]'
-tecnologias: []
-competencias: []
+resumo: 'API REST de livro-razão bancário: partidas dobradas, idempotência e saldo protegido sob concorrência.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: definição de requisitos, revisão e estudo do código, testes, documentação e deploy.'
+tecnologias:
+  - Java 21
+  - Spring Boot 3.5
+  - Spring Data JPA
+  - PostgreSQL 16
+  - Flyway
+  - Bean Validation
+  - springdoc-openapi (Swagger)
+  - JUnit 5
+  - Testcontainers
+  - JaCoCo
+  - Docker / Docker Compose
+  - GitHub Actions
+  - Render
+competencias:
+  - Partidas dobradas
+  - Transações ACID
+  - Idempotência (Idempotency-Key)
+  - Controle de concorrência com lock pessimista
+  - Prevenção de deadlock
+  - Auditoria append-only via triggers
+  - Migrações versionadas
+  - Testes de integração com banco real
+  - Tratamento de erros RFC 9457
+  - Deploy em nuvem com CI
 prova: 'Critério de prova: 1.000 transferências simultâneas sem perder um centavo (ainda não medido).'
 resultado: 'Idempotência e bloqueio de saldo negativo verificados na API publicada'
 medidoEm: 2026-10-30
