@@ -1,0 +1,38 @@
+---
+// Competências de uma categoria. Item sem projeto que o comprove não é renderizado.
+import type { Project } from '../lib/conteudo';
+
+interface Props {
+  titulo: string;
+  itens: { nome: string; projeto?: Project | undefined }[];
+}
+const { titulo } = Astro.props;
+const itens = Astro.props.itens.filter((i): i is { nome: string; projeto: Project } => !!i.projeto);
+---
+
+{itens.length > 0 && (
+  <section class="competencias">
+    <h3>{titulo}</h3>
+    <ul>
+      {itens.map((i) => (
+        <li>
+          <a href={`/projetos/${i.projeto.slug}`}>{i.nome}</a>
+          <span class="texto-2"> · {i.projeto.titulo}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .competencias ul {
+    list-style: none;
+    padding: 0;
+    columns: 18rem auto;
+    column-gap: var(--s-6);
+  }
+  .competencias li {
+    break-inside: avoid;
+    padding-block: var(--s-1);
+  }
+</style>

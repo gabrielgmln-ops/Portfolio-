@@ -1,0 +1,59 @@
+---
+import { getPerfil } from '../lib/conteudo';
+const perfil = getPerfil();
+const ano = new Date().getFullYear();
+---
+
+<footer class="rodape">
+  <div class="envoltorio rodape__grade">
+    <ul class="rodape__links">
+      {perfil.email && (
+        <li>
+          <a href={`mailto:${perfil.email}`}>{perfil.email}</a>
+        </li>
+      )}
+      {perfil.github && (
+        <li>
+          <a href={perfil.github.url} rel="me">
+            GitHub · {perfil.github.usuario}
+          </a>
+        </li>
+      )}
+      {perfil.linkedin && (
+        <li>
+          <a href={perfil.linkedin} rel="me">
+            LinkedIn
+          </a>
+        </li>
+      )}
+    </ul>
+    <p class="texto-2">
+      © <span class="mono">{ano}</span>
+      {perfil.nome}. Feito com Astro e TypeScript, CSS próprio e um baralho desenhado para este site; hospedado na
+      Vercel.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .rodape {
+    border-top: var(--traco) solid var(--borda);
+    padding-block: var(--s-6);
+    font-size: var(--t--1);
+  }
+  .rodape__grade {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .rodape__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+  }
+  .rodape p {
+    margin: 0;
+  }
+</style>

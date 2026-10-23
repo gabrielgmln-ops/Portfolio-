@@ -1,0 +1,89 @@
+---
+import type { Milestone } from '../lib/conteudo';
+import { formatarMes, isoData } from '../ui/formato';
+
+interface Props {
+  marcos: Milestone[];
+}
+const { marcos } = Astro.props;
+---
+
+{marcos.length > 0 && (
+  <div class="linha-tempo">
+    <svg class="linha-tempo__eixo" aria-hidden="true" focusable="false" preserveAspectRatio="none" viewBox="0 0 2 100">
+      <line x1="1" y1="0" x2="1" y2="100" />
+    </svg>
+    <ol class="linha-tempo__lista">
+      {marcos.map((m) => (
+        <li class="linha-tempo__marco" data-planejado={m.planejado ? 'sim' : undefined}>
+          <time datetime={isoData(m.data)}>{formatarMes(m.data)}</time>
+          <div>
+            <p class="linha-tempo__titulo">
+              {m.titulo}
+              {m.planejado && <span class="texto-2"> (previsto)</span>}
+            </p>
+            {m.descricao && <p class="texto-2">{m.descricao}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+)}
+
+<style>
+  .linha-tempo {
+    position: relative;
+  }
+  .linha-tempo__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--s-6);
+  }
+  .linha-tempo__eixo {
+    position: absolute;
+    left: calc(var(--s-2) - 1px);
+    top: var(--s-2);
+    bottom: var(--s-2);
+    width: 2px;
+    height: calc(100% - var(--s-4));
+    stroke: var(--acento);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  .linha-tempo__marco {
+    position: relative;
+    display: grid;
+    gap: var(--s-1);
+    padding-bottom: var(--s-5);
+  }
+  .linha-tempo__marco::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--s-6) + var(--s-2) - 5px);
+    top: 0.45em;
+    width: 10px;
+    height: 10px;
+    border: var(--traco-foco) solid var(--acento);
+    background: var(--fundo);
+    transform: rotate(45deg);
+  }
+  .linha-tempo__marco[data-planejado]::before {
+    border-style: dashed;
+    border-width: var(--traco);
+  }
+  .linha-tempo__marco p {
+    margin: 0;
+  }
+  .linha-tempo__titulo {
+    font-weight: 600;
+  }
+  .linha-tempo time {
+    color: var(--acento);
+  }
+  @media (min-width: 48rem) {
+    .linha-tempo__marco {
+      grid-template-columns: 8rem 1fr;
+      gap: var(--s-5);
+    }
+  }
+</style>
