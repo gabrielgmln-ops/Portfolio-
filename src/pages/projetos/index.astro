@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Tiragem from '../../components/Tiragem.astro';
+import Roteiro from '../../components/Roteiro.astro';
+import { getPerfil, getProjetosVisiveis, getRoteiro } from '../../lib/conteudo';
+
+const perfil = getPerfil();
+const visiveis = await getProjetosVisiveis();
+const roteiro = await getRoteiro(4);
+---
+
+<Layout
+  titulo={`Projetos · ${perfil.nome}`}
+  descricao={`Projetos de ${perfil.nome}: cada um com status honesto e, quando concluído, o resultado medido.`}
+>
+  <section class="secao envoltorio" aria-labelledby="titulo-projetos">
+    <h1 id="titulo-projetos">Projetos</h1>
+    <p class="texto-2">A carta só vira quando o projeto tem prova medida.</p>
+    <Tiragem projetos={visiveis} />
+  </section>
+  {roteiro.length > 0 && (
+    <section class="secao envoltorio" aria-labelledby="roteiro-titulo">
+      <h2 id="roteiro-titulo">Próximas cartas</h2>
+      <Roteiro projetos={roteiro} />
+    </section>
+  )}
+</Layout>

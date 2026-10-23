@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Timeline from '../components/Timeline.astro';
+import SkillGroup from '../components/SkillGroup.astro';
+import { getCompetencias, getMarcos, getPerfil, type Project, type Trilha } from '../lib/conteudo';
+
+const perfil = getPerfil();
+const marcos = await getMarcos();
+const competencias = await getCompetencias();
+
+// Categoria = trilha do projeto que comprova a competência (o contrato não tem categoria própria).
+const NOME_TRILHA: Record<Trilha | 'outras', string> = {
+  bancos: 'Bancos e fintechs',
+  cyber: 'Segurança',
+  comex: 'Comércio exterior',
+  variado: 'Geral',
+  outras: 'Outras',
+};
+const grupos = new Map<Trilha | 'outras', { nome: string; projeto: Project | undefined }[]>();
+for (const [nome, projetos] of Object.entries(competencias)) {
+  const projeto = projetos[0];
+  const chave = projeto?.trilha[0] ?? 'outras';
+  if (!grupos.has(chave)) grupos.set(chave, []);
+  grupos.get(chave)?.push({ nome, projeto });
+}
+const formacao = marcos.filter((m) => m.tipo === 'formacao');
+const trajetoria = marcos.filter((m) => m.tipo !== 'formacao');
+---
+
+<Layout titulo={`Sobre · ${perfil.nome}`} descricao={perfil.apresentacao ?? `Sobre ${perfil.nome}.`}>
+  <section class="secao envoltorio" aria-labelledby="titulo-sobre">
+    <h1 id="titulo-sobre">Sobre</h1>
+    {perfil.apresentacao && <p class="abertura">{perfil.apresentacao}</p>}
+  </section>
+
+  {trajetoria.length > 0 && (
+    <section class="secao envoltorio" aria-labelledby="titulo-trajetoria">
+      <h2 id="titulo-trajetoria">Trajetória</h2>
+      <Timeline marcos={trajetoria} />
+    </section>
+  )}
+
+  {formacao.length > 0 && (
+    <section class="secao envoltorio" aria-labelledby="titulo-formacao">
+      <h2 id="titulo-formacao">Formação</h2>
+      <Timeline marcos={formacao} />
+      {perfil.idiomas.length > 0 && (
+        <>
+          <h3>Idiomas</h3>
+          <ul class="idiomas">
+            {perfil.idiomas.map((i) => (
+              <li>
+                {i.idioma} <span class="texto-2">· {i.nivel}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
+  )}
+
+  {grupos.size > 0 && (
+    <section class="secao envoltorio" aria-labelledby="titulo-competencias">
+      <h2 id="titulo-competencias">Competências</h2>
+      <p class="texto-2">Só entra aqui o que um projeto publicado comprova; cada item leva à prova.</p>
+      {[...grupos].map(([chave, itens]) => (
+        <SkillGroup titulo={NOME_TRILHA[chave]} itens={itens} />
+      ))}
+    </section>
+  )}
+</Layout>
+
+<style>
+  .abertura {
+    font-size: var(--t-1);
+    color: var(--texto-2);
+  }
+  .idiomas {
+    list-style: none;
+    padding: 0;
+  }
+</style>
