@@ -1,0 +1,114 @@
+/* Tokens do "Registro". Toda cor, espaço, raio e tempo do site sai daqui.
+   Razões de contraste em docs/design-system.md. */
+
+:root {
+  /* Paleta (fonte única) */
+  --petroleo-950: #0e1b1e;
+  --petroleo-900: #14262a;
+  --petroleo-800: #1a3236;
+  --petroleo-700: #1f3a3e;
+  --ouro: #c2a267;
+  --ouro-escuro: #6e5628;
+  --creme: #efe3c8;
+  --creme-2: #bfb49c;
+  --creme-escuro: #e6d8b8;
+  --cinza-petroleo: #4a5c5e;
+  --vinho: #a4545c;
+  --vinho-claro: #d08a90;
+  --vinho-escuro: #8a3f47;
+
+  /* Tipografia */
+  --fonte-serifa: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --fonte-sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --fonte-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* Escala modular 1,25 */
+  --t--1: 0.8rem;
+  --t-0: 1rem;
+  --t-1: 1.25rem;
+  --t-2: 1.5625rem;
+  --t-3: 1.953rem;
+  --t-4: 2.441rem;
+  --t-5: 3.052rem;
+  --entrelinha-texto: 1.6;
+  --entrelinha-serifa: 1.25;
+  --medida: 68ch;
+
+  /* Espaço: escala de 4 px */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --s-10: 8rem;
+
+  /* Raios: a carta é o único objeto arredondado */
+  --raio-carta: 10px;
+  --raio: 2px;
+  --traco: 1px;
+  --traco-foco: 2px;
+
+  /* Movimento (ver docs/motion.md) */
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --dur-micro: 140ms;
+  --dur-ui: 220ms;
+  --dur-carta: 650ms;
+  --dur-cena: 900ms;
+
+  /* Carta */
+  --carta-largura: 14rem;
+}
+
+/* Semânticos — escuro é o padrão */
+:root,
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+  --fundo: var(--petroleo-900);
+  --superficie: var(--petroleo-700);
+  --superficie-2: var(--petroleo-800);
+  --texto: var(--creme);
+  --texto-2: var(--creme-2);
+  --borda: var(--petroleo-700);
+  --acento: var(--ouro);
+  --foco: var(--ouro);
+  --alerta: var(--vinho-claro);
+  --moldura: var(--ouro);
+  --fundo-og: var(--petroleo-950);
+}
+
+:root[data-tema='claro'] {
+  color-scheme: light;
+  --fundo: var(--creme);
+  --superficie: var(--creme-escuro);
+  --superficie-2: var(--creme-escuro);
+  --texto: var(--petroleo-900);
+  --texto-2: var(--cinza-petroleo);
+  --borda: var(--creme-escuro);
+  --acento: var(--ouro-escuro);
+  --foco: var(--ouro-escuro);
+  --alerta: var(--vinho-escuro);
+  --moldura: var(--ouro);
+}
+
+/* Sem JS e sem preferência salva: segue o sistema */
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema]) {
+    color-scheme: light;
+    --fundo: var(--creme);
+    --superficie: var(--creme-escuro);
+    --superficie-2: var(--creme-escuro);
+    --texto: var(--petroleo-900);
+    --texto-2: var(--cinza-petroleo);
+    --borda: var(--creme-escuro);
+    --acento: var(--ouro-escuro);
+    --foco: var(--ouro-escuro);
+    --alerta: var(--vinho-escuro);
+    --moldura: var(--ouro);
+  }
+}
