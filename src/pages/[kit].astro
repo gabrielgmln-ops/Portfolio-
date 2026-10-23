@@ -1,0 +1,108 @@
+---
+// /_kit — vitrine interna dos componentes (noindex, fora do sitemap).
+// Arquivos com "_" não viram rota no Astro; o parâmetro dinâmico contorna isso.
+import type { GetStaticPaths } from 'astro';
+import Layout from '../layouts/Layout.astro';
+import TarotCard from '../components/TarotCard.astro';
+import Tiragem from '../components/Tiragem.astro';
+import Roteiro from '../components/Roteiro.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import SkillGroup from '../components/SkillGroup.astro';
+import Timeline from '../components/Timeline.astro';
+import CaseStudy from '../components/CaseStudy.astro';
+import Contador from '../components/Contador.astro';
+import { getMarcos, getProjeto, getProjetosVisiveis, getRoteiro } from '../lib/conteudo';
+
+export const getStaticPaths = (() => [{ params: { kit: '_kit' } }]) satisfies GetStaticPaths;
+
+const visiveis = await getProjetosVisiveis();
+const [planejado] = await getRoteiro(1);
+const emDev = visiveis.find((p) => p.status === 'em-desenvolvimento');
+const concluido = visiveis.find((p) => p.status === 'concluido');
+const ledger = await getProjeto('ledger-api');
+const marcos = await getMarcos();
+const exemplos = [planejado, emDev, concluido].filter((p) => p !== undefined);
+---
+
+<Layout titulo="Kit de componentes" descricao="Vitrine interna dos componentes do portfólio." noindex>
+  <div class="envoltorio secao kit">
+    <h1>Kit</h1>
+    <p class="texto-2">Use o botão de tema no topo para conferir os dois temas.</p>
+
+    <h2>TarotCard — três estados</h2>
+    <div class="kit__cartas">
+      {exemplos.map((p) => (
+        <figure>
+          <TarotCard projeto={p} />
+          <figcaption class="mono">data-estado: {p.status}</figcaption>
+        </figure>
+      ))}
+    </div>
+    <p class="kit__nome-14">Nome da carta a 14 px: A Justiça · O Louco · A Roda da Fortuna</p>
+
+    <h2>StatusBadge</h2>
+    <p class="kit__linha">
+      <StatusBadge status="planejado" />
+      <StatusBadge status="em-desenvolvimento" />
+      <StatusBadge status="concluido" />
+    </p>
+
+    <h2>Tiragem</h2>
+    <Tiragem projetos={visiveis} />
+    <h3>Tiragem com uma carta</h3>
+    <Tiragem projetos={visiveis.slice(0, 1)} />
+
+    <h2>Roteiro</h2>
+    <Roteiro idTitulo="kit-roteiro" />
+    <span id="kit-roteiro" class="sr-only">
+      Roteiro de exemplo
+    </span>
+
+    <h2>SkillGroup</h2>
+    {ledger && (
+      <SkillGroup titulo="Exemplo" itens={ledger.competencias.slice(0, 4).map((nome) => ({ nome, projeto: ledger }))} />
+    )}
+
+    <h2>Timeline</h2>
+    <Timeline marcos={marcos} />
+
+    <h2>CaseStudy + Contador</h2>
+    {ledger && (
+      <CaseStudy
+        secoes={[
+          { id: 'kit-contexto', titulo: 'Contexto', texto: ledger.resumo },
+          { id: 'kit-vazio', titulo: 'Seção vazia (não aparece)' },
+          { id: 'resultado', titulo: 'Resultado' },
+        ]}
+      >
+        <Contador slot="resultado" projeto={ledger} />
+      </CaseStudy>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .kit h2 {
+    margin-top: var(--s-8);
+  }
+  .kit__cartas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-6);
+  }
+  .kit__cartas figure {
+    margin: 0;
+    display: grid;
+    gap: var(--s-3);
+    justify-items: center;
+  }
+  .kit__nome-14 {
+    font-family: var(--fonte-serifa);
+    font-size: 0.875rem;
+  }
+  .kit__linha {
+    display: flex;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+</style>

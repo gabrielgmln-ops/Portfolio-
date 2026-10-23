@@ -1,0 +1,96 @@
+---
+// Estudo de caso. A ordem das seções é fixa; seção sem conteúdo não aparece (nem no índice).
+interface Secao {
+  id: string;
+  titulo: string;
+  texto?: string | undefined;
+  lista?: string[] | undefined;
+}
+interface Props {
+  secoes: Secao[];
+}
+
+const temSlot = (id: string): boolean => Astro.slots.has(id);
+const secoes = Astro.props.secoes.filter((s) => !!s.texto || !!s.lista?.length || temSlot(s.id));
+const htmlSlots = new Map<string, string>();
+for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots.render(s.id));
+---
+
+{secoes.length > 0 && (
+  <div class="estudo">
+    {secoes.length > 1 && (
+      <nav class="estudo__indice" aria-label="Nesta página">
+        <ol>
+          {secoes.map((s) => (
+            <li>
+              <a href={`#${s.id}`}>{s.titulo}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    <div class="estudo__corpo">
+      {secoes.map((s) => (
+        <section class="estudo__secao" id={s.id} aria-labelledby={`${s.id}-t`} data-revelar>
+          <h2 id={`${s.id}-t`}>{s.titulo}</h2>
+          {s.texto && <p>{s.texto}</p>}
+          {s.lista && s.lista.length > 0 && (
+            <ul>
+              {s.lista.map((x) => (
+                <li>{x}</li>
+              ))}
+            </ul>
+          )}
+          {htmlSlots.has(s.id) && <Fragment set:html={htmlSlots.get(s.id)} />}
+        </section>
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .estudo {
+    display: grid;
+    gap: var(--s-6);
+  }
+  @media (min-width: 64rem) {
+    .estudo {
+      grid-template-columns: 12rem 1fr;
+      gap: var(--s-8);
+    }
+    .estudo__indice {
+      position: sticky;
+      top: var(--s-9);
+      align-self: start;
+    }
+  }
+  .estudo__indice ol {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--s-4);
+    border-left: var(--traco) solid var(--borda);
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--t--1);
+  }
+  .estudo__indice a {
+    color: var(--texto-2);
+    text-decoration: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .estudo__indice a:hover {
+      color: var(--acento);
+    }
+  }
+  .estudo__secao {
+    padding-bottom: var(--s-6);
+    scroll-margin-top: var(--s-9);
+  }
+  .estudo__secao h2 {
+    font-size: var(--t-2);
+  }
+  .estudo__secao ul {
+    padding-left: var(--s-5);
+    max-width: var(--medida);
+  }
+</style>

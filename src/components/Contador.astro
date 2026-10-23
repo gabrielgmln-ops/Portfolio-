@@ -1,0 +1,53 @@
+---
+// Resultado medido. O texto final está no HTML; o script M7 só reescreve os dígitos.
+import type { Project } from '../lib/conteudo';
+import { formatarData, isoData, partirResultado } from '../ui/formato';
+
+interface Props {
+  projeto: Project;
+}
+const { projeto } = Astro.props;
+const partes = partirResultado(projeto);
+---
+
+{projeto.resultado && (
+  <div class="resultado">
+    {partes ? (
+      <p class="resultado__texto" aria-live="off">
+        <span aria-hidden="true">
+          {partes.antes}
+          <span class="resultado__numero" data-contador={projeto.resultadoNumero} data-final={partes.numero}>
+            {partes.numero}
+          </span>
+          {partes.depois}
+        </span>
+        <span class="sr-only">{projeto.resultado}</span>
+      </p>
+    ) : (
+      <p class="resultado__texto">{projeto.resultado}</p>
+    )}
+    {projeto.medidoEm && (
+      <p class="texto-2">
+        Medido em <time datetime={isoData(projeto.medidoEm)}>{formatarData(projeto.medidoEm)}</time>
+      </p>
+    )}
+  </div>
+)}
+
+<style>
+  .resultado__texto {
+    font-family: var(--fonte-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--t-1);
+    line-height: 1.4;
+    color: var(--acento);
+  }
+  .resultado__numero {
+    font-size: var(--t-3);
+    display: inline-block;
+  }
+</style>
+
+<script>
+  import '../scripts/motion/contador';
+</script>
