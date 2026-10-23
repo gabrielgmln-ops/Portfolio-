@@ -1,24 +1,52 @@
 ---
-// Placeholder de D até o front-end entregar a 404 real.
-import { getPerfil } from '../lib/conteudo';
+import { Picture } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import { getCarta, getPerfil, getProjeto } from '../lib/conteudo';
+
 const perfil = getPerfil();
+const louco = await getProjeto('portfolio');
+const carta = louco ? getCarta(louco) : undefined;
 ---
 
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:," />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="Página não encontrada." />
-    <title>Página não encontrada · {perfil.nome}</title>
-  </head>
-  <body>
-    <main>
+<Layout titulo={`Página não encontrada · ${perfil.nome}`} descricao="Página não encontrada." noindex>
+  <section class="secao envoltorio nao-achada">
+    {carta && (
+      <div class="nao-achada__carta carta-errada" aria-hidden="true">
+        <Picture src={carta.imagem} alt="" formats={['avif', 'webp']} widths={[320, 480]} sizes="12rem" />
+      </div>
+    )}
+    <div>
       <h1>Página não encontrada</h1>
+      <p>Esta carta não está no baralho.</p>
       <p>
         <a href="/">Voltar ao início</a>
       </p>
-    </main>
-  </body>
-</html>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .nao-achada {
+    display: grid;
+    gap: var(--s-7);
+    align-items: center;
+    justify-items: start;
+  }
+  @media (min-width: 48rem) {
+    .nao-achada {
+      grid-template-columns: auto 1fr;
+    }
+  }
+  .nao-achada__carta {
+    width: 12rem;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: var(--raio-carta);
+    border: var(--traco) solid var(--ouro);
+  }
+  .nao-achada__carta :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

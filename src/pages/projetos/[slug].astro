@@ -1,0 +1,174 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import TarotCard from '../../components/TarotCard.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import CaseStudy from '../../components/CaseStudy.astro';
+import Contador from '../../components/Contador.astro';
+import { getPerfil, getProjeto, getProjetosVisiveis, type Project } from '../../lib/conteudo';
+import { formatarData, isoData } from '../../ui/formato';
+
+export const getStaticPaths = (async () => {
+  const visiveis = await getProjetosVisiveis();
+  return visiveis.map((p) => ({ params: { slug: p.slug } }));
+}) satisfies GetStaticPaths;
+
+const { slug } = Astro.params;
+const projeto = (await getProjeto(slug)) as Project;
+const perfil = getPerfil();
+
+// Só campos do contrato; o que não existe não vira seção (CaseStudy as filtra).
+const secoes = [
+  { id: 'contexto', titulo: 'Contexto', texto: projeto.resumo },
+  { id: 'contribuicao', titulo: 'Minha contribuição', texto: projeto.papel },
+  { id: 'testes', titulo: 'Testes', texto: projeto.prova },
+  { id: 'resultado', titulo: 'Resultado' },
+];
+const descricao = projeto.resumo ?? `${projeto.arcano.nome} — ${projeto.titulo}, projeto de ${perfil.nome}.`;
+---
+
+<Layout titulo={`${projeto.titulo} · ${perfil.nome}`} descricao={descricao} og={`/og/${projeto.slug}.png`}>
+  <article class="envoltorio projeto">
+    <header class="projeto__topo">
+      <div class="projeto__capa">
+        <TarotCard projeto={projeto} semLink prioridade transicao={`carta-${projeto.slug}`} sizes="16rem" />
+      </div>
+      <div class="projeto__dados">
+        <p class="projeto__arcano">
+          <span class="mono">{projeto.arcano.numeral}</span>
+          {projeto.arcano.nome}
+        </p>
+        <h1>{projeto.titulo}</h1>
+        <dl class="ficha">
+          <dt>Status</dt>
+          <dd>
+            <StatusBadge status={projeto.status} />
+          </dd>
+          <dt>Atualizado</dt>
+          <dd>
+            <time datetime={isoData(projeto.atualizadoEm)}>{formatarData(projeto.atualizadoEm)}</time>
+          </dd>
+          {projeto.tecnologias.length > 0 && (
+            <>
+              <dt>Stack</dt>
+              <dd>
+                <ul class="stack">
+                  {projeto.tecnologias.map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+              </dd>
+            </>
+          )}
+          {projeto.github && (
+            <>
+              <dt>Último commit</dt>
+              <dd>
+                <time datetime={isoData(projeto.github.ultimoCommit)}>{formatarData(projeto.github.ultimoCommit)}</time>
+              </dd>
+            </>
+          )}
+        </dl>
+        {(projeto.repo || projeto.demo) && (
+          <p class="projeto__acoes">
+            {projeto.repo && (
+              <a class="botao" href={projeto.repo}>
+                Repositório
+              </a>
+            )}
+            {projeto.demo && (
+              <a class="botao" href={projeto.demo}>
+                Demo
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </header>
+
+    <CaseStudy secoes={secoes}>{projeto.resultado && <Contador slot="resultado" projeto={projeto} />}</CaseStudy>
+
+    {projeto.changelog.length > 0 && (
+      <section class="secao" aria-labelledby="titulo-changelog">
+        <h2 id="titulo-changelog">Changelog</h2>
+        <ol class="changelog">
+          {[...projeto.changelog]
+            .sort((a, b) => b.data.getTime() - a.data.getTime())
+            .map((c) => (
+              <li>
+                <time datetime={isoData(c.data)}>{isoData(c.data)}</time>
+                <span>{c.texto}</span>
+              </li>
+            ))}
+        </ol>
+      </section>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .projeto {
+    padding-block: var(--s-7);
+  }
+  .projeto__topo {
+    display: grid;
+    gap: var(--s-6);
+    margin-bottom: var(--s-8);
+  }
+  @media (min-width: 48rem) {
+    .projeto__topo {
+      grid-template-columns: auto 1fr;
+      gap: var(--s-8);
+      align-items: start;
+    }
+  }
+  .projeto__capa {
+    --carta-largura: 16rem;
+    justify-self: center;
+  }
+  .projeto__arcano {
+    font-family: var(--fonte-serifa);
+    color: var(--acento);
+    margin-bottom: var(--s-2);
+  }
+  .ficha {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--s-2) var(--s-5);
+    align-items: baseline;
+  }
+  .ficha dt {
+    color: var(--texto-2);
+  }
+  .ficha dd {
+    margin: 0;
+  }
+  .stack {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-3);
+    font-family: var(--fonte-mono);
+    font-size: var(--t--1);
+  }
+  .projeto__acoes {
+    display: flex;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+  .changelog {
+    list-style: none;
+    padding: 0;
+    font-family: var(--fonte-mono);
+    font-size: var(--t--1);
+    display: grid;
+    gap: var(--s-2);
+  }
+  .changelog li {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: var(--s-4);
+  }
+</style>
