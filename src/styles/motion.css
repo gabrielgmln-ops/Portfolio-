@@ -1,0 +1,61 @@
+/* Movimento declarativo: M5 (View Transitions), M6 (revelação por rolagem), M8 (404).
+   M1–M4 e M7 vivem em src/scripts/motion/. Tabela completa em docs/motion.md. */
+
+/* M5 — a carta vira a capa; o resto faz crossfade curto */
+::view-transition-group(*) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-in-out-cubic);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+}
+
+/* M6 — revelação no estudo de caso. Sem suporte, tudo fica visível (nenhuma regra se aplica). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-revelar] {
+      animation: revelar linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+@keyframes revelar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* M8 — a carta da 404 se endireita só até 172° e fica "errada" */
+.carta-errada {
+  transform: rotate(172deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .carta-errada {
+    animation: endireitar var(--dur-carta) var(--ease-out-quart) both;
+  }
+}
+@keyframes endireitar {
+  from {
+    transform: rotate(180deg);
+  }
+}
+
+/* Redução de movimento: estados finais direto, sem !important */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+}
