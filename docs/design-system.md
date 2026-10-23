@@ -64,3 +64,15 @@ Foco: anel de 2 px em `--foco` com 3 px de offset (ouro no escuro: 6,46:1; ouro-
 ## Movimento
 
 Tokens `--ease-*` e `--dur-*` — detalhes em `docs/motion.md`.
+
+## Verificação por grep
+
+Comando: `grep -rnoE "#[0-9a-fA-F]{3,6}|rgba?\(" src/components src/layouts src/pages src/styles`, excluindo `tokens.css`.
+
+Resultado: 3 ocorrências, todas exceções justificadas:
+
+- `#000` (2×) na `mask` do brilho M4: é um canal alfa, não uma cor exibida.
+- `#14262A` em `<meta name="theme-color">`: o atributo HTML não aceita `var()`.
+- As cores da imagem OG (`src/pages/og/`) espelham os tokens, porque o PNG não lê CSS.
+
+Valores em px fora dos tokens: só geometria de movimento e do leque (`--dy` 0 a 10px, elevação de −6px, `perspective`) e traços de 1–2px. É o que a especificação de movimento pede.
