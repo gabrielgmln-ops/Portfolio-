@@ -48,9 +48,12 @@ const projetos = Astro.props.projetos ?? (await getProjetosVisiveis());
     font-family: var(--fonte-serifa);
     font-size: var(--t-1);
   }
-  .tiragem[data-qtd='1'],
-  .tiragem[data-qtd='2'] {
-    justify-content: center;
+  /* Centraliza sem cortar a primeira carta quando o trilho transborda */
+  .tiragem__item:first-child {
+    margin-inline-start: auto;
+  }
+  .tiragem__item:last-child {
+    margin-inline-end: auto;
   }
 
   /* Desktop: leque determinístico pelo índice (−3° a 3°, deslocamento pequeno) */

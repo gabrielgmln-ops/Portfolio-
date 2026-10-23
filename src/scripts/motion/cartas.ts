@@ -73,7 +73,16 @@ const observador =
       )
     : undefined;
 
+/* M5 — nome da View Transition aplicado via CSSOM: o transition:name do Astro gera <style> inline, que a CSP bloqueia */
+function nomearTransicoes(): void {
+  for (const el of document.querySelectorAll<HTMLElement>('[data-vt]')) {
+    el.style.setProperty('view-transition-name', el.dataset['vt'] ?? 'none');
+  }
+}
+document.addEventListener('astro:after-swap', nomearTransicoes);
+
 aCadaPagina(() => {
+  nomearTransicoes();
   for (const carta of document.querySelectorAll<HTMLAnchorElement>('a[data-carta]')) {
     if (carta.dataset['pronta'] !== undefined) continue;
     carta.dataset['pronta'] = '';

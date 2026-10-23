@@ -10,7 +10,7 @@ if (!site) {
 
 export default defineConfig({
   ...(site ? { site } : {}),
-  integrations: [mdx(), ...(site ? [sitemap()] : [])],
+  integrations: [mdx(), ...(site ? [sitemap({ filter: (p) => !p.includes('/_kit') })] : [])],
   // CSP sem 'unsafe-inline': nada de CSS/JS inline gerado pelo Astro.
   build: { inlineStylesheets: 'never' },
   vite: { build: { assetsInlineLimit: 0 } },

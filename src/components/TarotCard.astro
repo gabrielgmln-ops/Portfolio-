@@ -40,7 +40,7 @@ const carregamento = prioridade ? 'eager' : 'lazy';
   data-carta
   href={href}
   aria-label={href ? nomeAcessivel(projeto) : undefined}
-  transition:name={transicao as string}
+  data-vt={transicao}
 >
   <div class="carta__corpo" data-carta-corpo>
     <div class="carta__face carta__face--frente" aria-hidden={carta.estado === 'verso' ? 'true' : undefined}>
@@ -193,7 +193,7 @@ const carregamento = prioridade ? 'eager' : 'lazy';
   }
   .carta__selo {
     position: absolute;
-    top: 16%;
+    bottom: calc(5% + 2.6rem);
     left: 50%;
     transform: translateX(-50%);
   }

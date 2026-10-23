@@ -12,7 +12,14 @@ const carta = louco ? getCarta(louco) : undefined;
   <section class="secao envoltorio nao-achada">
     {carta && (
       <div class="nao-achada__carta carta-errada" aria-hidden="true">
-        <Picture src={carta.imagem} alt="" formats={['avif', 'webp']} widths={[320, 480]} sizes="12rem" />
+        <Picture
+          src={carta.imagem}
+          alt=""
+          formats={['avif', 'webp']}
+          widths={[320, 480]}
+          sizes="12rem"
+          loading="eager"
+        />
       </div>
     )}
     <div>
