@@ -35,7 +35,7 @@ function distribuir(lista: HTMLElement): void {
     const dy = oy - (r.top + r.height / 2);
     const final = getComputedStyle(li).transform;
     const fim = final === 'none' ? 'translate(0px, 0px)' : final;
-    const a = li.animate([{ transform: `translate(${dx}px, ${dy}px) rotate(6deg) scale(0.7)` }, { transform: fim }], {
+    const a = li.animate([{ transform: `translate(${dx}px, ${dy}px) rotate(6deg)` }, { transform: fim }], {
       duration: DURACAO,
       delay: i * INTERVALO,
       easing,
@@ -51,9 +51,21 @@ function distribuir(lista: HTMLElement): void {
   });
 }
 
+/** Carrega e decodifica as faces antes da distribuição: sem isso, a 1ª virada pagava ~30 ms de raster na GPU. */
+function prepararFaces(lista: HTMLElement): void {
+  const ocioso = window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 200));
+  ocioso(() => {
+    for (const img of lista.querySelectorAll<HTMLImageElement>('img')) {
+      img.loading = 'eager';
+      img.decode().catch(() => undefined);
+    }
+  });
+}
+
 aCadaPagina(() => {
   const lista = document.querySelector<HTMLElement>('[data-tiragem="distribuir"]');
   if (!lista || movimentoReduzido() || jaDistribuida() || !('IntersectionObserver' in window)) return;
+  prepararFaces(lista);
   const obs = new IntersectionObserver(
     (entradas) => {
       if (!entradas.some((e) => e.isIntersecting)) return;
