@@ -13,5 +13,6 @@ export default defineConfig({
   integrations: [mdx(), ...(site ? [sitemap({ filter: (p) => !p.includes('/_kit') })] : [])],
   // CSP sem 'unsafe-inline': nada de CSS/JS inline gerado pelo Astro.
   build: { inlineStylesheets: 'never' },
-  vite: { build: { assetsInlineLimit: 0 } },
+  // Um CSS só: menos requisições bloqueando o primeiro paint (a CSP impede CSS crítico inline).
+  vite: { build: { assetsInlineLimit: 0, cssCodeSplit: false } },
 });

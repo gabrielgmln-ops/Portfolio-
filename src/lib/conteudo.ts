@@ -1,6 +1,6 @@
 // CONTRATO com o front-end. Importe somente daqui.
 import type { ImageMetadata } from 'astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import * as core from './conteudo-core';
 import { lerGithub } from './github';
 import { validarColecao } from './validacao';
@@ -43,4 +43,21 @@ export async function getMarcos(): Promise<Milestone[]> {
 }
 export async function getCompetencias(): Promise<Record<string, Project[]>> {
   return core.competencias(await getProjetosVisiveis());
+}
+
+export interface Estudo {
+  /** componente do corpo MDX já renderizável */
+  Conteudo: Awaited<ReturnType<typeof render>>['Content'];
+  /** títulos de nível 2, com o id gerado pelo Astro, para o índice */
+  secoes: { id: string; titulo: string }[];
+}
+/** Corpo do MDX do projeto (seções escritas à mão). undefined se ausente ou com [PENDENTE]. */
+export async function getEstudo(slug: string): Promise<Estudo | undefined> {
+  const e = (await entradas()).find((x) => x.data.slug === slug);
+  if (!e || !core.corpoPublicavel(e.body)) return undefined;
+  const { Content, headings } = await render(e as Parameters<typeof render>[0]);
+  return {
+    Conteudo: Content,
+    secoes: headings.filter((h) => h.depth === 2).map((h) => ({ id: h.slug, titulo: h.text })),
+  };
 }

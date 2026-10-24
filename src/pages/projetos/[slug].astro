@@ -5,7 +5,7 @@ import TarotCard from '../../components/TarotCard.astro';
 import StatusBadge from '../../components/StatusBadge.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
 import Contador from '../../components/Contador.astro';
-import { getPerfil, getProjeto, getProjetosVisiveis, type Project } from '../../lib/conteudo';
+import { getEstudo, getPerfil, getProjeto, getProjetosVisiveis, type Project } from '../../lib/conteudo';
 import { formatarData, isoData } from '../../ui/formato';
 
 export const getStaticPaths = (async () => {
@@ -16,12 +16,14 @@ export const getStaticPaths = (async () => {
 const { slug } = Astro.params;
 const projeto = (await getProjeto(slug)) as Project;
 const perfil = getPerfil();
+const estudo = await getEstudo(slug);
 
 // Só campos do contrato; o que não existe não vira seção (CaseStudy as filtra).
 const secoes = [
   { id: 'contexto', titulo: 'Contexto', texto: projeto.resumo },
   { id: 'contribuicao', titulo: 'Minha contribuição', texto: projeto.papel },
-  { id: 'testes', titulo: 'Testes', texto: projeto.prova },
+  // Com corpo escrito, a prova detalhada está nele; o resumo de `prova` só aparece sem corpo.
+  { id: 'testes', titulo: 'Testes', texto: estudo ? undefined : projeto.prova },
   { id: 'resultado', titulo: 'Resultado' },
 ];
 const descricao = projeto.resumo ?? `${projeto.arcano.nome} — ${projeto.titulo}, projeto de ${perfil.nome}.`;
@@ -85,7 +87,10 @@ const descricao = projeto.resumo ?? `${projeto.arcano.nome} — ${projeto.titulo
       </div>
     </header>
 
-    <CaseStudy secoes={secoes}>{projeto.resultado && <Contador slot="resultado" projeto={projeto} />}</CaseStudy>
+    <CaseStudy secoes={secoes} corpo={estudo?.secoes}>
+      {estudo && <estudo.Conteudo slot="corpo" />}
+      {projeto.resultado && <Contador slot="resultado" projeto={projeto} />}
+    </CaseStudy>
 
     {projeto.changelog.length > 0 && (
       <section class="secao" aria-labelledby="titulo-changelog">

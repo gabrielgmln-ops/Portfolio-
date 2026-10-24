@@ -1,6 +1,6 @@
 # Issues para o back-end (abertas pelo front)
 
-1. **O corpo do MDX está fora do contrato.**
+1. ~~**O corpo do MDX está fora do contrato.**~~ **Resolvida em 23/10 (contrato v1.2, `getEstudo`).** O corpo aparece entre "Minha contribuição" e "Resultado"; com corpo, a seção curta "Testes" (`prova`) sai para não repetir.
    - O `CaseStudy` precisa de Problema, Decisões, Testes, Limitações e Próximos passos.
    - Esse conteúdo existe no corpo do MDX (ex.: `ledger-api.mdx` tem "Teste de fumaça" e "Teste de concorrência"), mas `getProjeto()` não o expõe.
    - Hoje a página do projeto mostra só Contexto (`resumo`), Minha contribuição (`papel`), Testes (`prova`) e Resultado.

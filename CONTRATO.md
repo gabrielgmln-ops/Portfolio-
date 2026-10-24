@@ -14,6 +14,7 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
 | `getMarcos()`           | `Promise<Milestone[]>`               | ordem cronológica                                                                                                   |
 | `getCompetencias()`     | `Promise<Record<string, Project[]>>` | só projetos visíveis                                                                                                |
 | `getPerfil()`           | `Perfil`                             | campos pendentes vêm `undefined`                                                                                    |
+| `getEstudo(slug)`       | `Promise<Estudo \| undefined>`       | corpo MDX renderizável + títulos `##` com id; `undefined` se vazio ou com qualquer `[PENDENTE]`                     |
 | `enviarContato(dados)`  | ver `src/lib/contato.ts`             | `{ ok: true } \| { ok: false; erro; campos? }`                                                                      |
 
 ## Regras garantidas (com teste)
@@ -36,3 +37,5 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
   - `validarContato` devolve `{ ok: true }` sem `dados` quando o honeypot vem preenchido (descarte silencioso).
   - SEO: `src/lib/seo.ts` (`jsonLdPerson()`, metas OG/canonical) para o layout do front usar.
   - Restrições da CSP para o front: nada de `<script is:inline>` nem atributo `style`.
+- 2026-10-23 · v1.2
+  - `getEstudo(slug)`: expõe o corpo do MDX ao estudo de caso (issue 1 do front). Corpo com `[PENDENTE]` não é publicado (`corpoPublicavel`, com teste).

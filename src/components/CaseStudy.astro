@@ -8,20 +8,30 @@ interface Secao {
 }
 interface Props {
   secoes: Secao[];
+  /** títulos do corpo MDX (slot "corpo"), entram no índice antes do Resultado */
+  corpo?: { id: string; titulo: string }[];
 }
 
 const temSlot = (id: string): boolean => Astro.slots.has(id);
 const secoes = Astro.props.secoes.filter((s) => !!s.texto || !!s.lista?.length || temSlot(s.id));
+const corpo = Astro.slots.has('corpo') ? (Astro.props.corpo ?? []) : [];
+const htmlCorpo = Astro.slots.has('corpo') ? await Astro.slots.render('corpo') : undefined;
+// O corpo entra antes do Resultado (ou no fim, se não houver Resultado).
+const posCorpo = (() => {
+  const i = secoes.findIndex((s) => s.id === 'resultado');
+  return i < 0 ? secoes.length : i;
+})();
+const indice = [...secoes.slice(0, posCorpo), ...corpo, ...secoes.slice(posCorpo)];
 const htmlSlots = new Map<string, string>();
 for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots.render(s.id));
 ---
 
-{secoes.length > 0 && (
+{(secoes.length > 0 || htmlCorpo) && (
   <div class="estudo">
-    {secoes.length > 1 && (
+    {indice.length > 1 && (
       <nav class="estudo__indice" aria-label="Nesta página">
         <ol>
-          {secoes.map((s) => (
+          {indice.map((s) => (
             <li>
               <a href={`#${s.id}`}>{s.titulo}</a>
             </li>
@@ -30,20 +40,24 @@ for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots
       </nav>
     )}
     <div class="estudo__corpo">
-      {secoes.map((s) => (
-        <section class="estudo__secao" id={s.id} aria-labelledby={`${s.id}-t`} data-revelar>
-          <h2 id={`${s.id}-t`}>{s.titulo}</h2>
-          {s.texto && <p>{s.texto}</p>}
-          {s.lista && s.lista.length > 0 && (
-            <ul>
-              {s.lista.map((x) => (
-                <li>{x}</li>
-              ))}
-            </ul>
-          )}
-          {htmlSlots.has(s.id) && <Fragment set:html={htmlSlots.get(s.id)} />}
-        </section>
+      {secoes.map((s, i) => (
+        <>
+          {i === posCorpo && htmlCorpo && <div class="estudo__mdx" data-revelar set:html={htmlCorpo} />}
+          <section class="estudo__secao" id={s.id} aria-labelledby={`${s.id}-t`} data-revelar>
+            <h2 id={`${s.id}-t`}>{s.titulo}</h2>
+            {s.texto && <p>{s.texto}</p>}
+            {s.lista && s.lista.length > 0 && (
+              <ul>
+                {s.lista.map((x) => (
+                  <li>{x}</li>
+                ))}
+              </ul>
+            )}
+            {htmlSlots.has(s.id) && <Fragment set:html={htmlSlots.get(s.id)} />}
+          </section>
+        </>
       ))}
+      {posCorpo === secoes.length && htmlCorpo && <div class="estudo__mdx" data-revelar set:html={htmlCorpo} />}
     </div>
   </div>
 )}
@@ -88,6 +102,24 @@ for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots
   }
   .estudo__secao h2 {
     font-size: var(--t-2);
+  }
+  .estudo__mdx {
+    padding-bottom: var(--s-6);
+  }
+  .estudo__mdx :global(h2) {
+    font-size: var(--t-2);
+    margin-top: var(--s-6);
+    scroll-margin-top: var(--s-9);
+  }
+  .estudo__mdx :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .estudo__mdx :global(ul) {
+    padding-left: var(--s-5);
+    max-width: var(--medida);
+  }
+  .estudo__mdx :global(li + li) {
+    margin-top: var(--s-2);
   }
   .estudo__secao ul {
     padding-left: var(--s-5);

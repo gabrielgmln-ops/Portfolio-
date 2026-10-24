@@ -130,3 +130,8 @@ export function marcos(ms: readonly { data: DadosMarco }[]): Milestone[] {
     }))
     .sort((a, b) => a.data.getTime() - b.data.getTime());
 }
+
+/** O corpo do MDX só é publicado se existir e não tiver nenhum [PENDENTE] (não há como omitir só um trecho). */
+export function corpoPublicavel(body: string | undefined): boolean {
+  return !!body?.trim() && !body.includes(PENDENTE);
+}
