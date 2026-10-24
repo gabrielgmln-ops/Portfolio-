@@ -40,8 +40,18 @@ Quadro a quadro com `requestAnimationFrame`, no Chromium headless do Playwright,
 | M3, inclinação (40 movimentos de mouse) | 16,8 ms                       | 0               |
 | M1 + M2, distribuição e virada          | 16,8 ms                       | 0               |
 
-**Ainda não feito:** gravação no painel Performance do Chrome DevTools numa máquina real com GPU. Como fazer:
+### Gravação com GPU real (23/10/2026)
 
-1. Rode `pnpm preview`.
-2. Abra o DevTools → Performance e comece a gravar.
-3. Passe o mouse nas cartas e recarregue a home numa aba anônima.
+Trace do DevTools (`devtools.timeline` + `gpu` + `viz`) num Chrome visível, com a GPU desta máquina (ANGLE, AMD Radeon RX 5500 XT, D3D11), em 1440×900. Script: `scripts/gravar-traces.mjs`. Os traces brutos ficam em `qa/traces/` (fora do git, ~30 MB); abra-os no painel Performance do DevTools.
+
+| Cena                                         | Maior tarefa na main thread | Tarefas > 16,7 ms | Maior intervalo entre quadros | Quadros > 25 ms |
+| -------------------------------------------- | --------------------------- | ----------------- | ----------------------------- | --------------- |
+| M3, inclinação (120 movimentos de mouse)     | 4,1 ms                      | 0                 | 30,3 ms                       | 1               |
+| M2, virada de todas as cartas                | 1,3 ms                      | 0                 | 13,6 ms                       | 0               |
+| M1, distribuição + virada (antes do ajuste)  | 3,3 ms                      | 0                 | 33,5 ms                       | 2               |
+| M1, distribuição + virada (depois do ajuste) | 3,8 ms                      | 0                 | 30,4 ms                       | 1               |
+
+**Nenhum quadro longo é causado por JavaScript:** a main thread nunca passa de 4,1 ms.
+
+- **M1.** Os dois quadros lentos eram raster na GPU (`RendererRasterWorker`, 15 e 32 ms): as faces da carta eram decodificadas e rasterizadas na hora em que começavam a se mover. Agora as imagens da tiragem são carregadas e decodificadas em tempo ocioso, antes da distribuição, e o `scale()` saiu dos keyframes. Sobrou 1 quadro de ~30 ms, ~295 ms após o início, quando o verso vira para a tela e a GPU rasteriza essa camada 3D pela primeira vez.
+- **M3.** O único quadro de 30 ms não tem tarefa longa em nenhuma thread; foi o ritmo dos eventos de mouse sintéticos do Playwright.
