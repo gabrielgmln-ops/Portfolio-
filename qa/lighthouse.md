@@ -31,3 +31,21 @@ Rode em ambiente limpo: na CI do GitHub Actions ou numa máquina onde o antivír
 ```bash
 pnpm build && pnpm lhci
 ```
+
+## Nova medição — 23/10/2026, à noite (scripts do antivírus bloqueados)
+
+Lighthouse 12.6.1 mobile, rodado direto com `--blocked-url-patterns="*kaspersky-labs.com*"` para simular uma máquina limpa, contra `dist/` servido com os cabeçalhos do `vercel.json`.
+
+Mudanças desde a primeira medição:
+
+- CSS num arquivo só (`cssCodeSplit: false`): eram 4–5 folhas bloqueando o primeiro paint, a ~300 ms cada.
+- O verso da carta (face escondida) passou a carregar com `loading="lazy"` e `fetchpriority="low"`: antes disputava banda com a arte.
+- A carta da abertura usa `sizes="16rem"`; AVIF/WebP com `quality=60`.
+
+| Página               | Perf | A11y | Best Pr. | SEO | LCP   |
+| -------------------- | ---- | ---- | -------- | --- | ----- |
+| /                    | 95   | 100  | 100      | 100 | 2.7 s |
+| /projetos            | 97   | 100  | 100      | 100 | 2.2 s |
+| /projetos/ledger-api | 98   | 100  | 100      | 100 | 2.2 s |
+
+Sem o antivírus, Best Practices vai a 100. A confirmação final continua sendo `pnpm lhci` na CI.
