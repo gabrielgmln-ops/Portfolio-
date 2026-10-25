@@ -16,7 +16,7 @@ const roteiro = await getRoteiro(4);
   <section class="secao envoltorio" aria-labelledby="titulo-projetos">
     <h1 id="titulo-projetos">Projetos</h1>
     <p class="texto-2">A carta só vira quando o projeto tem prova medida.</p>
-    <Tiragem projetos={visiveis} />
+    <Tiragem projetos={visiveis} prioritarias={2} />
   </section>
   {roteiro.length > 0 && (
     <section class="secao envoltorio" aria-labelledby="roteiro-titulo">

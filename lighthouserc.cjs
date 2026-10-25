@@ -8,6 +8,9 @@ function config({ desktop }) {
     ci: {
       collect: {
         staticDistDir: './dist',
+        // Lista explícita das páginas públicas: sem ela, o lhci pega os 5 primeiros .html (incluía a /_kit,
+        // interna e noindex, e deixava /sobre e /projetos/portfolio de fora).
+        url: ['/', '/sobre/', '/projetos/', '/projetos/ledger-api/', '/projetos/portfolio/', '/404.html'],
         numberOfRuns: 1,
         ...(process.env.CHROME_PATH ? { chromePath: process.env.CHROME_PATH } : {}),
         settings: {

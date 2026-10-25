@@ -8,16 +8,18 @@ interface Props {
   projetos?: Project[];
   /** liga a distribuição M1 (só na home) */
   distribuir?: boolean;
+  /** quantas cartas iniciais estão acima da dobra (carregam sem lazy) */
+  prioritarias?: number;
 }
-const { distribuir = false } = Astro.props;
+const { distribuir = false, prioritarias = 0 } = Astro.props;
 const projetos = Astro.props.projetos ?? (await getProjetosVisiveis());
 ---
 
 {projetos.length > 0 && (
   <ul class="tiragem" data-qtd={projetos.length} data-tiragem={distribuir ? 'distribuir' : undefined}>
-    {projetos.map((p) => (
+    {projetos.map((p, i) => (
       <li class="tiragem__item">
-        <TarotCard projeto={p} transicao={`carta-${p.slug}`} />
+        <TarotCard projeto={p} transicao={`carta-${p.slug}`} prioridade={i < prioritarias} />
         <p class="tiragem__legenda">{p.titulo}</p>
       </li>
     ))}
