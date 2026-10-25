@@ -49,3 +49,12 @@ Mudanças desde a primeira medição:
 | /projetos/ledger-api | 98   | 100  | 100      | 100 | 2.2 s |
 
 Sem o antivírus, Best Practices vai a 100. A confirmação final continua sendo `pnpm lhci` na CI.
+
+## CI do GitHub Actions — 25/10/2026, commit db06e3e (fonte oficial)
+
+`pnpm lhci` passou: 6 páginas × 3 execuções, mobile e desktop, todas as asserções ≥ 95 (a 404 é isenta de SEO por ser `noindex`).
+
+Mediana no desktop: 100 / 100 / 100 / 100 em `/`, `/sobre/`, `/projetos/`, `/projetos/ledger-api/` e `/projetos/portfolio/`; a 404 fica em 100 / 100 / 100 / 63.
+Os relatórios do mobile não ficaram no artefato (só os do último `autorun`), mas a etapa passou, então todas as categorias ficaram ≥ 95.
+
+O que levou a CI ao verde: lista explícita das páginas públicas (antes a `/_kit`, interna, entrava na auditoria), cartas acima da dobra sem lazy em `/projetos`, preload da fonte do texto (o parágrafo de abertura era o LCP da home) e mediana de 3 execuções.
