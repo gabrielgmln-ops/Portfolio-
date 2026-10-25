@@ -51,7 +51,7 @@ Foco: anel de 2 px em `--foco` com 3 px de offset (ouro no escuro: 6,46:1; ouro-
   Newsreader foi desenhada para texto em tela (eixo óptico), mantém serifas de inscrição e continua nítida a 14 px. Itálico 400 só para citações.
 - **Sans: Source Sans 3** 400/600 para texto corrido.
 - **Mono: IBM Plex Mono** 400 com `tabular-nums` para datas, status e resultados.
-- Woff2 do Fontsource, só subset `latin` (cobre o português), `font-display: swap`, preload apenas da serifa 500.
+- Woff2 do Fontsource, só subset `latin` (cobre o português), `font-display: swap`, preload da serifa 500 e da sans 400 (o parágrafo de abertura costuma ser o LCP).
 - Escala modular 1,25: `--t--1` 0,8 · `--t-0` 1 · `--t-1` 1,25 · `--t-2` 1,563 · `--t-3` 1,953 · `--t-4` 2,441 · `--t-5` 3,052 rem.
 - Entrelinha 1,6 no texto, 1,25 na serifa; `--medida: 68ch` limita a linha.
 

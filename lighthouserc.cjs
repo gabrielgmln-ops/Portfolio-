@@ -11,7 +11,8 @@ function config({ desktop }) {
         // Lista explícita das páginas públicas: sem ela, o lhci pega os 5 primeiros .html (incluía a /_kit,
         // interna e noindex, e deixava /sobre e /projetos/portfolio de fora).
         url: ['/', '/sobre/', '/projetos/', '/projetos/ledger-api/', '/projetos/portfolio/', '/404.html'],
-        numberOfRuns: 1,
+        // Mediana de 3 execuções: uma só oscilava até 9 pontos entre commits idênticos.
+        numberOfRuns: 3,
         ...(process.env.CHROME_PATH ? { chromePath: process.env.CHROME_PATH } : {}),
         settings: {
           ...(desktop ? { preset: 'desktop' } : {}),

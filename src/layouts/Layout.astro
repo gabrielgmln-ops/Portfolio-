@@ -1,6 +1,8 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import serifa from '@fontsource/newsreader/files/newsreader-latin-500-normal.woff2?url';
+// O parágrafo de abertura costuma ser o LCP: a sans do texto também vem em preload.
+import sans from '@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2?url';
 import { getPerfil } from '../lib/conteudo';
 import { jsonLdPerson, metaPagina, serializarJsonLd } from '../lib/seo';
 import Header from '../components/Header.astro';
@@ -34,6 +36,7 @@ const ld = pessoa ? serializarJsonLd(jsonLdPerson(perfil, Astro.site)) : undefin
     <script is:inline src="/tema.js"></script>
     <link rel="icon" href="data:," />
     <link rel="preload" href={serifa} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
     <title>{meta.titulo}</title>
     <meta name="description" content={descricao} />
     {noindex && <meta name="robots" content="noindex" />}
