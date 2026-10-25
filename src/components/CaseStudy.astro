@@ -9,7 +9,7 @@ interface Secao {
 interface Props {
   secoes: Secao[];
   /** títulos do corpo MDX (slot "corpo"), entram no índice antes do Resultado */
-  corpo?: { id: string; titulo: string }[];
+  corpo?: { id: string; titulo: string }[] | undefined;
 }
 
 const temSlot = (id: string): boolean => Astro.slots.has(id);
