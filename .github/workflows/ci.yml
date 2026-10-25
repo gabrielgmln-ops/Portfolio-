@@ -66,3 +66,5 @@ jobs:
             test-results/
             .lighthouseci/
           if-no-files-found: ignore
+          # .lighthouseci começa com ponto: a v4 ignora pastas ocultas sem isto.
+          include-hidden-files: true
