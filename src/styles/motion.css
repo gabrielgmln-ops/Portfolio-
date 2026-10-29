@@ -1,5 +1,6 @@
-/* Movimento declarativo: M5 (View Transitions), M6 (revelação por rolagem), M8 (404).
-   M1–M4 e M7 vivem em src/scripts/motion/. Tabela completa em docs/motion.md. */
+/* Movimento declarativo: View Transitions, revelação do estudo de caso e carta da 404.
+   O resto (abertura, letreiro, Lenis, revelações, contadores, log, cursor) vive em src/scripts/motion/.
+   Inventário completo em docs/motion.md. */
 
 /* M5 — a carta vira a capa; o resto faz crossfade curto */
 ::view-transition-group(*) {
@@ -54,8 +55,9 @@
     scroll-behavior: auto;
   }
 }
+/* rolagem suave nativa só sem a Lenis (sem JS); com js-motion a Lenis conduz e o smooth nativo atrapalharia */
 @media (prefers-reduced-motion: no-preference) {
-  html:focus-within {
+  html:not(.js-motion):focus-within {
     scroll-behavior: smooth;
   }
 }

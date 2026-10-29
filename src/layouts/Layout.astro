@@ -55,6 +55,11 @@ const ld = pessoa ? serializarJsonLd(jsonLdPerson(perfil, Astro.site)) : undefin
     <meta name="theme-color" content="#0c1717" />
     {ld && <script type="application/ld+json" is:inline set:html={ld} />}
     <ClientRouter />
+    <script>
+      // Movimento: ativar.ts liga html.js-motion já no <head>; index.ts cuida do resto (docs/motion.md).
+      import '../scripts/motion/ativar';
+      import '../scripts/motion/index';
+    </script>
   </head>
   <body>
     <a class="pular skip" href="#conteudo">

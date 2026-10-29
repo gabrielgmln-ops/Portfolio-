@@ -1,50 +1,37 @@
-// Utilidades de movimento: preferência do usuário e animações interrompíveis.
+// Utilidades de movimento: preferência do usuário, gancho por página e um laço rAF único sob demanda.
 const reduzir = matchMedia('(prefers-reduced-motion: reduce)');
 export const movimentoReduzido = (): boolean => reduzir.matches;
 export const ponteiroFino = (): boolean => matchMedia('(hover: hover) and (pointer: fine)').matches;
+/** html.js-motion presente = há JS e não há redução de movimento. */
+export const comMovimento = (): boolean => document.documentElement.classList.contains('js-motion');
 
-/** Executa uma vez por página (inclusive após navegação do ClientRouter). */
+/** Executa a cada página (carga inicial e cada navegação do ClientRouter). */
 export function aCadaPagina(fn: () => void): void {
   document.addEventListener('astro:page-load', fn);
 }
 
-const emCurso = new Map<Animation, number>();
-const GRACA_ROLAGEM = 250;
-/** Registra a animação: clique, tecla ou rolagem a levam ao estado final. */
-export function interrompivel(a: Animation, el?: HTMLElement): Animation {
-  emCurso.set(a, performance.now());
-  if (el) el.style.willChange = 'transform';
-  const limpar = (): void => {
-    emCurso.delete(a);
-    if (el) el.style.removeProperty('will-change');
-  };
-  a.addEventListener('finish', limpar);
-  a.addEventListener('cancel', limpar);
-  return a;
-}
-export function terminarTudo(e?: Event): void {
-  // A rolagem que acabou de trazer o elemento à tela não conta como interrupção.
-  const rolagem = e?.type === 'wheel' || e?.type === 'touchstart';
-  const agora = performance.now();
-  for (const [a, inicio] of [...emCurso]) {
-    if (rolagem && agora - inicio < GRACA_ROLAGEM) continue;
-    try {
-      a.finish();
-    } catch {
-      a.cancel();
-    }
-  }
-}
-for (const tipo of ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const) {
-  addEventListener(tipo, terminarTudo, { capture: true, passive: true });
-}
+export const easeOutQuart = (t: number): number => 1 - (1 - Math.min(1, Math.max(0, t))) ** 4;
 
-/** Aproximação de --ease-out-expo para animações feitas em rAF. */
-export const easeOutExpo = (t: number): number => (t >= 1 ? 1 : 1 - 2 ** (-10 * t));
-
-export function lerVar(nome: string, el: Element = document.documentElement): string {
-  return getComputedStyle(el).getPropertyValue(nome).trim();
+/** Tarefa de quadro: devolve true enquanto ainda precisa de quadros. */
+export type Tarefa = (t: number, dt: number) => boolean;
+const tarefas = new Set<Tarefa>();
+let id = 0;
+let antes = 0;
+function tick(t: number): void {
+  id = 0;
+  const dt = antes ? Math.min(t - antes, 50) : 16.7;
+  antes = t;
+  let mais = false;
+  for (const f of tarefas) if (f(t, dt)) mais = true;
+  if (mais) id = requestAnimationFrame(tick);
+  else antes = 0;
 }
-export function duracao(nome: string): number {
-  return parseFloat(lerVar(nome)) || 0;
+/** Acorda o laço; ele dorme sozinho quando nenhuma tarefa precisa de quadros. */
+export function acordar(): void {
+  if (!id) id = requestAnimationFrame(tick);
+}
+export function registrar(f: Tarefa): () => void {
+  tarefas.add(f);
+  acordar();
+  return () => tarefas.delete(f);
 }
