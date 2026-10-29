@@ -1,0 +1,100 @@
+---
+titulo: 'Gateway de Segurança'
+slug: gateway-seguranca
+ordem: 5
+status: concluido
+trilha: [cyber, bancos]
+arcano: imperador
+resumo: 'Gateway de API em Go na frente da Ledger, do Pix e do Antifraude: OAuth2/JWT, escopos, rate limiting no Redis, bloqueio de IP e logs.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Go 1.26+
+  - chi
+  - golang-jwt v5
+  - Redis 7
+  - PostgreSQL 16
+  - Docker Compose
+  - GitHub Actions
+  - govulncheck
+competencias:
+  - Reverse proxy
+  - OAuth2 client_credentials e JWT
+  - Autorização por escopo
+  - Rate limiting com token bucket
+  - OWASP API Security Top 10
+  - Logs de segurança
+prova: 'Teste de fumaça com Ledger, Pix e Antifraude reais: 25 de 25 verificações.'
+resultado: '25 de 25 verificações no teste de fumaça com Ledger, Pix e Antifraude reais'
+resultadoNumero: 25
+medidoEm: 2026-10-29
+metricas:
+  - numero: 25
+    sufixo: '/25'
+    rotulo: 'verificações com os serviços reais'
+  - numero: 95
+    sufixo: '%'
+    rotulo: 'cobertura de testes'
+  - numero: 3
+    rotulo: 'serviços protegidos'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Go (testado em 1.26 e 1.27)'
+  - rotulo: 'Estado'
+    valor: 'Redis 7 + PostgreSQL 16'
+  - rotulo: 'Testes'
+    valor: 'Detector de corrida, 95% de cobertura'
+  - rotulo: 'Entrega'
+    valor: 'Docker Compose; CI com govulncheck'
+stackCurta: 'Go · chi · Redis · PostgreSQL'
+linhaIndice: 'Fumaça 25/25 com Ledger, Pix e Antifraude reais; 95% de cobertura'
+repo: 'https://github.com/gabrielgmln-ops/Gateway-de-Seguran-a'
+githubRepo: 'gabrielgmln-ops/Gateway-de-Seguran-a'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-29
+changelog:
+  - data: 2026-10-29
+    texto: 'Etapa 6: serviços reais; teste de fumaça 25/25.'
+---
+
+## Problema
+
+Três serviços internos (Ledger, Pix e Antifraude) não deveriam ser expostos direto. Toda requisição externa precisa ser autenticada, autorizada, limitada e registrada antes de chegar a eles. Só dados sintéticos.
+
+## Como funciona
+
+- **Proxy:** `/ledger/*`, `/pix/*` e `/antifraude/*` vão para os serviços internos. O gateway apaga o `Authorization` e qualquer `X-Gateway-*` do cliente e repassa a identidade validada.
+- **Autenticação:** `POST /oauth/token` (client_credentials) emite JWT de 15 min; `alg:none` e troca de algoritmo são recusados.
+- **Autorização:** cada serviço tem uma lista fechada de rotas, cada uma com seu escopo. Fora da lista: 404; método errado: 405; sem escopo: 403.
+- **Rate limit:** token bucket num script Lua atômico no Redis, por IP, por cliente e no `/oauth`.
+- **Bloqueio de IP:** 5 falhas em 10 min bloqueiam o IP por 15 min.
+- **Log de segurança:** JSON no stdout e tabela `security_events` no PostgreSQL.
+
+## Decisões
+
+- HS256, porque o próprio gateway emite e valida os tokens; RS256 com JWKS fica para quando outros serviços precisarem validar.
+- SHA-256 em vez de bcrypt para os segredos de cliente: são aleatórios de 32 bytes, e o bcrypt abriria um vetor de DoS por CPU.
+- Falha fechada quando o Redis cai (503): segurança acima de disponibilidade.
+- Conta de serviço na Ledger com papel de cliente, não de operador (privilégio mínimo).
+
+## Testes
+
+- Testes com detector de corrida em Go 1.26 e 1.27; 95% de cobertura com PostgreSQL real.
+- CI no GitHub Actions com govulncheck, testes nas duas versões e build Docker.
+- Teste de fumaça versionado em `scripts/fumaca-servicos-reais.sh`.
+
+## Resultado
+
+Teste de fumaça com Ledger, Pix e Antifraude reais: 25 de 25 verificações, repetido com a conta de serviço própria do gateway. Inclui acesso sem token (401), token só de leitura tentando escrever (403), rotas internas invisíveis (404) e um Pix liquidado com os saldos conferidos na Ledger. A senha de serviço aparece zero vezes no log.
+
+## Limitações
+
+- Sem revogação de token antes do vencimento (o tempo de vida curto mitiga).
+- Bloqueio por IP exato; em IPv6, o ideal é por prefixo /64.
+- Para a Ledger e o Pix, todos os clientes do gateway são a mesma conta de serviço: a checagem de posse por cliente (BOLA) só fecha nos serviços donos do dado.
+
+## Próximos passos
+
+- Fazer a Ledger checar a posse pelo `X-Gateway-Client-ID`.

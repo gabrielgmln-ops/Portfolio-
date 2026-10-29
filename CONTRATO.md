@@ -39,3 +39,8 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
   - Restrições da CSP para o front: nada de `<script is:inline>` nem atributo `style`.
 - 2026-10-23 · v1.2
   - `getEstudo(slug)`: expõe o corpo do MDX ao estudo de caso (issue 1 do front). Corpo com `[PENDENTE]` não é publicado (`corpoPublicavel`, com teste).
+- 2026-10-29 · v1.3
+  - `Project` ganha campos opcionais: `metricas?: { numero; casas?; prefixo?; sufixo?; rotulo }[]` (só com status `concluido`, como `resultado`), `ficha?: { rotulo; valor }[]`, `stackCurta?: string` e `linhaIndice?: string` (≤ 90 caracteres).
+  - Item de `ficha` com `[PENDENTE]` é retirado inteiro; `metricas` só chega quando `concluido`.
+  - Novo arcano `imperatriz` (III). Mapeamento: I Mago → motor-antifraude, II Sacerdotisa → operacao-cofre, III Imperatriz → pix-simulado, IV Imperador → gateway-seguranca, V Hierofante → devsecops-siem. Planejados remanejados: comex-stat → lua, agendamento → forca, assistente-aduaneiro → torre.
+  - Artes 01–05 declaradas como `.png`; enquanto o arquivo não existir, a carta usa o verso. O glob das cartas aceita `*.{jpg,png}`.

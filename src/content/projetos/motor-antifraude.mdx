@@ -1,0 +1,111 @@
+---
+titulo: 'Motor Antifraude'
+slug: motor-antifraude
+ordem: 2
+status: concluido
+trilha: [bancos, cyber]
+arcano: mago
+resumo: 'Motor antifraude em tempo real: lê transações do Kafka, aplica regras e IsolationForest e classifica em aprovada, suspeita ou bloqueada.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - FastAPI
+  - Kafka (confluent-kafka, KRaft)
+  - scikit-learn (IsolationForest)
+  - PostgreSQL 16
+  - Docker Compose
+  - pytest
+  - GitHub Actions
+competencias:
+  - Streaming de eventos com Kafka
+  - Detecção de anomalia
+  - Regras antifraude
+  - Métricas de precisão e recall
+  - Processamento idempotente
+  - Testes de integração com banco real
+prova: 'Precisão e recall medidos sobre 18.890 transações sintéticas com 300 fraudes.'
+resultado: 'Manda para revisão a maioria das fraudes e, quando bloqueia, quase nunca erra: recall de 82,7% nas sinalizadas e precisão de 88,4% nas bloqueadas'
+resultadoNumero: 82.7
+medidoEm: 2026-10-26
+metricas:
+  - numero: 82.7
+    casas: 1
+    sufixo: '%'
+    rotulo: 'recall das fraudes sinalizadas'
+  - numero: 88.4
+    casas: 1
+    sufixo: '%'
+    rotulo: 'precisão quando bloqueia'
+  - numero: 18890
+    rotulo: 'transações sintéticas avaliadas'
+  - numero: 95
+    sufixo: '%'
+    rotulo: 'cobertura de testes'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Python 3.12'
+  - rotulo: 'Mensageria'
+    valor: 'Kafka (KRaft)'
+  - rotulo: 'Modelo'
+    valor: 'Regras + IsolationForest (scikit-learn)'
+  - rotulo: 'Testes'
+    valor: '60 unitários + 2 de integração, 95% de cobertura'
+stackCurta: 'Python · FastAPI · Kafka · scikit-learn'
+linhaIndice: 'Recall de 82,7% nas sinalizadas; 88,4% de precisão ao bloquear'
+repo: 'https://github.com/gabrielgmln-ops/motor-antifraude'
+githubRepo: 'gabrielgmln-ops/motor-antifraude'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-29
+changelog:
+  - data: 2026-10-26
+    texto: 'Etapas 0 a 7 prontas, CI verde e avaliação sobre 18.890 transações sintéticas.'
+---
+
+## Problema
+
+Um banco precisa decidir, a cada transação, se ela passa, vai para revisão ou é barrada, sem esperar um processamento em lote. O motor faz isso em tempo real para transações no formato da Ledger API, usando só dados sintéticos.
+
+## Como funciona
+
+- Lê as transações de um tópico Kafka.
+- **Regras:** valor acima do percentil 99 da conta, horário entre 0h e 5h (hora de São Paulo) e mais de 4 transações em 10 minutos.
+- **Modelo:** IsolationForest com 5 indicadores sem unidade, como a razão entre o valor e a mediana da conta e a hora do dia. Dinheiro nunca vira float.
+- **Classificação:** 2 ou mais sinais, ou 1 regra confirmada pelo modelo, bloqueiam. Um sinal sozinho deixa a transação SUSPEITA. Sem sinais, ela é APROVADA.
+- **Painel:** `/painel` e `/metricas` mostram precisão, recall e a matriz de confusão.
+
+## Decisões
+
+- O banco não duplica decisões: reprocessar a mesma mensagem não tem efeito.
+- O Kafka só confirma a leitura depois que a decisão foi gravada.
+- Regras explicáveis combinadas com um modelo de anomalia, em vez de só uma das duas coisas.
+
+## Testes
+
+- 60 testes unitários e 2 de integração com PostgreSQL, 95% de cobertura.
+- CI no GitHub Actions: lint, testes, integração com PostgreSQL e avaliação do modelo.
+- Validado de ponta a ponta na máquina: 4.406 transações passaram pelo Kafka, foram decididas e gravadas.
+
+## Resultado
+
+Sobre 18.890 transações sintéticas com 300 fraudes:
+
+| Visão                              | Precisão | Recall |
+| ---------------------------------- | -------- | ------ |
+| Sinalizadas (suspeita + bloqueada) | 27,1%    | 82,7%  |
+| Só bloqueadas                      | 88,4%    | 38,0%  |
+
+O motor manda para revisão a maioria das fraudes e, quando bloqueia, quase nunca erra.
+
+## Limitações
+
+- A precisão das sinalizadas tem um teto natural: a regra do percentil 99 sempre marca cerca de 1% das transações legítimas.
+- O histórico de cada conta fica na memória de um processo só.
+- Mensagens inválidas vão para o log em vez de uma fila de mensagens mortas.
+- Leva cerca de 8 ms por transação, a maior parte no modelo.
+
+## Próximos passos
+
+- Fazer a Ledger API publicar os eventos de verdade no tópico `transacoes.eventos`.

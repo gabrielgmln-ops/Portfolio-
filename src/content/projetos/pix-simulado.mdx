@@ -1,0 +1,108 @@
+---
+titulo: 'Pix Simulado'
+slug: pix-simulado
+ordem: 4
+status: concluido
+trilha: bancos
+arcano: imperatriz
+resumo: 'Pagamentos instantâneos inspirados no Pix sobre a Ledger API: chaves, QR Code, pagamento idempotente e devolução, com dados sintéticos.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Kotlin 2.1
+  - Spring Boot 3.5
+  - PostgreSQL 16
+  - Flyway
+  - ZXing (QR Code)
+  - JUnit 5
+  - Testcontainers
+  - WireMock
+  - GitHub Actions
+  - Gitleaks
+competencias:
+  - Integração entre serviços
+  - Idempotência ponta a ponta (EndToEndId)
+  - BR Code EMV com CRC16
+  - Controle de acesso anti-IDOR
+  - Reconciliação de estados incertos
+  - Meta de cobertura que trava o build
+prova: 'Roteiro ponta a ponta contra a Ledger real: 16 de 16 verificações.'
+resultado: '16 de 16 verificações ponta a ponta contra a Ledger real, com 201 testes verdes'
+resultadoNumero: 16
+medidoEm: 2026-10-29
+metricas:
+  - numero: 201
+    rotulo: 'testes verdes'
+  - numero: 96.4
+    casas: 1
+    sufixo: '%'
+    rotulo: 'de linhas cobertas'
+  - numero: 83.9
+    casas: 1
+    sufixo: '%'
+    rotulo: 'de ramos cobertos'
+  - numero: 16
+    sufixo: '/16'
+    rotulo: 'verificações contra a Ledger real'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Kotlin 2.1 (Java 21)'
+  - rotulo: 'Banco'
+    valor: 'PostgreSQL 16 + Flyway'
+  - rotulo: 'Testes'
+    valor: 'JUnit 5, Testcontainers, WireMock'
+  - rotulo: 'Entrega'
+    valor: 'GitHub Actions com Gitleaks e imagem Docker'
+stackCurta: 'Kotlin · Spring Boot · PostgreSQL'
+linhaIndice: '16/16 verificações contra a Ledger real; 201 testes, 96,4% de linhas'
+repo: 'https://github.com/gabrielgmln-ops/Pix-Simulado-'
+githubRepo: 'gabrielgmln-ops/Pix-Simulado-'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-29
+changelog:
+  - data: 2026-10-28
+    texto: 'Etapas 0 a 5 prontas: 201 testes, 96,4% de linhas e 83,9% de ramos.'
+  - data: 2026-10-29
+    texto: 'Ponta a ponta contra a Ledger real: 16 de 16.'
+---
+
+## Problema
+
+Um pagamento instantâneo precisa debitar uma vez só, mesmo com repetição, timeout ou concorrência, e não pode deixar alguém pagar com a conta de outro. O Pix Simulado implementa isso usando a Ledger API como motor de saldo, com dados sintéticos e sem integração real com o Banco Central.
+
+## Como funciona
+
+- **Chaves:** CPF (módulo 11), e-mail e aleatória (UUID v4 gerada pelo servidor); até 5 chaves ativas por conta, com advisory lock do PostgreSQL contra corrida.
+- **QR Code:** BR Code estático no padrão EMV com CRC16, validado byte a byte contra o exemplo oficial do manual do Bacen; QR adulterado é recusado.
+- **Pagamento:** por chave ou por QR. O EndToEndId, no formato do Bacen, é a chave de idempotência enviada à Ledger.
+- **Devolução:** nova transferência inversa na Ledger; o pagamento original nunca muda. Devoluções parciais até o valor pago, em até 90 dias.
+
+## Decisões
+
+- O E2E é gerado pelo Pix, como faz o PSP pagador real, e não escolhido pelo cliente.
+- No timeout, o Pix nunca assume que falhou: o pagamento fica INCERTO e a reconciliação reenvia com a mesma chave.
+- A chamada à Ledger acontece dentro da transação que trava o pagamento: serializa repetições do mesmo E2E, ao custo de prender uma conexão até o timeout.
+- Dinheiro em BigDecimal e NUMERIC(19,2); valor com mais de 2 casas é recusado, nunca arredondado.
+- Pagar e consultar exigem o titular (anti-IDOR); cadastrar, excluir e listar chaves exigem o dono da conta (anti-sequestro de chave).
+
+## Testes
+
+- 201 testes verdes: unitários e de integração com PostgreSQL real (Testcontainers) e a Ledger simulada por WireMock.
+- 96,4% de linhas e 83,9% de ramos; o build falha abaixo de 90% de linhas ou 80% de ramos.
+- Com 20 requisições simultâneas e o mesmo E2E, a Ledger recebe uma única chamada. 20 devoluções simultâneas de R$ 10 num Pix de R$ 100 liquidam exatamente 10.
+- CI no GitHub Actions com testes, imagem Docker e Gitleaks.
+
+## Resultado
+
+Ponta a ponta contra a Ledger real, 16 de 16 verificações: pagamento por QR liquidado, repetição idempotente devolvendo a mesma transação, saldo insuficiente recusado, devolução parcial, bloqueios anti-IDOR e anti-sequestro de chave, e saldos conferidos na Ledger a cada passo.
+
+## Limitações
+
+- Sem autenticação própria de clientes e sem integração real com o Banco Central.
+- Só dados sintéticos.
+
+## Próximos passos
+
+- Publicar a versão da Ledger API com autenticação, da qual o fluxo ponta a ponta depende.

@@ -48,6 +48,20 @@ export const projetoBaseSchema = z.object({
   resultado: z.string().optional(),
   resultadoNumero: z.number().optional(),
   medidoEm: z.coerce.date().optional(),
+  metricas: z
+    .array(
+      z.object({
+        numero: z.number(),
+        casas: z.number().int().min(0).max(4).optional(),
+        prefixo: z.string().optional(),
+        sufixo: z.string().optional(),
+        rotulo: z.string().min(1),
+      }),
+    )
+    .optional(),
+  ficha: z.array(z.object({ rotulo: z.string().min(1), valor: z.string().min(1) })).optional(),
+  stackCurta: z.string().optional(),
+  linhaIndice: z.string().max(90).optional(),
   repo: urlOuPendente.optional(),
   githubRepo: z
     .string()
@@ -71,6 +85,12 @@ export function refinarProjeto(d: DadosProjeto, ctx: z.RefinementCtx, aviso: Avi
       code: 'custom',
       path: ['resultado'],
       message: 'regra 1: "resultado" só é permitido com status "concluido"',
+    });
+  if (d.metricas !== undefined && d.status !== 'concluido')
+    ctx.addIssue({
+      code: 'custom',
+      path: ['metricas'],
+      message: '"metricas" só é permitido com status "concluido"',
     });
   if (d.status === 'concluido' && (d.resultado === undefined || d.medidoEm === undefined))
     ctx.addIssue({

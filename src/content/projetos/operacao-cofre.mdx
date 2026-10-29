@@ -1,0 +1,99 @@
+---
+titulo: 'Operação Cofre'
+slug: operacao-cofre
+ordem: 3
+status: concluido
+trilha: [cyber, bancos]
+arcano: sacerdotisa
+resumo: 'Auditoria AppSec da própria Ledger API em 5 classes de vulnerabilidade: 2 falhas altas corrigidas, cada uma com teste que prova a correção.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Java 21
+  - Spring Boot 3.5
+  - Spring Security
+  - PostgreSQL
+  - JUnit 5
+  - Testcontainers
+  - sqlmap
+competencias:
+  - Auditoria de segurança de aplicação (AppSec)
+  - Controle de acesso e prevenção de IDOR
+  - Proteção contra força bruta
+  - Classificação de severidade com CVSS
+  - Respostas de erro sem vazamento (RFC 9457)
+  - Testes de segurança automatizados
+prova: 'Relatório AppSec com CVSS por vulnerabilidade e um teste automatizado para cada correção.'
+resultado: '2 falhas altas corrigidas (IDOR, CVSS 8.1; força bruta, CVSS 7.5), cada uma com teste que prova a correção'
+resultadoNumero: 2
+medidoEm: 2026-10-26
+metricas:
+  - numero: 5
+    rotulo: 'classes de vulnerabilidade auditadas'
+  - numero: 2
+    rotulo: 'falhas altas corrigidas'
+  - numero: 44
+    rotulo: 'testes, 0 falhas'
+ficha:
+  - rotulo: 'Alvo'
+    valor: 'Ledger API (aplicação própria)'
+  - rotulo: 'Escopo'
+    valor: 'Ambiente local, dados sintéticos'
+  - rotulo: 'Ferramentas'
+    valor: 'Spring Security, JUnit 5, Testcontainers, sqlmap'
+  - rotulo: 'Entrega'
+    valor: 'Relatório em docs/RELATORIO-APPSEC.md'
+stackCurta: 'Java · Spring Security · sqlmap'
+linhaIndice: '5 classes auditadas; IDOR e força bruta corrigidos com teste'
+repo: 'https://github.com/gabrielgmln-ops/Projeto-B-A'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-29
+changelog:
+  - data: 2026-10-26
+    texto: 'Relatório AppSec concluído; 44 testes, 0 falhas.'
+  - data: 2026-10-29
+    texto: 'Correções commitadas no repositório da Ledger API.'
+---
+
+## Problema
+
+A Ledger API movimenta dinheiro. Antes de ligar outros serviços a ela, era preciso saber se resistia às falhas mais comuns em sistemas financeiros. A auditoria é defensiva, sobre a própria aplicação, só em ambiente local e com dados sintéticos.
+
+## Como funciona
+
+Cinco classes de vulnerabilidade, analisadas no código. Onde já estava seguro, um teste prova; onde havia falha, ela foi corrigida e um teste prova a correção.
+
+| Classe                    | Situação encontrada                 | Severidade       | Status                           |
+| ------------------------- | ----------------------------------- | ---------------- | -------------------------------- |
+| Injeção de SQL            | Já imune (consultas parametrizadas) | —                | Verificado, inclusive com sqlmap |
+| IDOR / controle de acesso | Vulnerável (conta sem dono)         | Alta — CVSS 8.1  | Corrigido                        |
+| Condição de corrida       | Já protegida (lock pessimista)      | —                | Verificado                       |
+| Força bruta no login      | Lacuna (sem rate limiting)          | Alta — CVSS 7.5  | Corrigido                        |
+| Vazamento em erros        | Parcial (401/403 sem padrão)        | Baixa — CVSS 3.7 | Endurecido                       |
+
+## Decisões
+
+- **Base:** Spring Security com HTTP Basic stateless e senhas em BCrypt.
+- **IDOR:** cada conta tem dono; o cliente só vê e movimenta as próprias contas. Conta alheia responde 404 na leitura (anti-enumeração) e 403 na operação.
+- **Força bruta:** bloqueio progressivo por usuário; a janela dobra a cada falha, até um teto.
+- **Erros:** 401/403 em `application/problem+json` genérico (RFC 9457), sem stack trace nem SQL; o login não distingue usuário inexistente de senha errada.
+
+## Testes
+
+- Um teste por classe: `InjecaoSqlTest`, `ControleDeAcessoIdorTest`, `ForcaBrutaLoginTest`, `RespostaErroSegurancaTest` e os testes de concorrência que já existiam.
+- `./mvnw -B verify`: 44 testes, 0 falhas, cobertura ≥ 80%.
+
+## Resultado
+
+Duas falhas altas corrigidas (IDOR e força bruta), cada uma com teste que prova a correção; uma de severidade baixa endurecida; duas classes confirmadas como já protegidas. O relatório completo, com CVSS, impacto, correção e teste de cada item, está em `docs/RELATORIO-APPSEC.md` no repositório da Ledger API.
+
+## Limitações
+
+- Escopo restrito ao ambiente local e a dados sintéticos.
+- A demo pública da Ledger API ainda roda a versão anterior, sem autenticação.
+
+## Próximos passos
+
+- Publicar a versão endurecida da Ledger API.

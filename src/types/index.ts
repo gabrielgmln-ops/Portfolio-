@@ -7,6 +7,7 @@ export type ArcanoId =
   | 'louco'
   | 'mago'
   | 'sacerdotisa'
+  | 'imperatriz'
   | 'imperador'
   | 'hierofante'
   | 'enamorados'
@@ -36,6 +37,17 @@ export interface GithubInfo {
   linguagens: Record<string, number>;
   buscadoEm: Date;
 }
+export interface Metrica {
+  numero: number;
+  casas?: number;
+  prefixo?: string;
+  sufixo?: string;
+  rotulo: string;
+}
+export interface LinhaFicha {
+  rotulo: string;
+  valor: string;
+}
 export interface Project {
   slug: string;
   titulo: string;
@@ -54,6 +66,11 @@ export interface Project {
   resultado?: string;
   resultadoNumero?: number;
   medidoEm?: Date;
+  /** só com status concluido */
+  metricas?: Metrica[];
+  ficha?: LinhaFicha[];
+  stackCurta?: string;
+  linhaIndice?: string;
   repo?: string;
   demo?: string;
   destaque?: 'principal' | 'secundario';

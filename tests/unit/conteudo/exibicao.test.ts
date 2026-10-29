@@ -67,3 +67,30 @@ describe('regras de exibição', () => {
     for (const c of [pl, ok, dev]) expect(c.alt.length).toBeGreaterThan(0);
   });
 });
+
+describe('v1.3: campos novos em montarProjeto', () => {
+  it('propaga metricas/ficha/stackCurta/linhaIndice e omite [PENDENTE]', () => {
+    const p = core.montarProjeto(
+      {
+        id: 'x',
+        data: dados({
+          status: 'concluido',
+          resultado: 'r',
+          medidoEm: '2026-10-29',
+          metricas: [{ numero: 33, rotulo: 'testes' }],
+          ficha: [
+            { rotulo: 'Banco', valor: 'PostgreSQL' },
+            { rotulo: 'Entrega', valor: '[PENDENTE]' },
+          ],
+          stackCurta: 'Java · Spring',
+          linhaIndice: '[PENDENTE]',
+        }),
+      },
+      recursos,
+    );
+    expect(p.metricas).toEqual([{ numero: 33, rotulo: 'testes' }]);
+    expect(p.ficha).toEqual([{ rotulo: 'Banco', valor: 'PostgreSQL' }]);
+    expect(p.stackCurta).toBe('Java · Spring');
+    expect(p.linhaIndice).toBeUndefined();
+  });
+});

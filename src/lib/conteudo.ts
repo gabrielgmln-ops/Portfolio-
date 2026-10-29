@@ -9,7 +9,7 @@ import type { Carta, Milestone, Project } from '../types';
 export type * from '../types';
 export { getPerfil } from './perfil';
 
-const modulos = import.meta.glob<{ default: ImageMetadata }>('../assets/cartas/*.jpg', { eager: true });
+const modulos = import.meta.glob<{ default: ImageMetadata }>('../assets/cartas/*.{jpg,png}', { eager: true });
 const artes: Record<string, ImageMetadata> = {};
 for (const [caminho, m] of Object.entries(modulos)) artes[caminho.split('/').pop() ?? caminho] = m.default;
 const verso = artes['verso.jpg'];

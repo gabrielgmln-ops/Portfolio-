@@ -73,6 +73,25 @@ export function montarProjeto(e: EntradaProjeto, r: Recursos): Project {
   if (concluido && d.resultado !== undefined) p.resultado = d.resultado;
   if (concluido && d.resultadoNumero !== undefined) p.resultadoNumero = d.resultadoNumero;
   if (concluido && d.medidoEm !== undefined) p.medidoEm = d.medidoEm;
+  if (concluido && d.metricas?.length) {
+    // limparPendentes pode ter removido o rótulo: sem rótulo, a métrica sai inteira
+    const ms = d.metricas
+      .filter((m) => typeof m.rotulo === 'string')
+      .map(({ numero, rotulo, casas, prefixo, sufixo }) => ({
+        numero,
+        rotulo,
+        ...(casas !== undefined ? { casas } : {}),
+        ...(prefixo !== undefined ? { prefixo } : {}),
+        ...(sufixo !== undefined ? { sufixo } : {}),
+      }));
+    if (ms.length) p.metricas = ms;
+  }
+  if (d.ficha?.length) {
+    const fs = d.ficha.filter((f) => typeof f.rotulo === 'string' && typeof f.valor === 'string');
+    if (fs.length) p.ficha = fs;
+  }
+  if (d.stackCurta !== undefined) p.stackCurta = d.stackCurta;
+  if (d.linhaIndice !== undefined) p.linhaIndice = d.linhaIndice;
   if (d.repo !== undefined) p.repo = d.repo;
   if (d.demo !== undefined) p.demo = d.demo;
   if (d.destaque !== undefined) p.destaque = d.destaque;

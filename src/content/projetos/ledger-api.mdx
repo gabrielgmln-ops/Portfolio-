@@ -1,12 +1,12 @@
 ---
 titulo: 'Ledger API'
 slug: ledger-api
-ordem: 7
+ordem: 1
 status: concluido
 trilha: bancos
 arcano: justica
 resumo: 'API REST de livro-razão bancário: partidas dobradas, idempotência e saldo protegido sob concorrência, testada com 1.000 transferências simultâneas.'
-papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: definição de requisitos, revisão e estudo do código, testes, documentação e deploy.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
 tecnologias:
   - Java 21
   - Spring Boot 3.5
@@ -36,38 +36,83 @@ prova: '1.000 transferências simultâneas sem perder um centavo.'
 resultado: '1.000 transferências simultâneas sem perda de nenhum centavo'
 resultadoNumero: 1000
 medidoEm: 2026-10-21
+metricas:
+  - numero: 1000
+    rotulo: 'transferências simultâneas'
+  - numero: 0
+    casas: 2
+    prefixo: 'R$ '
+    rotulo: 'criados ou perdidos'
+  - numero: 94.7
+    casas: 1
+    sufixo: '%'
+    rotulo: 'de cobertura de linhas'
+  - numero: 33
+    rotulo: 'testes, 0 falhas'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Java 21 + Spring Boot 3.5'
+  - rotulo: 'Banco'
+    valor: 'PostgreSQL 16 + Flyway'
+  - rotulo: 'Testes'
+    valor: 'JUnit 5, Testcontainers, JaCoCo'
+  - rotulo: 'Entrega'
+    valor: 'Docker, GitHub Actions, Render'
+stackCurta: 'Java · Spring Boot · PostgreSQL'
+linhaIndice: '1.000 transferências simultâneas, R$ 0,00 de diferença; 94,7% de cobertura'
 repo: 'https://github.com/gabrielgmln-ops/Projeto-B-A'
 githubRepo: 'gabrielgmln-ops/Projeto-B-A'
 demo: 'https://ledger-api-sk0d.onrender.com/swagger-ui.html'
 destaque: principal
-estudoDeCaso: false
+plataforma: bank-platform
+estudoDeCaso: true
 ano: 2026
-atualizadoEm: 2026-10-30
+atualizadoEm: 2026-10-29
 changelog:
   - data: 2026-10-21
     texto: 'Teste de 1.000 transferências simultâneas medido (Testcontainers + PostgreSQL 16).'
 ---
 
-## Teste de fumaça
+## Problema
 
-Contra a API publicada no Render:
+O núcleo de um banco digital não pode criar nem perder dinheiro, nem cobrar duas vezes quando o cliente reenvia um pedido, nem deixar uma conta negativa quando dois saques chegam juntos. A Ledger API é esse núcleo: uma API REST que abre contas e movimenta dinheiro.
 
-- Saúde: `status=UP`, banco `UP`, actuator `UP`; Swagger UI responde HTTP 200.
-- Idempotência: a mesma transferência enviada 2 vezes com a mesma chave retornou HTTP 201 nas duas, a segunda marcada `repetida=true`; não duplicou.
-- Saldo insuficiente: transferir R$ 500 com saldo de R$ 100 foi bloqueado com HTTP 422.
-- Saldos finais: A = 75,00 e B = 25,00 (o valor saiu uma única vez); extrato de A com 2 lançamentos.
+## Como funciona
 
-## Teste de concorrência
+- **Partidas dobradas:** todo movimento gera um débito e um crédito de mesmo valor; a soma de todos os lançamentos é sempre zero. Até o depósito tem contrapartida, numa conta interna de Tesouraria.
+- **Saldo derivado:** o saldo não é uma coluna editável; é sempre a soma dos lançamentos.
+- **Idempotência:** o cabeçalho `Idempotency-Key` faz a repetição do pedido devolver a resposta original, sem repetir o efeito. A mesma chave com corpo diferente é recusada com 422.
+- **Auditoria append-only:** entidades imutáveis no Java e triggers no PostgreSQL que barram UPDATE e DELETE. Erros são corrigidos com estorno, nunca com edição.
+
+## Decisões
+
+- **Lock pessimista** (`SELECT ... FOR UPDATE`) em vez de otimista: em dinheiro, conflitos na mesma conta são comuns e repetir é caro.
+- **Ordem fixa de travamento** (id crescente) para evitar deadlock entre transferências em sentidos opostos.
+- **BigDecimal e NUMERIC(19,2):** valores decimais exatos; frações de centavo são recusadas.
+- **Testcontainers em vez de H2:** os testes precisam de locks, isolamento, `ON CONFLICT` e triggers do PostgreSQL 16 real.
+
+## Testes
 
 Medido em 21/10/2026 com `mvnw verify`, contra PostgreSQL 16 real via Testcontainers (a mesma suíte roda na CI a cada push). Não foi executado contra a API publicada.
 
 - 10 contas com R$ 1.000,00 cada (total R$ 10.000,00); 1.000 transferências simultâneas em 50 threads, em sentidos cruzados, com valores aleatórios entre R$ 0,01 e R$ 300,00.
-- A soma das contas continuou em R$ 10.000,00: 0 centavos criados ou perdidos.
-- Nenhuma conta ficou negativa; a soma de todos os lançamentos é exatamente R$ 0,00 (partidas dobradas).
-- Todas as transferências terminaram como concluída ou recusada por saldo insuficiente, sem erro inesperado e sem deadlock. Parte é recusada de propósito; o teste não registra quantas passaram em cada execução.
-- Complementar: 500 saques simultâneos de R$ 1,00 numa conta com R$ 100,00 resultaram em exatamente 100 aceitos e saldo final R$ 0,00.
+- 500 saques simultâneos de R$ 1,00 numa conta com R$ 100,00: exatamente 100 aceitos e saldo final R$ 0,00.
 - Suíte: 33 testes, 0 falhas; cobertura de linhas 94,7% (270 de 285, JaCoCo).
 
-## Demo
+Teste de fumaça contra a API publicada no Render: saúde e Swagger respondendo; a mesma transferência enviada 2 vezes com a mesma chave não duplicou; transferir R$ 500 com saldo de R$ 100 foi bloqueado com HTTP 422.
 
-A demo está em hospedagem gratuita do Render e pode levar alguns segundos para acordar.
+## Resultado
+
+Depois das 1.000 transferências simultâneas, a soma das 10 contas continuou em R$ 10.000,00: R$ 0,00 criados ou perdidos. Nenhuma conta ficou negativa, a soma de todos os lançamentos é exatamente R$ 0,00 e não houve erro inesperado nem deadlock. Parte das transferências é recusada de propósito por saldo insuficiente; o teste não registra quantas passaram em cada execução.
+
+## Limitações
+
+- O saldo é uma soma sobre o histórico, o que pede snapshots em escala.
+- Contas muito movimentadas formam fila por causa do lock.
+- Moeda única, sem juros.
+- A demo está em hospedagem gratuita do Render e pode levar alguns segundos para acordar; ela ainda roda a versão sem autenticação.
+
+## Próximos passos
+
+- Publicar a versão com autenticação e controle de acesso da Operação Cofre.
+- Snapshot de saldo e outbox pattern para publicar eventos num Kafka sem perder mensagem.

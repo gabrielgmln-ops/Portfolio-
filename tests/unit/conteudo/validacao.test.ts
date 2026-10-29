@@ -20,7 +20,7 @@ describe('regras de validação', () => {
   });
   it('regra 3: arcano ausente ou fora da tabela falha', () => {
     expect(ok({ arcano: undefined })).toBe(false);
-    expect(ok({ arcano: 'imperatriz' })).toBe(false);
+    expect(ok({ arcano: 'papa' })).toBe(false);
   });
   it('regra 4: arcano ou slug duplicado falha', () => {
     const a = { id: 'a', data: dados({ slug: 'a', arcano: 'mago' }) };

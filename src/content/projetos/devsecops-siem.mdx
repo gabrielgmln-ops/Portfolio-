@@ -1,0 +1,102 @@
+---
+titulo: 'Esteira DevSecOps + SIEM'
+slug: devsecops-siem
+ordem: 6
+status: concluido
+trilha: cyber
+arcano: hierofante
+resumo: 'Pipeline com Semgrep, Trivy e Gitleaks que barra severidade alta, e SIEM em ELK com motor de correlação próprio em Python.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - GitHub Actions
+  - Semgrep
+  - Trivy
+  - Gitleaks
+  - Elasticsearch 8.17.4
+  - Kibana 8.17.4
+  - Filebeat 8.17.4
+  - Python
+  - Docker Compose
+competencias:
+  - SAST com regras próprias
+  - Varredura de dependências, imagens e segredos
+  - Gate de severidade no CI
+  - SIEM e correlação de eventos
+  - Supply chain (versões e actions fixadas)
+  - Logs estruturados sem dado sensível
+prova: '147 eventos de teste geraram 5 alertas correlacionados, incluindo um ataque real via HTTP.'
+resultado: '5 alertas correlacionados a partir de 147 eventos, incluindo um ataque real via HTTP'
+resultadoNumero: 5
+medidoEm: 2026-10-29
+metricas:
+  - numero: 9
+    rotulo: 'regras Semgrep próprias, todas passando'
+  - numero: 147
+    rotulo: 'eventos ingeridos no teste'
+  - numero: 5
+    rotulo: 'alertas correlacionados'
+  - numero: 50
+    rotulo: 'testes no motor de correlação'
+ficha:
+  - rotulo: 'Pipeline'
+    valor: 'GitHub Actions: Semgrep, Trivy, Gitleaks'
+  - rotulo: 'SIEM'
+    valor: 'Elasticsearch, Kibana e Filebeat 8.17.4'
+  - rotulo: 'Correlação'
+    valor: 'Motor próprio em Python, regras R001 a R004'
+  - rotulo: 'Testes'
+    valor: '50 no motor de correlação'
+stackCurta: 'Semgrep · Trivy · Gitleaks · ELK · Python'
+linhaIndice: '147 eventos, 5 alertas correlacionados; gate barra severidade alta'
+repo: 'https://github.com/gabrielgmln-ops/esteira-devsecops-bancaria'
+githubRepo: 'gabrielgmln-ops/esteira-devsecops-bancaria'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-29
+changelog:
+  - data: 2026-10-29
+    texto: 'Etapas 0 a 6 prontas: gate, ingestão no SIEM, correlação e painel.'
+---
+
+## Problema
+
+Uma plataforma bancária precisa de duas defesas: impedir que código vulnerável chegue à `main` e perceber um ataque em andamento a partir dos logs. A esteira faz as duas coisas sobre uma plataforma sintética (Gateway, Ledger, Pix e Antifraude em serviços de exemplo), só com dados sintéticos.
+
+## Como funciona
+
+- **SAST:** pacotes públicos do Semgrep e 9 regras próprias do domínio bancário, como dinheiro em float, dado sensível em log, SQL por concatenação, TLS desligado e segredo com valor padrão.
+- **Gate:** barra o merge com achado ERROR do Semgrep, CVE HIGH ou CRITICAL do Trivy com correção disponível ou qualquer segredo do Gitleaks. Exceções só com justificativa e data de validade.
+- **SIEM:** o Filebeat lê os logs JSON dos serviços e envia ao Elasticsearch; um motor de correlação em Python grava alertas no índice `siem-alertas`; um painel no Kibana os mostra.
+- **Regra principal:** 5 ou mais falhas de login em 10 minutos, seguidas de login bem-sucedido e de uma transferência de R$ 10.000 ou mais.
+
+## Decisões
+
+- ELK em vez de Wazuh: correlação sob medida em Python e painel no Kibana com a licença básica.
+- Laboratório com autenticação ligada e portas presas em `127.0.0.1`.
+- Segredos só em `.env` fora do git; se um segredo faltar, o serviço não sobe.
+- Scanners em imagens Docker de versão fixada e actions oficiais fixadas por SHA de commit.
+- Alertas com id determinístico: rodar a correlação de novo não duplica.
+
+## Testes
+
+- As 9 regras Semgrep próprias passam no `semgrep --test`.
+- 50 testes no motor de correlação.
+- Os testes de ingestão provam que o usuário que grava não lê e o que correlaciona não altera a evidência (403).
+
+## Resultado
+
+No teste com 147 eventos ingeridos, saíram 5 alertas correlacionados, das regras R001 a R004, incluindo um ataque real feito via HTTP contra os serviços. O gate aprova o estado atual do repositório depois de corrigidos os CVEs das imagens.
+
+## Limitações
+
+- A proteção da branch `main` ainda não foi aplicada.
+- TLS desligado entre os componentes do SIEM (portas só no loopback).
+- O motor de correlação roda por linha de comando; não há notificação nem resposta automática a incidentes.
+- Os serviços monitorados são sintéticos, não a Ledger e o Antifraude reais.
+
+## Próximos passos
+
+- Aplicar a proteção da `main`.
+- Ligar a Ledger API e o Motor Antifraude reais ao SIEM, no mesmo formato de log.
