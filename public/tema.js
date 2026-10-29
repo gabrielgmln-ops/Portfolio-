@@ -4,6 +4,6 @@
     var t = localStorage.getItem('tema');
     if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t;
   } catch {
-    /* storage bloqueado: segue prefers-color-scheme */
+    /* storage bloqueado: fica no padrão escuro */
   }
 })();

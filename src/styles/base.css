@@ -1,4 +1,4 @@
-/* Base: reset curto, tipografia, foco, utilitários mínimos. */
+/* Base v7: reset, corpo, seleção, foco, utilitários. Estilo de componente fica no componente. */
 
 *,
 *::before,
@@ -15,11 +15,17 @@ body {
   margin: 0;
   background: var(--fundo);
   color: var(--texto);
-  font-family: var(--fonte-sans);
-  font-size: 1.0625rem;
-  line-height: var(--entrelinha-texto);
-  text-rendering: optimizeLegibility;
+  font: 400 var(--t-corpo) / var(--entrelinha-corpo) var(--sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition:
+    background-color 0.5s,
+    color 0.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
 }
 
 img,
@@ -28,60 +34,60 @@ svg {
   max-width: 100%;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--fonte-serifa);
-  font-weight: 500;
-  line-height: var(--entrelinha-serifa);
-  margin: 0 0 var(--s-4);
-  text-wrap: balance;
-}
-h1 {
-  font-size: clamp(var(--t-4), 6vw, var(--t-5));
-  letter-spacing: -0.01em;
-}
-h2 {
-  font-size: var(--t-3);
-}
-h3 {
-  font-size: var(--t-1);
-}
-
-p,
-ul,
-ol,
-dl {
-  margin: 0 0 var(--s-4);
-}
-p {
-  max-width: var(--medida);
-  text-wrap: pretty;
-}
-
 a {
-  color: var(--acento);
-  text-decoration-thickness: var(--traco);
-  text-underline-offset: 0.2em;
+  color: inherit;
+  text-decoration: none;
 }
-@media (hover: hover) and (pointer: fine) {
-  a:hover {
-    text-decoration-thickness: var(--traco-foco);
-  }
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--ouro);
+  color: var(--ouro-tinta);
 }
 
 :focus-visible {
-  outline: var(--traco-foco) solid var(--foco);
-  outline-offset: 3px;
+  outline: 2px solid var(--ouro);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
-.mono,
+/* "Pular para o conteúdo": .skip (v7) e .pular (nome legado) */
+.skip,
+.pular {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 300;
+  padding: 0.6rem 1rem;
+  background: var(--ouro);
+  color: var(--ouro-tinta);
+  border-radius: 0.4rem;
+  font-weight: 600;
+  transition: top 0.3s var(--saida);
+}
+.skip:focus,
+.pular:focus {
+  top: 1rem;
+}
+
+.px {
+  padding-inline: var(--gutter);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+}
+
 time,
 code {
-  font-family: var(--fonte-mono);
+  font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: 0.9em;
 }
 
 .sr-only {
@@ -96,46 +102,48 @@ code {
   border: 0;
 }
 
-.pular {
-  position: absolute;
-  left: var(--s-4);
-  top: var(--s-4);
-  z-index: 100;
-  padding: var(--s-2) var(--s-4);
-  background: var(--fundo);
-  color: var(--acento);
-  border: var(--traco) solid var(--acento);
-  border-radius: var(--raio);
-  transform: translateY(-200%);
+/* ---- Legado: usados por componentes ainda não refeitos ---- */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serifa);
+  font-weight: 400;
+  line-height: var(--entrelinha-serifa);
+  margin: 0 0 var(--s-4);
+  text-wrap: balance;
 }
-.pular:focus-visible {
-  transform: none;
+p,
+ul,
+ol,
+dl {
+  margin: 0 0 var(--s-4);
+}
+p {
+  text-wrap: pretty;
 }
 
 .envoltorio {
   width: min(100% - 2 * var(--s-5), 72rem);
   margin-inline: auto;
 }
-
 .secao {
   padding-block: var(--s-8);
 }
 .secao + .secao {
-  border-top: var(--traco) solid var(--borda);
+  border-top: var(--traco) solid var(--linha);
 }
-
 .texto-2 {
   color: var(--texto-2);
 }
-
 .botao {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   padding: var(--s-2) var(--s-4);
-  border: var(--traco) solid var(--acento);
+  border: var(--traco) solid var(--ouro);
   border-radius: var(--raio);
-  color: var(--acento);
+  color: var(--ouro);
   font: inherit;
   text-decoration: none;
   background: transparent;

@@ -14,7 +14,8 @@ function ler(): Tema | undefined {
 function atual(): Tema {
   const t = raiz.dataset['tema'];
   if (t === 'claro' || t === 'escuro') return t;
-  return matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'escuro';
+  // Sem escolha salva o padrão é escuro (não segue prefers-color-scheme).
+  return 'escuro';
 }
 function sincronizarBotoes(): void {
   for (const b of document.querySelectorAll<HTMLButtonElement>('[data-tema-botao]')) {

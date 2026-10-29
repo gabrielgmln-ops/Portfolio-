@@ -1,11 +1,35 @@
-/* Fontes auto-hospedadas (Fontsource, subset latino). Preload só da serifa 500, no Layout. */
+/* Fontes auto-hospedadas (Fontsource, subset latino, font-display: swap; sem Google Fonts por causa da CSP).
+   v7: Newsreader 300/400 normal e 300 itálico; Source Sans 3 400/600; IBM Plex Mono 400.
+   Newsreader 500 normal e 400 itálico ficam por legado (o Layout faz preload da 500 e da sans 400).
+   Os arquivos estáticos do @fontsource/newsreader não têm eixo opsz (só @fontsource-variable teria). */
 
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('@fontsource/newsreader/files/newsreader-latin-300-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/newsreader/files/newsreader-latin-400-normal.woff2') format('woff2');
+}
 @font-face {
   font-family: 'Newsreader';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
   src: url('@fontsource/newsreader/files/newsreader-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('@fontsource/newsreader/files/newsreader-latin-300-italic.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Newsreader';

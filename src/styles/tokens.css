@@ -1,13 +1,82 @@
-/* Tokens do "Registro". Toda cor, espaço, raio e tempo do site sai daqui.
-   Razões de contraste em docs/design-system.md. */
+/* Tokens do design system v7. Nomes iguais aos do protótipo
+   prototipos/portfolio-v7-dennis.html. Tema escuro é o padrão; o claro vale
+   só com html[data-tema='claro'] (escolha salva em localStorage 'tema').
+   Contrastes em docs/design-system.md. */
+
+/* ---- Tema escuro (padrão) ---- */
+:root,
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+  --fundo: #0c1717;
+  --fundo-2: #112223;
+  --fundo-3: #1f3a3e;
+  --linha: #1f3536;
+  --linha-forte: #5b7a77;
+  --ouro: #c9a96a;
+  --ouro-2: #e2c98f;
+  --ouro-tinta: #121a19;
+  --texto: #e9dec5;
+  --texto-2: #b4ae9e;
+  --texto-3: #8e968e;
+  --rodape: #081111;
+  --rodape-texto: #e9dec5;
+  --rodape-2: #b4ae9e;
+  --sombra: 0 2.25rem 3.5rem -1.5rem #000d;
+
+  /* legado */
+  --alerta: var(--vinho-claro);
+}
+
+/* ---- Tema claro (alternativa) ---- */
+:root[data-tema='claro'] {
+  color-scheme: light;
+  --fundo: #f3f3ef;
+  --fundo-2: #fff;
+  --fundo-3: #1f3a3e;
+  --linha: #dcdcd3;
+  --linha-forte: #7f8782;
+  --ouro: #8a6a2c;
+  --ouro-2: #6b511f;
+  --ouro-tinta: #fff;
+  --texto: #121d1c;
+  --texto-2: #4a5552;
+  --texto-3: #5f6965;
+  --rodape: #132526;
+  --rodape-texto: #e9dec5;
+  --rodape-2: #b4ae9e;
+  --sombra: 0 2rem 3rem -1.5rem #13201f66;
+
+  /* legado */
+  --alerta: var(--vinho-escuro);
+}
 
 :root {
-  /* Paleta (fonte única) */
+  /* ---- Tipografia, curvas e gutter (protótipo) ---- */
+  --serifa: 'Newsreader', Georgia, serif;
+  --sans: 'Source Sans 3', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --saida: cubic-bezier(0.22, 1, 0.36, 1);
+  --expo: cubic-bezier(0.76, 0, 0.24, 1);
+  --gutter: clamp(1rem, 4vw, 4rem);
+
+  /* ---- Escala tipográfica v7 ---- */
+  --t-letreiro: clamp(5rem, 15vw, 14rem);
+  --t-destaque: clamp(3rem, 2rem + 4vw, 6rem);
+  --t-indice: clamp(1.8rem, 1.2rem + 2.4vw, 3.4rem);
+  --t-declaracao: clamp(1.9rem, 1.2rem + 2.6vw, 3.3rem);
+  --t-rodape: clamp(2.8rem, 1.6rem + 5.5vw, 7rem);
+  --t-corpo: 1.0625rem;
+  --entrelinha-corpo: 1.6;
+
+  /* ====================================================================
+     LEGADO: tokens do "Registro" ainda usados por componentes não refeitos.
+     Apontam para os novos quando há equivalente. Remover quando nenhum
+     componente usar mais.
+     ==================================================================== */
   --petroleo-950: #0e1b1e;
   --petroleo-900: #14262a;
   --petroleo-800: #1a3236;
   --petroleo-700: #1f3a3e;
-  --ouro: #c2a267;
   --ouro-escuro: #6e5628;
   --creme: #efe3c8;
   --creme-2: #bfb49c;
@@ -17,12 +86,18 @@
   --vinho-claro: #d08a90;
   --vinho-escuro: #8a3f47;
 
-  /* Tipografia */
-  --fonte-serifa: 'Newsreader', 'Iowan Old Style', Georgia, serif;
-  --fonte-sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
-  --fonte-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --superficie: var(--fundo-2);
+  --superficie-2: var(--fundo-2);
+  --borda: var(--linha);
+  --acento: var(--ouro);
+  --foco: var(--ouro);
+  --moldura: #c9a96a;
+  --fundo-og: var(--petroleo-950);
 
-  /* Escala modular 1,25 */
+  --fonte-serifa: var(--serifa);
+  --fonte-sans: var(--sans);
+  --fonte-mono: var(--mono);
+
   --t--1: 0.8rem;
   --t-0: 1rem;
   --t-1: 1.25rem;
@@ -30,11 +105,10 @@
   --t-3: 1.953rem;
   --t-4: 2.441rem;
   --t-5: 3.052rem;
-  --entrelinha-texto: 1.6;
+  --entrelinha-texto: var(--entrelinha-corpo);
   --entrelinha-serifa: 1.25;
   --medida: 68ch;
 
-  /* Espaço: escala de 4 px */
   --s-1: 0.25rem;
   --s-2: 0.5rem;
   --s-3: 0.75rem;
@@ -46,13 +120,11 @@
   --s-9: 6rem;
   --s-10: 8rem;
 
-  /* Raios: a carta é o único objeto arredondado */
   --raio-carta: 10px;
   --raio: 2px;
   --traco: 1px;
   --traco-foco: 2px;
 
-  /* Movimento (ver docs/motion.md) */
   --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
@@ -61,54 +133,5 @@
   --dur-carta: 650ms;
   --dur-cena: 900ms;
 
-  /* Carta */
   --carta-largura: 14rem;
-}
-
-/* Semânticos — escuro é o padrão */
-:root,
-:root[data-tema='escuro'] {
-  color-scheme: dark;
-  --fundo: var(--petroleo-900);
-  --superficie: var(--petroleo-700);
-  --superficie-2: var(--petroleo-800);
-  --texto: var(--creme);
-  --texto-2: var(--creme-2);
-  --borda: var(--petroleo-700);
-  --acento: var(--ouro);
-  --foco: var(--ouro);
-  --alerta: var(--vinho-claro);
-  --moldura: var(--ouro);
-  --fundo-og: var(--petroleo-950);
-}
-
-:root[data-tema='claro'] {
-  color-scheme: light;
-  --fundo: var(--creme);
-  --superficie: var(--creme-escuro);
-  --superficie-2: var(--creme-escuro);
-  --texto: var(--petroleo-900);
-  --texto-2: var(--cinza-petroleo);
-  --borda: var(--creme-escuro);
-  --acento: var(--ouro-escuro);
-  --foco: var(--ouro-escuro);
-  --alerta: var(--vinho-escuro);
-  --moldura: var(--ouro);
-}
-
-/* Sem JS e sem preferência salva: segue o sistema */
-@media (prefers-color-scheme: light) {
-  :root:not([data-tema]) {
-    color-scheme: light;
-    --fundo: var(--creme);
-    --superficie: var(--creme-escuro);
-    --superficie-2: var(--creme-escuro);
-    --texto: var(--petroleo-900);
-    --texto-2: var(--cinza-petroleo);
-    --borda: var(--creme-escuro);
-    --acento: var(--ouro-escuro);
-    --foco: var(--ouro-escuro);
-    --alerta: var(--vinho-escuro);
-    --moldura: var(--ouro);
-  }
 }

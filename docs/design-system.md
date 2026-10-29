@@ -1,78 +1,86 @@
-# Design system — "Registro"
+# Design system — v7
 
-Fonte única: `src/styles/tokens.css`. Nenhuma cor ou espaçamento fica fora dos tokens
-(verificação por grep no fim deste arquivo).
+Fonte única: `src/styles/tokens.css`. Os nomes dos tokens são os mesmos do protótipo
+`prototipos/portfolio-v7-dennis.html`, para que o CSS dos componentes possa ser copiado dele.
+
+## Tema
+
+- Atributo: `data-tema` no `<html>`, valores `escuro` | `claro` (só esse; não existe `data-theme`).
+- Chave no `localStorage`: `tema`.
+- Padrão: **escuro**. Sem escolha salva (ou com storage bloqueado / sem JS), vale o escuro; `prefers-color-scheme` não é mais consultado.
+- `public/tema.js` (script externo, a CSP proíbe inline) aplica a escolha salva antes do primeiro paint; `src/scripts/tema.ts` alterna pelo botão `[data-tema-botao]` (com `aria-pressed="true"` no claro) e reaplica após `astro:after-swap`.
 
 ## Cores
 
-| Token                              | Valor                 | Uso                                                                                                    |
-| ---------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------ |
-| `--petroleo-900`                   | `#14262A`             | fundo (escuro) / texto (claro)                                                                         |
-| `--petroleo-800`                   | `#1A3236`             | superfície secundária (escuro)                                                                         |
-| `--petroleo-700`                   | `#1F3A3E`             | superfície, verso da moldura                                                                           |
-| `--ouro`                           | `#C2A267`             | moldura, numerais, links, foco (escuro)                                                                |
-| `--ouro-escuro`                    | `#6E5628`             | links e foco no claro. O `#7E6430` sugerido dá 4,39:1 em creme e **não** passa AA; escureci até 5,45:1 |
-| `--creme`                          | `#EFE3C8`             | texto (escuro) / fundo (claro)                                                                         |
-| `--creme-2`                        | `#BFB49C`             | texto secundário (escuro)                                                                              |
-| `--cinza-petroleo`                 | `#4A5C5E`             | texto secundário (claro)                                                                               |
-| `--vinho`                          | `#A4545C`             | traço do status "em desenvolvimento" (não usado como texto: 2,99:1 no petróleo)                        |
-| `--vinho-claro` / `--vinho-escuro` | `#D08A90` / `#8A3F47` | texto de alerta/status no escuro / claro                                                               |
+| Token            | Escuro (padrão)                  | Claro                           |
+| ---------------- | -------------------------------- | ------------------------------- |
+| `--fundo`        | `#0C1717`                        | `#F3F3EF`                       |
+| `--fundo-2`      | `#112223`                        | `#FFFFFF`                       |
+| `--fundo-3`      | `#1F3A3E`                        | `#1F3A3E`                       |
+| `--linha`        | `#1F3536`                        | `#DCDCD3`                       |
+| `--linha-forte`  | `#5B7A77`                        | `#7F8782`                       |
+| `--ouro`         | `#C9A96A`                        | `#8A6A2C`                       |
+| `--ouro-2`       | `#E2C98F`                        | `#6B511F`                       |
+| `--ouro-tinta`   | `#121A19`                        | `#FFFFFF`                       |
+| `--texto`        | `#E9DEC5`                        | `#121D1C`                       |
+| `--texto-2`      | `#B4AE9E`                        | `#4A5552`                       |
+| `--texto-3`      | `#8E968E`                        | `#5F6965`                       |
+| `--rodape`       | `#081111`                        | `#132526`                       |
+| `--rodape-texto` | `#E9DEC5`                        | `#E9DEC5`                       |
+| `--rodape-2`     | `#B4AE9E`                        | `#B4AE9E`                       |
+| `--sombra`       | `0 2.25rem 3.5rem -1.5rem #000d` | `0 2rem 3rem -1.5rem #13201f66` |
+| `color-scheme`   | `dark`                           | `light`                         |
 
-Semânticos: `--fundo`, `--superficie`, `--texto`, `--texto-2`, `--borda`, `--acento`, `--foco`, `--alerta`, `--moldura`.
-O modo escuro é o padrão; `data-tema="claro"` no `<html>` inverte. Sem JS, `prefers-color-scheme` decide.
+Independentes de tema: `--serifa`, `--sans`, `--mono`, `--saida` `cubic-bezier(.22,1,.36,1)`, `--expo` `cubic-bezier(.76,0,.24,1)`, `--gutter` `clamp(1rem,4vw,4rem)`.
 
-### Razões de contraste (WCAG 2.x, calculadas por script)
+### Contraste (WCAG 2.x, calculado por script node)
 
-| Texto                    | Fundo                       | Razão | AA texto normal (4,5)                 |
-| ------------------------ | --------------------------- | ----- | ------------------------------------- |
-| creme `#EFE3C8`          | petróleo-900 `#14262A`      | 12,30 | sim                                   |
-| creme                    | petróleo-700 `#1F3A3E`      | 9,52  | sim                                   |
-| creme-2 `#BFB49C`        | petróleo-900                | 7,63  | sim                                   |
-| creme-2                  | petróleo-700                | 5,90  | sim                                   |
-| ouro `#C2A267`           | petróleo-900                | 6,46  | sim                                   |
-| ouro                     | petróleo-700                | 5,00  | sim                                   |
-| vinho-claro `#D08A90`    | petróleo-900                | 5,76  | sim                                   |
-| vinho `#A4545C`          | petróleo-900                | 2,99  | **não** → só traço/ícone, nunca texto |
-| petróleo-900             | creme                       | 12,30 | sim                                   |
-| cinza-petróleo `#4A5C5E` | creme                       | 5,53  | sim                                   |
-| cinza-petróleo           | creme-escuro `#E6D8B8`      | 4,99  | sim                                   |
-| ouro-escuro `#6E5628`    | creme                       | 5,45  | sim                                   |
-| ouro-escuro              | creme-escuro                | 4,92  | sim                                   |
-| vinho-escuro `#8A3F47`   | creme                       | 5,72  | sim                                   |
-| creme                    | petróleo-950 `#0E1B1E` (OG) | 13,81 | sim                                   |
+| Tema   | Texto       | Fundo       | Razão   | Resultado |
+| ------ | ----------- | ----------- | ------- | --------- |
+| escuro | `--texto`   | `--fundo`   | 13.66:1 | AA        |
+| escuro | `--texto`   | `--fundo-2` | 12.31:1 | AA        |
+| escuro | `--texto-2` | `--fundo`   | 8.25:1  | AA        |
+| escuro | `--texto-2` | `--fundo-2` | 7.43:1  | AA        |
+| escuro | `--texto-3` | `--fundo`   | 6.00:1  | AA        |
+| escuro | `--texto-3` | `--fundo-2` | 5.41:1  | AA        |
+| escuro | `--ouro`    | `--fundo`   | 8.14:1  | AA        |
+| claro  | `--texto`   | `--fundo`   | 15.50:1 | AA        |
+| claro  | `--texto`   | `--fundo-2` | 17.24:1 | AA        |
+| claro  | `--texto-2` | `--fundo`   | 6.96:1  | AA        |
+| claro  | `--texto-2` | `--fundo-2` | 7.74:1  | AA        |
+| claro  | `--texto-3` | `--fundo`   | 5.11:1  | AA        |
+| claro  | `--texto-3` | `--fundo-2` | 5.68:1  | AA        |
+| claro  | `--ouro`    | `--fundo`   | 4.52:1  | AA        |
 
-Foco: anel de 2 px em `--foco` com 3 px de offset (ouro no escuro: 6,46:1; ouro-escuro no claro: 5,45:1 — ambos acima de 3:1 exigido para componentes).
+Todos passam AA para texto normal (4,5:1); nenhum token precisou de ajuste. O `--ouro` claro passa por pouco (4,52:1): evite usá-lo como texto sobre superfícies mais escuras que `--fundo`.
 
 ## Tipografia
 
-- **Serifa: Newsreader 500** (títulos, nomes de cartas). Avaliação das três candidatas para o nome da carta a 14 px (pelas métricas e desenho das fontes; a /_kit mostra o nome a 14 px para conferência visual):
-  Cormorant Garamond tem hastes finas demais e x-height baixa — some sobre o petróleo a 14 px;
-  IM Fell English tem a textura de gravura certa, mas o contorno irregular e a falta de pesos prejudicam a leitura em tamanho pequeno.
-  Newsreader foi desenhada para texto em tela (eixo óptico), mantém serifas de inscrição e continua nítida a 14 px. Itálico 400 só para citações.
-- **Sans: Source Sans 3** 400/600 para texto corrido.
-- **Mono: IBM Plex Mono** 400 com `tabular-nums` para datas, status e resultados.
-- Woff2 do Fontsource, só subset `latin` (cobre o português), `font-display: swap`, preload da serifa 500 e da sans 400 (o parágrafo de abertura costuma ser o LCP).
-- Escala modular 1,25: `--t--1` 0,8 · `--t-0` 1 · `--t-1` 1,25 · `--t-2` 1,563 · `--t-3` 1,953 · `--t-4` 2,441 · `--t-5` 3,052 rem.
-- Entrelinha 1,6 no texto, 1,25 na serifa; `--medida: 68ch` limita a linha.
+- **Newsreader** 300 e 400 normal, 300 itálico (v7); 500 normal e 400 itálico mantidos por legado.
+- **Source Sans 3** 400/600, **IBM Plex Mono** 400.
+- Fontsource, subset `latin`, `font-display: swap`, sem Google Fonts (CSP). Preload (no Layout) da Newsreader 500 e da Source Sans 400. Os arquivos estáticos não têm eixo `opsz`.
 
-## Espaço, raio, traço
+| Token                | Valor                                   | Uso                |
+| -------------------- | --------------------------------------- | ------------------ |
+| `--t-letreiro`       | `clamp(5rem, 15vw, 14rem)`              | letreiro do hero   |
+| `--t-destaque`       | `clamp(3rem, 2rem + 4vw, 6rem)`         | título do destaque |
+| `--t-indice`         | `clamp(1.8rem, 1.2rem + 2.4vw, 3.4rem)` | itens do índice    |
+| `--t-declaracao`     | `clamp(1.9rem, 1.2rem + 2.6vw, 3.3rem)` | declaração         |
+| `--t-rodape`         | `clamp(2.8rem, 1.6rem + 5.5vw, 7rem)`   | chamada do rodapé  |
+| `--t-corpo`          | `1.0625rem`                             | texto corrido      |
+| `--entrelinha-corpo` | `1.6`                                   | texto corrido      |
 
-- `--s-1`…`--s-10`: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128 px.
-- `--raio-carta: 10px` só na carta; `--raio: 2px` em todo o resto.
-- `--traco: 1px`, `--traco-foco: 2px`.
+## Base (`base.css`)
 
-## Movimento
+Reset, `body`, `::selection` (ouro + ouro-tinta), `:focus-visible` (2 px ouro, offset 4 px), `.skip` (e `.pular`, legado), `.px` (gutter), `.mono`, `img`, `a` (herda cor, sem sublinhado), `button`. Estilos de componentes ficam nos componentes.
 
-Tokens `--ease-*` e `--dur-*` — detalhes em `docs/motion.md`.
+## Legado
 
-## Verificação por grep
+Mantidos em `tokens.css` sob o comentário "LEGADO", até nenhum componente usá-los:
 
-Comando: `grep -rnoE "#[0-9a-fA-F]{3,6}|rgba?\(" src/components src/layouts src/pages src/styles`, excluindo `tokens.css`.
+- Paleta crua: `--petroleo-*`, `--creme*`, `--cinza-petroleo`, `--vinho*`, `--ouro-escuro`.
+- Aliases: `--superficie`/`--superficie-2` → `--fundo-2`; `--borda` → `--linha`; `--acento`/`--foco` → `--ouro`; `--moldura` `#C9A96A`; `--alerta` (vinho por tema); `--fundo-og`; `--fonte-serifa/sans/mono` → `--serifa/--sans/--mono`.
+- Escala `--t--1`…`--t-5`, `--entrelinha-*`, `--medida`, espaço `--s-*`, `--raio*`, `--traco*`, `--ease-*`, `--dur-*`, `--carta-largura`.
+- Utilitários em `base.css`: `.pular`, `.sr-only`, `.envoltorio`, `.secao`, `.texto-2`, `.botao`, margens de `h1–h4`/`p`.
 
-Resultado: 3 ocorrências, todas exceções justificadas:
-
-- `#000` (2×) na `mask` do brilho M4: é um canal alfa, não uma cor exibida.
-- `#14262A` em `<meta name="theme-color">`: o atributo HTML não aceita `var()`.
-- As cores da imagem OG (`src/pages/og/`) espelham os tokens, porque o PNG não lê CSS.
-
-Valores em px fora dos tokens: só geometria de movimento e do leque (`--dy` 0 a 10px, elevação de −6px, `perspective`) e traços de 1–2px. É o que a especificação de movimento pede.
+Atenção: `--ouro` agora muda por tema (antes era fixo `#C2A267`).
