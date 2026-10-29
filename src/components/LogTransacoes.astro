@@ -1,0 +1,224 @@
+---
+// Log de transações da Ledger (reconstrução visual). Sem JS mostra o estado FINAL medido:
+// 1.000 / 1.000, diferença R$ 0,00, barra cheia, "concluído". O time de movimento reanima
+// (.rodando, .log__linhas, .log__barra i, .f-proc, .f-dif, .log__estado, botão [data-log-reiniciar]).
+// As linhas iniciais são ilustrativas e determinísticas (PRNG com semente fixa).
+let semente = 21102026;
+const rand = (): number => {
+  semente = (semente * 1103515245 + 12345) % 2147483648;
+  return semente / 2147483648;
+};
+const brl = (v: number): string => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const linhas = Array.from({ length: 12 }, (_, i) => {
+  const n = 1000 - (11 - i) * 4;
+  const de = 1 + Math.floor(rand() * 10);
+  let para = 1 + Math.floor(rand() * 10);
+  if (para === de) para = (de % 10) + 1;
+  const valor = (1 + Math.floor(rand() * 30000)) / 100;
+  const ok = rand() > 0.18;
+  return {
+    n: `#${String(n).padStart(4, '0')}`,
+    ct: `c${String(de).padStart(2, '0')} → c${String(para).padStart(2, '0')}`,
+    valor: brl(valor),
+    ok,
+  };
+});
+---
+
+<figure class="log sobe" aria-labelledby="log-leg" data-log>
+  <div class="log__topo">
+    <span>
+      <b>teste de concorrência</b> · 50 threads
+    </span>
+    <span class="log__vivo">
+      <i></i>
+      <span class="log__estado">concluído</span>
+    </span>
+  </div>
+  <div class="log__linhas" aria-hidden="true">
+    {linhas.map((l) => (
+      <div class={l.ok ? 'ok' : 'rec'}>
+        <span>{l.n}</span>
+        <span class="ct">{l.ct}</span>
+        <span>{l.valor}</span>
+        <span class="st">{l.ok ? 'concluída' : 'recusada · saldo'}</span>
+      </div>
+    ))}
+  </div>
+  <div class="log__barra">
+    <i></i>
+  </div>
+  <div class="log__fim">
+    <div>
+      <span>processadas</span>
+      <b class="f-proc">1.000 / 1.000</b>
+    </div>
+    <div>
+      <span>soma das 10 contas</span>
+      <b>R$ 10.000,00</b>
+    </div>
+    <div class="ok">
+      <span>diferença</span>
+      <b class="f-dif">R$ 0,00</b>
+    </div>
+  </div>
+  <figcaption class="log__nota" id="log-leg">
+    Reconstrução visual do teste de 21/10/2026: 10 contas com R$ 1.000,00, 1.000 transferências em 50 threads, valores
+    entre R$ 0,01 e R$ 300,00. As linhas são ilustrativas; o resultado final (soma intacta, R$ 0,00 de diferença) é o
+    medido.{' '}
+    <button class="reiniciar" type="button" data-log-reiniciar>
+      Rodar de novo
+    </button>
+  </figcaption>
+</figure>
+
+<style>
+  .log {
+    position: relative;
+    margin: 0;
+    border: 1px solid var(--linha);
+    border-radius: 1rem;
+    background: var(--fundo-2);
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    min-width: 0;
+  }
+  .log__topo {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--linha);
+    color: var(--texto-3);
+  }
+  .log__topo b {
+    font-weight: 400;
+    color: var(--texto);
+  }
+  .log__vivo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .log__vivo i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--ouro);
+  }
+  .log:global(.rodando) .log__vivo i {
+    animation: pisca 1s steps(2) infinite;
+  }
+  @keyframes pisca {
+    50% {
+      opacity: 0.2;
+    }
+  }
+  .log__linhas {
+    height: 17rem;
+    overflow: hidden;
+    padding: 0.5rem 1.25rem;
+    mask-image: linear-gradient(transparent, #000 22%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .log__linhas :global(div) {
+    display: grid;
+    grid-template-columns: 4.2rem 4.6rem 1fr auto;
+    gap: 0.75rem;
+    padding: 0.32rem 0;
+    border-bottom: 1px dashed var(--linha);
+    color: var(--texto-2);
+    white-space: nowrap;
+  }
+  .log__linhas :global(.ok) {
+    color: var(--texto);
+  }
+  .log__linhas :global(.rec) {
+    color: var(--texto-3);
+  }
+  .log__linhas :global(.st) {
+    text-align: right;
+  }
+  .log__linhas :global(.ok .st) {
+    color: var(--ouro);
+  }
+  .log__barra {
+    height: 2px;
+    background: var(--linha);
+  }
+  /* largura final = 100%; o movimento reescreve via CSSOM durante a animação */
+  .log__barra i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--ouro);
+    transition: width 0.12s linear;
+  }
+  .log__fim {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--linha);
+  }
+  .log__fim div {
+    background: var(--fundo-2);
+    padding: 1rem 1.25rem;
+  }
+  .log__fim span {
+    display: block;
+    color: var(--texto-3);
+    font-size: 0.72rem;
+  }
+  .log__fim b {
+    display: block;
+    margin-top: 0.3rem;
+    font: 400 1.35rem/1 var(--serifa);
+    color: var(--texto);
+    font-variant-numeric: tabular-nums;
+  }
+  .log__fim .ok b {
+    color: var(--ouro);
+  }
+  .log__nota {
+    padding: 0.8rem 1.25rem;
+    color: var(--texto-3);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--linha);
+    font-family: var(--sans);
+  }
+  /* sem JS não há o que rodar de novo */
+  .reiniciar {
+    display: none;
+    background: none;
+    border: 0;
+    padding: 0.6rem 0;
+    min-height: 2.75rem;
+    color: var(--texto-2);
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  :global(html.js-motion) .reiniciar {
+    display: inline-block;
+  }
+  @media (max-width: 47.99rem) {
+    .log__linhas :global(div) {
+      grid-template-columns: 3.6rem 1fr auto;
+    }
+    .log__linhas :global(.ct) {
+      display: none;
+    }
+    .log__fim {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .log__barra i {
+      transition: none;
+    }
+  }
+</style>

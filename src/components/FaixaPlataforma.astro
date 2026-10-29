@@ -1,0 +1,52 @@
+---
+// Faixa curta na home: os seis projetos formam uma plataforma. Leva a /plataforma.
+import DiagramaPlataforma from './DiagramaPlataforma.astro';
+---
+
+<section class="s px faixa" id="plataforma" aria-labelledby="t-plat">
+  <div class="rotulo mono">
+    <h2 id="t-plat">O Mundo · XXI</h2>
+    <span>Plataforma</span>
+  </div>
+  <div class="faixa__grade">
+    <div class="faixa__texto">
+      <p class="faixa__frase sobe">
+        Os seis projetos se encaixam numa <em>plataforma bancária</em> sintética.
+      </p>
+      <a class="pilula magnetico" href="/plataforma">
+        Ver a plataforma
+      </a>
+    </div>
+    <DiagramaPlataforma id="diag-home" />
+  </div>
+</section>
+
+<style>
+  .faixa {
+    padding-top: 0;
+  }
+  .faixa__grade {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  @media (min-width: 62rem) {
+    .faixa__grade {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    }
+  }
+  .faixa__texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  .faixa__frase {
+    margin: 0;
+    font: 300 clamp(1.5rem, 1.1rem + 1.3vw, 2.1rem) / 1.22 var(--serifa);
+    letter-spacing: -0.015em;
+  }
+  .faixa__frase em {
+    color: var(--ouro);
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+// Números grandes de um projeto (metricas). O HTML já traz o valor FINAL formatado em pt-BR;
+// o JS de movimento lê data-conta / data-casas / data-prefixo / data-sufixo e conta a partir de 0.
+import type { Metrica } from '../lib/conteudo';
+
+interface Props {
+  metricas: Metrica[];
+  class?: string;
+}
+const { metricas, class: classe } = Astro.props;
+const formatar = (m: Metrica): string =>
+  `${m.prefixo ?? ''}${m.numero.toLocaleString('pt-BR', {
+    minimumFractionDigits: m.casas ?? 0,
+    maximumFractionDigits: m.casas ?? 0,
+  })}${m.sufixo ?? ''}`;
+---
+
+<div class:list={['nums', classe]}>
+  {metricas.map((m) => (
+    <div>
+      <b data-conta={m.numero} data-casas={m.casas ?? 0} data-prefixo={m.prefixo} data-sufixo={m.sufixo}>
+        {formatar(m)}
+      </b>
+      <span>{m.rotulo}</span>
+    </div>
+  ))}
+</div>
+
+<style>
+  .nums {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--linha);
+    margin: 2.5rem 0;
+  }
+  .nums div {
+    padding: 1.25rem 1rem 1.25rem 0;
+    border-bottom: 1px solid var(--linha);
+  }
+  .nums b {
+    display: block;
+    font: 300 clamp(2.2rem, 1.7rem + 1.4vw, 3.2rem) / 1 var(--serifa);
+    letter-spacing: -0.03em;
+    color: var(--ouro);
+    font-variant-numeric: tabular-nums;
+  }
+  .nums span {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--texto-2);
+    line-height: 1.35;
+  }
+</style>

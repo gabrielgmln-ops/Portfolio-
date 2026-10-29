@@ -1,12 +1,13 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../layouts/Layout.astro';
-import TarotCard from '../../components/TarotCard.astro';
-import StatusBadge from '../../components/StatusBadge.astro';
+import CartaArcano from '../../components/CartaArcano.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
-import Contador from '../../components/Contador.astro';
+import Numeros from '../../components/Numeros.astro';
+import FichaTecnica from '../../components/FichaTecnica.astro';
+import LinksProjeto from '../../components/LinksProjeto.astro';
 import { getEstudo, getPerfil, getProjeto, getProjetosVisiveis, type Project } from '../../lib/conteudo';
-import { formatarData, isoData } from '../../ui/formato';
+import { formatarData, isoData, ROTULO_STATUS } from '../../ui/formato';
 
 export const getStaticPaths = (async () => {
   const visiveis = await getProjetosVisiveis();
@@ -20,82 +21,56 @@ const estudo = await getEstudo(slug);
 
 // Só campos do contrato; o que não existe não vira seção (CaseStudy as filtra).
 const secoes = [
-  { id: 'contexto', titulo: 'Contexto', texto: projeto.resumo },
-  { id: 'contribuicao', titulo: 'Minha contribuição', texto: projeto.papel },
   // Com corpo escrito, a prova detalhada está nele; o resumo de `prova` só aparece sem corpo.
   { id: 'testes', titulo: 'Testes', texto: estudo ? undefined : projeto.prova },
-  { id: 'resultado', titulo: 'Resultado' },
+  { id: 'resultado', titulo: 'Resultado', texto: projeto.resultado },
 ];
 const descricao = projeto.resumo ?? `${projeto.arcano.nome} — ${projeto.titulo}, projeto de ${perfil.nome}.`;
+const mes = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' });
+const mesAno = (d: Date): string => `${mes.format(d).replace('.', '')}/${d.getUTCFullYear()}`;
 ---
 
 <Layout titulo={`${projeto.titulo} · ${perfil.nome}`} descricao={descricao} og={`/og/${projeto.slug}.png`}>
-  <article class="envoltorio projeto">
-    <header class="projeto__topo">
-      <div class="projeto__capa">
-        <TarotCard projeto={projeto} semLink prioridade transicao={`carta-${projeto.slug}`} sizes="16rem" />
-      </div>
-      <div class="projeto__dados">
-        <p class="projeto__arcano">
-          <span class="mono">{projeto.arcano.numeral}</span> {projeto.arcano.nome}
-        </p>
+  <article class="proj px">
+    <header class="proj__topo">
+      <CartaArcano
+        projeto={projeto}
+        prioridade
+        sizes="(max-width: 48rem) 60vw, 16rem"
+        vt={`carta-${projeto.slug}`}
+        class="proj__capa"
+      />
+      <div class="proj__dados">
+        <span class="mono proj__arcano">
+          {projeto.arcano.numeral} · {projeto.arcano.nome} · {ROTULO_STATUS[projeto.status]}
+          {projeto.medidoEm && <> em {mesAno(projeto.medidoEm)}</>}
+        </span>
         <h1>{projeto.titulo}</h1>
-        <dl class="ficha">
-          <dt>Status</dt>
-          <dd>
-            <StatusBadge status={projeto.status} />
-          </dd>
-          <dt>Atualizado</dt>
-          <dd>
-            <time datetime={isoData(projeto.atualizadoEm)}>{formatarData(projeto.atualizadoEm)}</time>
-          </dd>
-          {projeto.tecnologias.length > 0 && (
-            <>
-              <dt>Stack</dt>
-              <dd>
-                <ul class="stack">
-                  {projeto.tecnologias.map((t) => (
-                    <li>{t}</li>
-                  ))}
-                </ul>
-              </dd>
-            </>
-          )}
-          {projeto.github && (
-            <>
-              <dt>Último commit</dt>
-              <dd>
-                <time datetime={isoData(projeto.github.ultimoCommit)}>{formatarData(projeto.github.ultimoCommit)}</time>
-              </dd>
-            </>
-          )}
-        </dl>
-        {(projeto.repo || projeto.demo) && (
-          <p class="projeto__acoes">
-            {projeto.repo && (
-              <a class="botao" href={projeto.repo}>
-                Repositório
-              </a>
-            )}
-            {projeto.demo && (
-              <a class="botao" href={projeto.demo}>
-                Demo
-              </a>
-            )}
-          </p>
-        )}
+        {projeto.resumo && <p class="proj__resumo">{projeto.resumo}</p>}
+        {projeto.papel && <p class="proj__papel">{projeto.papel}</p>}
+        {projeto.metricas && <Numeros metricas={projeto.metricas} />}
+        {projeto.ficha && <FichaTecnica ficha={projeto.ficha} />}
+        <LinksProjeto projeto={projeto} />
       </div>
     </header>
 
     <CaseStudy secoes={secoes} corpo={estudo?.secoes}>
       {estudo && <estudo.Conteudo slot="corpo" />}
-      {projeto.resultado && <Contador slot="resultado" projeto={projeto} />}
     </CaseStudy>
 
+    {projeto.medidoEm && (
+      <p class="mono proj__medido">
+        Medido em <time datetime={isoData(projeto.medidoEm)}>{formatarData(projeto.medidoEm)}</time>
+      </p>
+    )}
+
     {projeto.changelog.length > 0 && (
-      <section class="secao" aria-labelledby="titulo-changelog">
-        <h2 id="titulo-changelog">Changelog</h2>
-        <ol class="changelog">
+      <section class="s" aria-labelledby="titulo-changelog">
+        <div class="rotulo mono">
+          <h2 id="titulo-changelog">Changelog</h2>
+          <span>{projeto.changelog.length} entradas</span>
+        </div>
+        <ol class="changelog mono">
           {[...projeto.changelog]
             .sort((a, b) => b.data.getTime() - a.data.getTime())
             .map((c) => (
@@ -111,68 +86,62 @@ const descricao = projeto.resumo ?? `${projeto.arcano.nome} — ${projeto.titulo
 </Layout>
 
 <style>
-  .projeto {
-    padding-block: var(--s-7);
+  .proj {
+    padding-top: clamp(2rem, 6vw, 5rem);
   }
-  .projeto__topo {
+  .proj__topo {
     display: grid;
-    gap: var(--s-6);
-    margin-bottom: var(--s-8);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+    margin-bottom: clamp(3rem, 7vw, 6rem);
   }
   @media (min-width: 48rem) {
-    .projeto__topo {
-      grid-template-columns: auto 1fr;
-      gap: var(--s-8);
-      align-items: start;
+    .proj__topo {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .proj__topo :global(.proj__capa) {
+      position: sticky;
+      top: 2rem;
     }
   }
-  .projeto__capa {
-    --carta-largura: 16rem;
-    justify-self: center;
+  .proj__topo :global(.proj__capa) {
+    --w: clamp(11rem, 50vw, 16rem);
   }
-  .projeto__arcano {
-    font-family: var(--fonte-serifa);
-    color: var(--acento);
-    margin-bottom: var(--s-2);
+  .proj__arcano {
+    color: var(--ouro);
   }
-  .ficha {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: var(--s-2) var(--s-5);
-    align-items: baseline;
+  h1 {
+    margin: 0.5rem 0 1rem;
+    font: 300 var(--t-destaque) / 0.95 var(--serifa);
+    letter-spacing: -0.045em;
   }
-  .ficha dt {
+  .proj__resumo {
     color: var(--texto-2);
+    max-width: 52ch;
+    font-size: 1.15rem;
   }
-  .ficha dd {
-    margin: 0;
+  .proj__papel {
+    color: var(--texto-3);
+    max-width: 60ch;
+    font-size: 0.95rem;
   }
-  .stack {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-1) var(--s-3);
-    font-family: var(--fonte-mono);
-    font-size: var(--t--1);
+  .proj__dados :global(.ficha-t) {
+    max-width: 40rem;
   }
-  .projeto__acoes {
-    display: flex;
-    gap: var(--s-3);
-    margin-top: var(--s-5);
+  .proj__medido {
+    color: var(--texto-3);
   }
   .changelog {
     list-style: none;
     padding: 0;
-    font-family: var(--fonte-mono);
-    font-size: var(--t--1);
+    margin: 0;
     display: grid;
-    gap: var(--s-2);
+    gap: 0.5rem;
   }
   .changelog li {
     display: grid;
     grid-template-columns: 7rem 1fr;
-    gap: var(--s-4);
+    gap: 1rem;
+    color: var(--texto-2);
   }
 </style>

@@ -1,0 +1,156 @@
+---
+// Sobre (v7): retrato 4:5 com moldura dourada fina, bio em três parágrafos e ficha.
+// Usado na home (section#sobre, h2) e na página /sobre (com titulo="h1").
+import { Picture } from 'astro:assets';
+import retrato from '../assets/retrato.png';
+import { getPerfil } from '../lib/conteudo';
+
+interface Props {
+  /** nível do título do rótulo: h1 na página /sobre */
+  nivel?: 'h1' | 'h2';
+  id?: string;
+}
+const { nivel = 'h2', id = 'sobre' } = Astro.props;
+const Titulo = nivel;
+const perfil = getPerfil();
+const idiomas = perfil.idiomas.map((i, n) => (n === 0 ? i.idioma : `${i.idioma.toLowerCase()} ${i.nivel}`)).join(', ');
+---
+
+<section class="s px" id={id} aria-labelledby={`${id}-t`}>
+  <div class="rotulo mono">
+    <Titulo id={`${id}-t`}>{nivel === 'h1' ? 'Sobre' : 'Quem embaralha'}</Titulo>
+    <span>{nivel === 'h1' ? 'Quem embaralha' : 'Sobre'}</span>
+  </div>
+  <div class="sobre-grid">
+    <figure class="retrato sobe">
+      <div class="retrato__img">
+        <Picture
+          src={retrato}
+          alt="Retrato de Gabriel Moraes, cabelo ondulado acobreado, camiseta preta, fundo petróleo"
+          formats={['avif', 'webp']}
+          width={480}
+          height={600}
+          widths={[272, 480, 600]}
+          sizes="(min-width: 62rem) 17rem, 70vw"
+          fit="cover"
+          quality={70}
+          loading="lazy"
+        />
+      </div>
+      <figcaption class="mono">Gabriel Moraes, Guarulhos</figcaption>
+    </figure>
+    <div class="bio sobe">
+      <p>
+        Vim do <em>Comércio Exterior</em> e estou indo para o código pelo mesmo motivo: gosto de sistemas em que cada
+        centavo precisa fechar.
+      </p>
+      <p>
+        Estudo Tecnologia em Comércio Exterior na FATEC Guarulhos e começo Ciência da Computação na FIAP em 2027. Do
+        comex trouxe o hábito de conferir documento, câmbio e prazo até bater. No código, isso virou testes: a Ledger
+        API só entrou aqui depois de 1.000 transferências simultâneas sem perder um centavo.
+      </p>
+      <p>
+        Procuro um estágio em desenvolvimento back-end num banco ou fintech, onde eu possa aprender com quem já faz isso
+        em produção.
+      </p>
+    </div>
+    <dl class="ficha sobe">
+      <div>
+        <dt class="mono">Formação</dt>
+        <dd>Comércio Exterior, FATEC Guarulhos (2026–2029)</dd>
+      </div>
+      <div>
+        <dt class="mono">A seguir</dt>
+        <dd>Ciência da Computação, FIAP (fev. 2027)</dd>
+      </div>
+      <div>
+        <dt class="mono">Foco</dt>
+        <dd>Back-end, Java e Spring, PostgreSQL</dd>
+      </div>
+      <div>
+        <dt class="mono">Idiomas</dt>
+        <dd>{idiomas}</dd>
+      </div>
+    </dl>
+  </div>
+  <slot />
+</section>
+
+<style>
+  .sobre-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  @media (min-width: 62rem) {
+    .sobre-grid {
+      grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr) minmax(12rem, 18rem);
+    }
+  }
+  .retrato {
+    margin: 0;
+    width: min(17rem, 70vw);
+  }
+  .retrato__img {
+    position: relative;
+    aspect-ratio: 4/5;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+  }
+  .retrato__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  :global(html.js-motion) .retrato__img :global(img) {
+    transform: scale(1.08);
+    transition: transform 1.4s var(--saida);
+  }
+  :global(html.js-motion) .retrato:global(.on) .retrato__img :global(img) {
+    transform: none;
+  }
+  .retrato__img::after {
+    content: '';
+    position: absolute;
+    inset: 0.42rem;
+    border: 1px solid #c9a96ab0;
+    border-radius: 0.5rem;
+    pointer-events: none;
+  }
+  .retrato figcaption {
+    margin-top: 0.8rem;
+    color: var(--texto-3);
+  }
+  .bio p {
+    margin: 0 0 1.1rem;
+    max-width: 56ch;
+    color: var(--texto-2);
+  }
+  .bio p:first-child {
+    font: 300 clamp(1.5rem, 1.1rem + 1.3vw, 2.1rem) / 1.22 var(--serifa);
+    letter-spacing: -0.015em;
+    color: var(--texto);
+  }
+  .bio p:first-child em {
+    color: var(--ouro);
+  }
+  .ficha {
+    margin: 0;
+    border-top: 1px solid var(--linha);
+  }
+  .ficha div {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--linha);
+  }
+  .ficha dt {
+    color: var(--texto-3);
+  }
+  .ficha dd {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+</style>

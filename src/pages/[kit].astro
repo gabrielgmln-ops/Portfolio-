@@ -1,16 +1,17 @@
 ---
-// /_kit — vitrine interna dos componentes (noindex, fora do sitemap).
+// /_kit — vitrine interna dos componentes v7 (noindex, fora do sitemap).
 // Arquivos com "_" não viram rota no Astro; o parâmetro dinâmico contorna isso.
 import type { GetStaticPaths } from 'astro';
 import Layout from '../layouts/Layout.astro';
-import TarotCard from '../components/TarotCard.astro';
-import Tiragem from '../components/Tiragem.astro';
-import Roteiro from '../components/Roteiro.astro';
-import StatusBadge from '../components/StatusBadge.astro';
-import SkillGroup from '../components/SkillGroup.astro';
+import CartaArcano from '../components/CartaArcano.astro';
+import Numeros from '../components/Numeros.astro';
+import FichaTecnica from '../components/FichaTecnica.astro';
+import LinksProjeto from '../components/LinksProjeto.astro';
+import LogTransacoes from '../components/LogTransacoes.astro';
+import Indice from '../components/Indice.astro';
+import DiagramaPlataforma from '../components/DiagramaPlataforma.astro';
 import Timeline from '../components/Timeline.astro';
-import CaseStudy from '../components/CaseStudy.astro';
-import Contador from '../components/Contador.astro';
+import SkillGroup from '../components/SkillGroup.astro';
 import { getMarcos, getProjeto, getProjetosVisiveis, getRoteiro } from '../lib/conteudo';
 
 export const getStaticPaths = (() => [{ params: { kit: '_kit' } }]) satisfies GetStaticPaths;
@@ -18,45 +19,47 @@ export const getStaticPaths = (() => [{ params: { kit: '_kit' } }]) satisfies Ge
 const visiveis = await getProjetosVisiveis();
 const [planejado] = await getRoteiro(1);
 const emDev = visiveis.find((p) => p.status === 'em-desenvolvimento');
-const concluido = visiveis.find((p) => p.status === 'concluido');
 const ledger = await getProjeto('ledger-api');
 const marcos = await getMarcos();
-const exemplos = [planejado, emDev, concluido].filter((p) => p !== undefined);
+const exemplos = [planejado, emDev, ledger].filter((p) => p !== undefined);
 ---
 
 <Layout titulo="Kit de componentes" descricao="Vitrine interna dos componentes do portfólio." noindex>
-  <div class="envoltorio secao kit">
+  <div class="px kit">
     <h1>Kit</h1>
-    <p class="texto-2">Use o botão de tema no topo para conferir os dois temas.</p>
+    <p>Use o botão de tema no topo para conferir os dois temas.</p>
 
-    <h2>TarotCard — três estados</h2>
+    <h2>CartaArcano — três estados</h2>
     <div class="kit__cartas">
       {exemplos.map((p) => (
         <figure>
-          <TarotCard projeto={p} />
-          <figcaption class="mono">data-estado: {p.status}</figcaption>
+          <CartaArcano projeto={p} />
+          <figcaption class="mono">status: {p.status}</figcaption>
         </figure>
       ))}
     </div>
-    <p class="kit__nome-14">Nome da carta a 14 px: A Justiça · O Louco · A Roda da Fortuna</p>
 
-    <h2>StatusBadge</h2>
-    <p class="kit__linha">
-      <StatusBadge status="planejado" />
-      <StatusBadge status="em-desenvolvimento" />
-      <StatusBadge status="concluido" />
-    </p>
+    {ledger && (
+      <>
+        <h2>Numeros</h2>
+        {ledger.metricas && <Numeros metricas={ledger.metricas} />}
+        <h2>FichaTecnica</h2>
+        {ledger.ficha && <FichaTecnica ficha={ledger.ficha} />}
+        <h2>LinksProjeto</h2>
+        <LinksProjeto projeto={ledger} estudo />
+      </>
+    )}
 
-    <h2>Tiragem</h2>
-    <Tiragem projetos={visiveis} />
-    <h3>Tiragem com uma carta</h3>
-    <Tiragem projetos={visiveis.slice(0, 1)} />
+    <h2>LogTransacoes</h2>
+    <div class="kit__log">
+      <LogTransacoes />
+    </div>
 
-    <h2>Roteiro</h2>
-    <Roteiro idTitulo="kit-roteiro" />
-    <span id="kit-roteiro" class="sr-only">
-      Roteiro de exemplo
-    </span>
+    <h2>Indice</h2>
+    <Indice projetos={visiveis.slice(0, 3)} />
+
+    <h2>DiagramaPlataforma</h2>
+    <DiagramaPlataforma id="diag-kit" />
 
     <h2>SkillGroup</h2>
     {ledger && (
@@ -65,44 +68,28 @@ const exemplos = [planejado, emDev, concluido].filter((p) => p !== undefined);
 
     <h2>Timeline</h2>
     <Timeline marcos={marcos} />
-
-    <h2>CaseStudy + Contador</h2>
-    {ledger && (
-      <CaseStudy
-        secoes={[
-          { id: 'kit-contexto', titulo: 'Contexto', texto: ledger.resumo },
-          { id: 'kit-vazio', titulo: 'Seção vazia (não aparece)' },
-          { id: 'resultado', titulo: 'Resultado' },
-        ]}
-      >
-        <Contador slot="resultado" projeto={ledger} />
-      </CaseStudy>
-    )}
   </div>
 </Layout>
 
 <style>
+  .kit {
+    padding-block: 3rem;
+  }
   .kit h2 {
-    margin-top: var(--s-8);
+    margin-top: 4rem;
   }
   .kit__cartas {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-6);
+    gap: 2rem;
   }
   .kit__cartas figure {
     margin: 0;
     display: grid;
-    gap: var(--s-3);
+    gap: 0.75rem;
     justify-items: center;
   }
-  .kit__nome-14 {
-    font-family: var(--fonte-serifa);
-    font-size: 0.875rem;
-  }
-  .kit__linha {
-    display: flex;
-    gap: var(--s-3);
-    flex-wrap: wrap;
+  .kit__log {
+    max-width: 40rem;
   }
 </style>

@@ -1,11 +1,12 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Tiragem from '../../components/Tiragem.astro';
-import Roteiro from '../../components/Roteiro.astro';
+import Indice from '../../components/Indice.astro';
+import PreviaCursor from '../../components/PreviaCursor.astro';
+import CartaArcano from '../../components/CartaArcano.astro';
 import { getPerfil, getProjetosVisiveis, getRoteiro } from '../../lib/conteudo';
 
 const perfil = getPerfil();
-const visiveis = await getProjetosVisiveis();
+const visiveis = [...(await getProjetosVisiveis())].sort((a, b) => a.ordem - b.ordem);
 const roteiro = await getRoteiro(4);
 ---
 
@@ -13,15 +14,75 @@ const roteiro = await getRoteiro(4);
   titulo={`Projetos · ${perfil.nome}`}
   descricao={`Projetos de ${perfil.nome}: cada um com status honesto e, quando concluído, o resultado medido.`}
 >
-  <section class="secao envoltorio" aria-labelledby="titulo-projetos">
-    <h1 id="titulo-projetos">Projetos</h1>
-    <p class="texto-2">A carta só vira quando o projeto tem prova medida.</p>
-    <Tiragem projetos={visiveis} prioritarias={2} />
+  <section class="s px projetos" aria-labelledby="titulo-projetos">
+    <div class="rotulo mono">
+      <h1 id="titulo-projetos">Projetos</h1>
+      <span>A carta só vira quando há prova medida</span>
+    </div>
+    <Indice projetos={visiveis} vt />
+    <PreviaCursor />
   </section>
   {roteiro.length > 0 && (
-    <section class="secao envoltorio" aria-labelledby="roteiro-titulo">
-      <h2 id="roteiro-titulo">Próximas cartas</h2>
-      <Roteiro projetos={roteiro} />
+    <section class="s px" id="roteiro" aria-labelledby="roteiro-titulo">
+      <div class="rotulo mono">
+        <h2 id="roteiro-titulo">Próximas cartas</h2>
+        <span>Um projeto por vez</span>
+      </div>
+      <ol class="planejados">
+        {roteiro.map((p) => (
+          <li>
+            <CartaArcano projeto={p} sizes="9rem" semLegenda />
+            <div>
+              <span class="mono planejados__n">
+                {p.arcano.numeral} · {p.arcano.nome} · planejado
+              </span>
+              <p class="planejados__t">{p.titulo}</p>
+              {p.resumo && <p class="planejados__p">{p.resumo}</p>}
+              {p.prova && <p class="planejados__p">Critério de prova: {p.prova}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
   )}
 </Layout>
+
+<style>
+  .projetos {
+    padding-top: clamp(2rem, 6vw, 5rem);
+  }
+  .planejados {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2.5rem 2rem;
+  }
+  @media (min-width: 48rem) {
+    .planejados {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .planejados li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+  }
+  .planejados :global(.carta) {
+    --w: 6.5rem;
+  }
+  .planejados__n {
+    color: var(--texto-3);
+  }
+  .planejados__t {
+    margin: 0.4rem 0;
+    font: 300 clamp(1.5rem, 1.2rem + 1vw, 2rem) / 1.1 var(--serifa);
+    letter-spacing: -0.02em;
+  }
+  .planejados__p {
+    margin: 0;
+    color: var(--texto-2);
+    font-size: 0.93rem;
+  }
+</style>

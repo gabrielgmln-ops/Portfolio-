@@ -1,0 +1,43 @@
+---
+// Pílulas de um projeto: Estudo de caso (opcional), Código (repo) e Demo. Externos indicados.
+import type { Project } from '../lib/conteudo';
+
+interface Props {
+  projeto: Project;
+  estudo?: boolean;
+}
+const { projeto, estudo = false } = Astro.props;
+const naRender = projeto.demo?.includes('onrender.com') ?? false;
+---
+
+<div class="links">
+  {estudo && (
+    <a class="pilula pilula--cheia magnetico" href={`/projetos/${projeto.slug}`}>
+      Estudo de caso
+    </a>
+  )}
+  {projeto.repo && (
+    <a class="pilula magnetico" href={projeto.repo} rel="noopener">
+      Código{' '}
+      <span class="externo" aria-hidden="true">
+        ↗
+      </span>
+      <span class="sr-only">(GitHub, site externo)</span>
+    </a>
+  )}
+  {projeto.demo && (
+    <a
+      class="pilula magnetico"
+      href={projeto.demo}
+      rel="noopener"
+      title={naRender ? 'Hospedada no Render: pode demorar alguns segundos para acordar' : undefined}
+    >
+      Demo{' '}
+      <span class="externo" aria-hidden="true">
+        ↗
+      </span>
+      <span class="sr-only">(site externo)</span>
+    </a>
+  )}
+</div>
+{naRender && <p class="nota-pequena">A demo roda no Render e pode demorar alguns segundos para acordar.</p>}

@@ -1,0 +1,102 @@
+---
+// /plataforma — O Mundo (XXI): a plataforma bancária sintética que une os seis projetos.
+import Layout from '../layouts/Layout.astro';
+import CartaArcano from '../components/CartaArcano.astro';
+import DiagramaPlataforma from '../components/DiagramaPlataforma.astro';
+import Indice from '../components/Indice.astro';
+import PreviaCursor from '../components/PreviaCursor.astro';
+import { getEstudo, getPerfil, getProjeto, getProjetosVisiveis } from '../lib/conteudo';
+
+const perfil = getPerfil();
+const plataforma = await getProjeto('bank-platform');
+const estudo = plataforma ? await getEstudo('bank-platform') : undefined;
+const membros = (await getProjetosVisiveis())
+  .filter((p) => p.plataforma === 'bank-platform' && p.status === 'concluido')
+  .sort((a, b) => a.ordem - b.ordem);
+const titulo = plataforma?.titulo ?? 'Plataforma';
+const descricao = plataforma?.resumo ?? `A plataforma bancária sintética que une os projetos de ${perfil.nome}.`;
+---
+
+<Layout titulo={`${titulo} · ${perfil.nome}`} descricao={descricao}>
+  <article class="plat px">
+    <header class="plat__topo">
+      {plataforma && (
+        <CartaArcano projeto={plataforma} prioridade sizes="(max-width: 48rem) 60vw, 16rem" class="plat__carta" />
+      )}
+      <div>
+        {plataforma && (
+          <span class="mono plat__arcano">
+            {plataforma.arcano.numeral} · {plataforma.arcano.nome}
+          </span>
+        )}
+        <h1>{titulo}</h1>
+        {plataforma?.resumo && <p class="plat__resumo">{plataforma.resumo}</p>}
+        {estudo && (
+          <div class="plat__corpo">
+            <estudo.Conteudo />
+          </div>
+        )}
+      </div>
+    </header>
+
+    <section class="s" aria-labelledby="t-diag">
+      <div class="rotulo mono">
+        <h2 id="t-diag">Arquitetura</h2>
+        <span>Como as cartas se ligam</span>
+      </div>
+      <DiagramaPlataforma id="diag-plat" grande descricaoAberta />
+    </section>
+
+    {membros.length > 0 && (
+      <section class="s" aria-labelledby="t-membros">
+        <div class="rotulo mono">
+          <h2 id="t-membros">Os projetos</h2>
+          <span>{String(membros.length).padStart(2, '0')} cartas</span>
+        </div>
+        <Indice projetos={membros} vt />
+        <PreviaCursor />
+      </section>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .plat {
+    padding-top: clamp(2rem, 6vw, 5rem);
+  }
+  .plat__topo {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  @media (min-width: 48rem) {
+    .plat__topo {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+  }
+  .plat__topo :global(.plat__carta) {
+    --w: clamp(11rem, 50vw, 16rem);
+  }
+  .plat__arcano {
+    color: var(--ouro);
+  }
+  h1 {
+    margin: 0.5rem 0 1rem;
+    font: 300 var(--t-destaque) / 0.95 var(--serifa);
+    letter-spacing: -0.045em;
+  }
+  .plat__resumo {
+    color: var(--texto-2);
+    max-width: 52ch;
+  }
+  .plat__corpo {
+    color: var(--texto-2);
+    max-width: 60ch;
+  }
+  .plat__corpo :global(strong) {
+    color: var(--texto);
+  }
+  .plat__corpo :global(ul) {
+    padding-left: 1.25rem;
+  }
+</style>

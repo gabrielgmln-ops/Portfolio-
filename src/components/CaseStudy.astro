@@ -29,7 +29,8 @@ for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots
 {(secoes.length > 0 || htmlCorpo) && (
   <div class="estudo">
     {indice.length > 1 && (
-      <nav class="estudo__indice" aria-label="Nesta página">
+      <nav class="estudo__indice mono" aria-label="Nesta página">
+        <span class="estudo__rot">Estudo de caso</span>
         <ol>
           {indice.map((s) => (
             <li>
@@ -65,64 +66,107 @@ for (const s of secoes) if (temSlot(s.id)) htmlSlots.set(s.id, await Astro.slots
 <style>
   .estudo {
     display: grid;
-    gap: var(--s-6);
+    gap: 2rem;
+    border-top: 1px solid var(--linha);
+    padding-top: clamp(2rem, 5vw, 4rem);
   }
   @media (min-width: 64rem) {
     .estudo {
-      grid-template-columns: 12rem 1fr;
-      gap: var(--s-8);
+      grid-template-columns: 14rem minmax(0, 1fr);
+      gap: 4rem;
     }
     .estudo__indice {
       position: sticky;
-      top: var(--s-9);
+      top: 2rem;
       align-self: start;
     }
+  }
+  .estudo__rot {
+    display: block;
+    color: var(--texto-3);
+    margin-bottom: 1rem;
   }
   .estudo__indice ol {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 var(--s-4);
-    border-left: var(--traco) solid var(--borda);
-    display: grid;
-    gap: var(--s-2);
-    font-size: var(--t--1);
+    padding: 0;
+    border-top: 1px solid var(--linha);
+  }
+  .estudo__indice li {
+    border-bottom: 1px solid var(--linha);
   }
   .estudo__indice a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--texto-2);
-    text-decoration: none;
   }
   @media (hover: hover) and (pointer: fine) {
     .estudo__indice a:hover {
-      color: var(--acento);
+      color: var(--ouro);
     }
   }
-  .estudo__secao {
-    padding-bottom: var(--s-6);
-    scroll-margin-top: var(--s-9);
+  .estudo__corpo {
+    max-width: 68ch;
+    color: var(--texto-2);
   }
-  .estudo__secao h2 {
-    font-size: var(--t-2);
-  }
+  .estudo__secao,
   .estudo__mdx {
-    padding-bottom: var(--s-6);
+    padding-bottom: 2rem;
   }
+  .estudo__secao,
   .estudo__mdx :global(h2) {
-    font-size: var(--t-2);
-    margin-top: var(--s-6);
-    scroll-margin-top: var(--s-9);
+    scroll-margin-top: 2rem;
+  }
+  .estudo__secao h2,
+  .estudo__mdx :global(h2) {
+    margin: 2.5rem 0 1rem;
+    font: 300 clamp(1.8rem, 1.3rem + 1.6vw, 2.6rem) / 1.1 var(--serifa);
+    letter-spacing: -0.025em;
+    color: var(--texto);
   }
   .estudo__mdx :global(h2:first-child) {
     margin-top: 0;
   }
-  .estudo__mdx :global(ul) {
-    padding-left: var(--s-5);
-    max-width: var(--medida);
+  .estudo__mdx :global(h3) {
+    font: 400 1.35rem/1.25 var(--serifa);
+    color: var(--texto);
+    margin: 2rem 0 0.75rem;
+  }
+  .estudo__mdx :global(strong) {
+    color: var(--texto);
+  }
+  .estudo__mdx :global(a) {
+    color: var(--ouro);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .estudo__mdx :global(ul),
+  .estudo__mdx :global(ol),
+  .estudo__secao ul {
+    padding-left: 1.25rem;
   }
   .estudo__mdx :global(li + li) {
-    margin-top: var(--s-2);
+    margin-top: 0.5rem;
   }
-  .estudo__secao ul {
-    padding-left: var(--s-5);
-    max-width: var(--medida);
+  .estudo__mdx :global(pre) {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid var(--linha);
+    border-radius: 0.5rem;
+    background: var(--fundo-2);
+    font-size: 0.85rem;
+  }
+  .estudo__mdx :global(table) {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .estudo__mdx :global(th),
+  .estudo__mdx :global(td) {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--linha);
+    text-align: left;
   }
 </style>

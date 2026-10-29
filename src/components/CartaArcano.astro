@@ -1,0 +1,114 @@
+---
+// Carta do arcano (v7): arte (ou verso, decidido por getCarta), moldura fina, numeral e nome sobrepostos.
+// Com href vira link com aria-label "Nome do arcano: Projeto"; sem href é só figura.
+import { Picture } from 'astro:assets';
+import { getCarta, type Project } from '../lib/conteudo';
+
+interface Props {
+  projeto: Project;
+  href?: string | undefined;
+  /** classes extras (posição no leque etc.) */
+  class?: string;
+  /** acima da dobra: sem lazy */
+  prioridade?: boolean;
+  sizes?: string;
+  /** nome da View Transition; aplicado via data-vt (CSP: transition:name gera <style> inline) */
+  vt?: string | undefined;
+  /** esconde numeral/nome (miniaturas) */
+  semLegenda?: boolean;
+}
+const { projeto, href, class: classe, prioridade = false, sizes = '13rem', vt, semLegenda = false } = Astro.props;
+const carta = getCarta(projeto);
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  class:list={['carta', classe]}
+  href={href}
+  aria-label={href ? `${projeto.arcano.nome}: ${projeto.titulo}` : undefined}
+  data-estado={carta.estado}
+  data-vt={vt}
+>
+  <Picture
+    src={carta.imagem}
+    alt={carta.alt}
+    formats={['avif', 'webp']}
+    widths={[200, 320, 480]}
+    sizes={sizes}
+    quality={60}
+    loading={prioridade ? 'eager' : 'lazy'}
+    fetchpriority={prioridade ? 'high' : 'auto'}
+  />
+  {!semLegenda && (
+    <>
+      <span class="carta__num" aria-hidden="true">
+        {projeto.arcano.numeral}
+      </span>
+      <span class="carta__nome" aria-hidden="true">
+        {projeto.arcano.nome}
+      </span>
+    </>
+  )}
+</Tag>
+
+<style>
+  .carta {
+    --w: clamp(9.5rem, 15vw, 13rem);
+    position: relative;
+    display: block;
+    width: var(--w);
+    aspect-ratio: 2 / 3;
+    border-radius: 0.85rem;
+    box-shadow: var(--sombra);
+    background: var(--fundo-3);
+  }
+  .carta :global(picture),
+  .carta :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  .carta::before {
+    content: '';
+    position: absolute;
+    inset: 0.42rem;
+    z-index: 2;
+    border: 1px solid #c9a96ac0;
+    border-radius: 0.5rem;
+    box-shadow:
+      inset 0 0 0 3px transparent,
+      inset 0 0 0 4px #c9a96a4d;
+    pointer-events: none;
+  }
+  .carta__num,
+  .carta__nome {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    text-align: center;
+    font-family: var(--serifa);
+    color: #e2c98f;
+    pointer-events: none;
+  }
+  .carta__num {
+    top: 0.9rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+  }
+  .carta__nome {
+    bottom: 0;
+    padding: 2.4rem 0.5rem 0.95rem;
+    border-radius: 0 0 0.85rem 0.85rem;
+    background: linear-gradient(transparent, #0a1414eb 62%);
+    font-size: 0.98rem;
+    line-height: 1.2;
+  }
+</style>
+
+<script>
+  // Só o nome da View Transition (data-vt → view-transition-name via CSSOM), já feito em motion/cartas.
+  import '../scripts/motion/cartas';
+</script>

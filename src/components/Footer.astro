@@ -1,58 +1,185 @@
 ---
+// Rodapé v7: avatar, "Vamos conversar", botão redondo, pílulas e base com relógio de São Paulo.
+import { Image } from 'astro:assets';
+import retrato from '../assets/retrato.png';
 import { getPerfil } from '../lib/conteudo';
 const perfil = getPerfil();
-const ano = new Date().getFullYear();
+const hora = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  hour: '2-digit',
+  minute: '2-digit',
+}).format(new Date());
 ---
 
-<footer class="rodape">
-  <div class="envoltorio rodape__grade">
-    <ul class="rodape__links">
-      {perfil.email && (
-        <li>
-          <a href={`mailto:${perfil.email}`}>{perfil.email}</a>
-        </li>
-      )}
-      {perfil.github && (
-        <li>
-          <a href={perfil.github.url} rel="me">
-            GitHub · {perfil.github.usuario}
+<footer class="rod px" id="contato" aria-labelledby="t-cont">
+  <h2 class="rod__titulo" id="t-cont">
+    <Image src={retrato} alt="" width={104} height={104} fit="cover" format="webp" loading="lazy" />
+    <span>
+      Vamos <em>conversar</em>
+    </span>
+  </h2>
+  {perfil.email && (
+    <div class="rod__linha">
+      <a class="redondo magnetico" href={`mailto:${perfil.email}`}>
+        <span>Fale comigo</span>
+      </a>
+    </div>
+  )}
+  <div class="rod__pilulas">
+    {perfil.email && (
+      <a class="pilula magnetico" href={`mailto:${perfil.email}`}>
+        {perfil.email}
+      </a>
+    )}
+    {perfil.linkedin && (
+      <a class="pilula magnetico" href={perfil.linkedin} rel="me noopener">
+        LinkedIn{' '}
+        <span class="externo" aria-hidden="true">
+          ↗
+        </span>
+        <span class="sr-only">(site externo)</span>
+      </a>
+    )}
+  </div>
+  <div class="rod__base mono">
+    <div>
+      <small>Versão</small>2026 · baralho próprio
+    </div>
+    <div>
+      <small>Horário local</small>
+      <span data-relogio>{hora} (São Paulo)</span>
+    </div>
+    <div>
+      <small>Redes</small>
+      <span class="rod__redes">
+        {perfil.github && (
+          <a href={perfil.github.url} rel="me noopener">
+            GitHub<span class="sr-only"> (site externo)</span>
           </a>
-        </li>
-      )}
-      {perfil.linkedin && (
-        <li>
-          <a href={perfil.linkedin} rel="me">
-            LinkedIn
+        )}
+        {perfil.linkedin && (
+          <a href={perfil.linkedin} rel="me noopener">
+            LinkedIn<span class="sr-only"> (site externo)</span>
           </a>
-        </li>
-      )}
-    </ul>
-    <p class="texto-2">
-      © <span class="mono">{ano}</span> {perfil.nome}. Feito com Astro e TypeScript, CSS próprio e um baralho desenhado
-      para este site; hospedado na Vercel.
-    </p>
+        )}
+      </span>
+    </div>
   </div>
 </footer>
 
 <style>
-  .rodape {
-    border-top: var(--traco) solid var(--borda);
-    padding-block: var(--s-6);
-    font-size: var(--t--1);
+  .rod {
+    position: relative;
+    background: var(--rodape);
+    color: var(--rodape-texto);
+    padding-top: clamp(5rem, 10vw, 9rem);
+    margin-top: 4rem;
   }
-  .rodape__grade {
-    display: grid;
-    gap: var(--s-3);
+  .rod::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -1px;
+    height: 4rem;
+    background: var(--fundo);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
   }
-  .rodape__links {
-    list-style: none;
+  .rod__titulo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
     margin: 0;
-    padding: 0;
+    font: 300 var(--t-rodape) / 0.95 var(--serifa);
+    letter-spacing: -0.045em;
+  }
+  .rod__titulo :global(img) {
+    flex: none;
+    width: clamp(4rem, 7vw, 6.5rem);
+    height: clamp(4rem, 7vw, 6.5rem);
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #c9a96a80;
+  }
+  .rod__titulo em {
+    color: #c9a96a;
+  }
+  .rod__linha {
+    position: relative;
+    border-top: 1px solid #ffffff24;
+    margin: clamp(5rem, 8vw, 7rem) 0 2.5rem;
+  }
+  .rod__linha .redondo {
+    position: absolute;
+    right: 12%;
+    top: 0;
+    translate: 0 -50%;
+    background: #c9a96a;
+    color: #121a19;
+  }
+  .rod__linha .redondo::before {
+    background: #e9dec5;
+  }
+  .rod__pilulas {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-2) var(--s-5);
+    gap: 0.75rem;
+    padding-top: 2rem;
   }
-  .rodape p {
-    margin: 0;
+  .rod__pilulas .pilula {
+    border-color: #ffffff40;
+    color: #e9dec5;
+    max-width: 100%;
+  }
+  .rod__pilulas .pilula::before {
+    background: #e9dec5;
+  }
+  .rod__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: clamp(4rem, 8vw, 7rem) 1.75rem;
+    color: var(--rodape-2);
+  }
+  .rod__base small {
+    display: block;
+    color: #8e968e;
+    margin-bottom: 0.4rem;
+  }
+  .rod__redes {
+    display: flex;
+    gap: 1.25rem;
+  }
+  .rod__redes a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .rod__base a:hover {
+      color: #e9dec5;
+    }
+    .rod__pilulas .pilula:hover {
+      color: #121a19;
+    }
+  }
+  @media (max-width: 47.99rem) {
+    .rod__linha .redondo {
+      right: 6%;
+    }
   }
 </style>
+
+<script>
+  // Relógio de São Paulo, atualizado a cada 30 s.
+  const fmt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+  const pintar = (): void => {
+    for (const el of document.querySelectorAll('[data-relogio]'))
+      el.textContent = `${fmt.format(new Date())} (São Paulo)`;
+  };
+  pintar();
+  setInterval(pintar, 30000);
+  document.addEventListener('astro:page-load', pintar);
+</script>

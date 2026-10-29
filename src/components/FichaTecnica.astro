@@ -1,0 +1,41 @@
+---
+// Ficha técnica estilo créditos (Project.ficha).
+import type { LinhaFicha } from '../lib/conteudo';
+
+interface Props {
+  ficha: LinhaFicha[];
+  class?: string;
+}
+const { ficha, class: classe } = Astro.props;
+---
+
+<dl class:list={['ficha-t mono', classe]}>
+  {ficha.map((f) => (
+    <div>
+      <dt>{f.rotulo}</dt>
+      <dd>{f.valor}</dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .ficha-t {
+    margin: 0 0 2rem;
+    border-top: 1px solid var(--linha);
+  }
+  .ficha-t div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--linha);
+    font-size: 0.92rem;
+  }
+  .ficha-t dt {
+    color: var(--texto-3);
+  }
+  .ficha-t dd {
+    margin: 0;
+    text-align: right;
+  }
+</style>

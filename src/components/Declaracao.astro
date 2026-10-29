@@ -1,0 +1,68 @@
+---
+// Declaração logo após o hero. data-palavras: o JS de movimento quebra em .w>span (palavra por palavra).
+---
+
+<section class="declara px" aria-labelledby="t-declara">
+  <h2 id="t-declara" data-palavras>
+    Construo sistemas financeiros e mostro <em>a prova</em> de que funcionam. Cada projeto é uma carta, e ela só vira
+    quando o número fecha.
+  </h2>
+  <div class="declara__lado">
+    <p class="sobe">
+      Estudante de Comércio Exterior na FATEC Guarulhos, entrando em Ciência da Computação na FIAP em 2027.
+    </p>
+    <a class="redondo magnetico" href="#sobre">
+      <span>Sobre mim</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .declara {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(6rem, 14vw, 11rem) clamp(4rem, 8vw, 7rem);
+  }
+  @media (min-width: 62rem) {
+    .declara {
+      grid-template-columns: 1.6fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .declara h2 {
+    margin: 0;
+    font: 300 var(--t-declaracao) / 1.18 var(--serifa);
+    letter-spacing: -0.025em;
+  }
+  .declara h2 :global(.w) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    margin-bottom: -0.12em;
+    padding-bottom: 0.12em;
+  }
+  .declara h2 :global(.w > span) {
+    display: inline-block;
+  }
+  :global(html.js-motion) .declara h2 :global(.w > span) {
+    transform: translateY(110%);
+    transition: transform 0.9s var(--expo);
+  }
+  :global(html.js-motion) .declara:global(.on) h2 :global(.w > span) {
+    transform: none;
+  }
+  .declara h2 em {
+    color: var(--ouro);
+  }
+  .declara__lado {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+  .declara__lado p {
+    margin: 0;
+    color: var(--texto-2);
+    max-width: 30ch;
+  }
+</style>

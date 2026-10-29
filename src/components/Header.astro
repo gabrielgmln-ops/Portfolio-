@@ -1,116 +1,367 @@
 ---
 import { getPerfil } from '../lib/conteudo';
 const perfil = getPerfil();
-const caminho = Astro.url.pathname.replace(/\/$/, '') || '/';
+const home = (Astro.url.pathname.replace(/\/$/, '') || '/') === '/';
+// Na home os links são âncoras; nas internas apontam para /#…
+const ancora = (id: string): string => (home ? `#${id}` : `/#${id}`);
 const links = [
-  { href: '/projetos', rotulo: 'Projetos' },
-  { href: '/sobre', rotulo: 'Sobre' },
-  { href: '/#contato', rotulo: 'Contato' },
+  { href: ancora('trabalho'), rotulo: 'Trabalho' },
+  { href: '/plataforma', rotulo: 'Plataforma' },
+  { href: ancora('sobre'), rotulo: 'Sobre' },
+  { href: ancora('contato'), rotulo: 'Contato' },
 ];
 ---
 
-<header class="topo">
-  <div class="envoltorio topo__linha">
-    <a class="topo__nome" href="/">
-      {perfil.nome}
-    </a>
-    <nav aria-label="Principal">
-      <ul class="topo__nav">
-        {links.map((l) => (
-          <li>
-            <a href={l.href} aria-current={caminho === l.href || caminho.startsWith(`${l.href}/`) ? 'page' : undefined}>
-              {l.rotulo}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-    <button class="topo__tema" type="button" aria-pressed="false" data-tema-botao>
-      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-        <circle cx="8" cy="8" r="6"></circle>
-        <path d="M8 2a6 6 0 0 0 0 12z"></path>
-      </svg>
-      Tema claro
-    </button>
-  </div>
+<header class="cab px" data-home={home ? '' : undefined}>
+  <a class="marca" href="/" aria-label={`${perfil.nome}, início`}>
+    <span aria-hidden="true">©</span>
+    <span class="giro" aria-hidden="true">
+      <span>Feito por Gabriel</span>
+      <span>{perfil.nome}</span>
+    </span>
+  </a>
+  <nav class="cab__nav" aria-label="Navegação principal">
+    {links.map((l) => (
+      <a href={l.href}>{l.rotulo}</a>
+    ))}
+  </nav>
+  <button class="tema" type="button" aria-label="Modo claro" aria-pressed="false" data-tema-botao>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false">
+      <path d="M12 3a9 9 0 1 0 0 18z" fill="currentColor"></path>
+      <circle cx="12" cy="12" r="9"></circle>
+    </svg>
+  </button>
 </header>
 
+<button
+  class="menu-btn"
+  type="button"
+  aria-label="Abrir menu"
+  aria-expanded="false"
+  aria-controls="painel-menu"
+  data-menu-botao
+>
+  <i aria-hidden="true"></i>
+</button>
+<div class="veu" data-menu-veu></div>
+<aside class="painel" id="painel-menu" aria-label="Menu" inert data-menu-painel>
+  <div>
+    <span class="mono painel__rotulo">Navegação</span>
+    <nav aria-label="Menu lateral">
+      <a href="/">Início</a>
+      {links.map((l) => (
+        <a href={l.href}>{l.rotulo}</a>
+      ))}
+    </nav>
+  </div>
+  <p class="mono painel__pe">
+    {perfil.github && <a href={perfil.github.url}>GitHub</a>}
+    {perfil.linkedin && <a href={perfil.linkedin}>LinkedIn</a>}
+    {perfil.email && <a href={`mailto:${perfil.email}`}>{perfil.email}</a>}
+  </p>
+</aside>
+
 <style>
-  .topo {
-    background: var(--fundo);
-    border-bottom: var(--traco) solid var(--borda);
-    z-index: 10;
-  }
-  @media (min-width: 64rem) {
-    .topo {
-      position: sticky;
-      top: 0;
-    }
-  }
-  .topo__linha {
+  .cab {
+    position: relative;
+    z-index: 20;
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: var(--s-3) var(--s-5);
-    padding-block: var(--s-3);
+    column-gap: 2.2rem;
+    min-height: 5.5rem;
   }
-  .topo__nome {
-    font-family: var(--fonte-serifa);
-    font-size: var(--t-1);
-    color: var(--texto);
-    text-decoration: none;
-    margin-inline-end: auto;
+  .cab[data-home] {
+    position: absolute;
+    inset: 0 0 auto;
   }
-  .topo__nav {
-    list-style: none;
+  .marca {
     display: flex;
-    gap: var(--s-4);
-    margin: 0;
-    padding: 0;
+    gap: 0.35rem;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: 0.98rem;
+    overflow: hidden;
   }
-  .topo__nav a {
-    color: var(--texto);
-    text-decoration: none;
-    padding-block: var(--s-2);
+  .giro {
+    display: inline-flex;
+    position: relative;
+    overflow: hidden;
   }
-  .topo__nav a[aria-current='page'] {
-    color: var(--acento);
-    text-decoration: underline;
+  .giro span {
+    transition: transform 0.6s var(--expo);
   }
-  @media (hover: hover) and (pointer: fine) {
-    .topo__nav a:hover {
-      color: var(--acento);
-    }
+  .giro span + span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    transform: translateY(105%);
   }
-  .topo__tema {
+  .cab__nav {
+    margin-left: auto;
+    display: flex;
+    gap: 2.2rem;
+    align-items: center;
+    font-size: 0.98rem;
+  }
+  nav a {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--s-2);
-    padding: var(--s-1) var(--s-3);
-    font: inherit;
-    font-size: var(--t--1);
-    color: var(--texto-2);
-    background: transparent;
-    border: var(--traco) solid var(--texto-2);
-    border-radius: var(--raio);
+    min-height: 2.75rem;
+  }
+  nav a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.35rem;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 50%;
+    background: var(--ouro);
+    transform: translateX(-50%) scale(0);
+    transition: transform 0.35s var(--saida);
+  }
+  .tema {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--linha-forte);
+    background: none;
     cursor: pointer;
+    transition:
+      border-color 0.2s,
+      transform 0.6s var(--saida);
   }
-  .topo__tema svg {
-    width: 1em;
-    height: 1em;
-    fill: none;
-    stroke: currentColor;
+  .tema svg {
+    width: 1rem;
+    height: 1rem;
   }
-  .topo__tema path {
-    fill: currentColor;
-    stroke: none;
+
+  /* botão redondo que aparece depois do hero (.vis) */
+  .menu-btn {
+    position: fixed;
+    right: var(--gutter);
+    top: 1.25rem;
+    z-index: 60;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    border: 0;
+    background: var(--fundo-3);
+    color: #e9dec5;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transform: scale(0);
+    transition:
+      transform 0.5s var(--expo),
+      background-color 0.3s;
+    box-shadow: 0 1rem 2rem -1rem #000a;
   }
-  .topo__tema[aria-pressed='true'] {
-    color: var(--acento);
-    border-color: var(--acento);
+  .menu-btn:global(.vis),
+  .menu-btn:focus-visible,
+  :global(html.aberto) .menu-btn {
+    transform: scale(1);
+  }
+  .menu-btn i,
+  .menu-btn i::before {
+    display: block;
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    position: relative;
+    transition: transform 0.4s var(--expo);
+  }
+  .menu-btn i::before {
+    content: '';
+    position: absolute;
+    top: -0.4rem;
+  }
+  .menu-btn i {
+    transform: translateY(0.2rem);
+  }
+  :global(html.aberto) .menu-btn i {
+    transform: rotate(45deg);
+  }
+  :global(html.aberto) .menu-btn i::before {
+    transform: translateY(0.4rem) rotate(-90deg);
+  }
+  .painel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 55;
+    width: min(32rem, 100%);
+    background: var(--rodape);
+    color: var(--rodape-texto);
+    padding: 8rem 3.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    transform: translateX(105%);
+    transition: transform 0.8s var(--expo);
+  }
+  :global(html.aberto) .painel {
+    transform: none;
+  }
+  .painel__rotulo {
+    display: block;
+    color: var(--rodape-2);
+    border-bottom: 1px solid #ffffff1f;
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .painel nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+  .painel nav a {
+    font: 300 clamp(2.6rem, 6vw, 3.6rem) / 1.15 var(--serifa);
+    letter-spacing: -0.03em;
+  }
+  .painel nav a::after {
+    left: -1.5rem;
+    top: 50%;
+    bottom: auto;
+  }
+  .painel__pe {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    color: var(--rodape-2);
+  }
+  .painel__pe a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  /* véu sem opacity (redução de movimento: nada pode ficar translúcido) — só a cor muda */
+  .veu {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: transparent;
+    pointer-events: none;
+    transition: background-color 0.6s;
+  }
+  :global(html.aberto) .veu {
+    background: #0006;
+    pointer-events: auto;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .marca:hover .giro span:first-child {
+      transform: translateY(-105%);
+    }
+    .marca:hover .giro span + span {
+      transform: none;
+    }
+    nav a:hover::after {
+      transform: translateX(-50%) scale(1);
+    }
+    .painel nav a:hover::after {
+      transform: translateY(-50%) scale(1);
+    }
+    .tema:hover {
+      border-color: var(--ouro);
+      transform: rotate(180deg);
+    }
+    .menu-btn:hover {
+      background: #c9a96a;
+      color: #121a19;
+    }
+  }
+  @media (max-width: 47.99rem) {
+    /* sem JS o painel não abre: a navegação fica numa segunda linha em vez de sumir */
+    .cab {
+      column-gap: 1rem;
+      padding-top: 0.5rem;
+    }
+    .cab__nav {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
+      gap: 1.1rem;
+      font-size: 0.92rem;
+    }
+    .menu-btn {
+      width: 3.75rem;
+      height: 3.75rem;
+      top: 1rem;
+    }
+    .painel {
+      padding: 6.5rem var(--gutter) 2rem 2.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .giro span,
+    nav a::after,
+    .tema,
+    .menu-btn,
+    .menu-btn i,
+    .menu-btn i::before,
+    .painel,
+    .veu {
+      transition: none;
+    }
   }
 </style>
 
 <script>
   import '../scripts/tema';
+
+  // Menu redondo: abre/fecha o painel (inert + aria-expanded), Esc, véu e clique num link fecham.
+  // Sem animação aqui: o deslize é CSS (html.aberto). Funciona a cada página do ClientRouter.
+  const raiz = document.documentElement;
+  const el = <T extends Element>(s: string): T | null => document.querySelector<T>(s);
+
+  function fechar(devolverFoco = true): void {
+    const botao = el<HTMLButtonElement>('[data-menu-botao]');
+    const painel = el<HTMLElement>('[data-menu-painel]');
+    if (!raiz.classList.contains('aberto')) return;
+    raiz.classList.remove('aberto');
+    botao?.setAttribute('aria-expanded', 'false');
+    botao?.setAttribute('aria-label', 'Abrir menu');
+    if (painel) painel.inert = true;
+    atualizarVisivel();
+    if (devolverFoco) botao?.focus();
+  }
+  function abrir(): void {
+    const botao = el<HTMLButtonElement>('[data-menu-botao]');
+    const painel = el<HTMLElement>('[data-menu-painel]');
+    raiz.classList.add('aberto');
+    botao?.setAttribute('aria-expanded', 'true');
+    botao?.setAttribute('aria-label', 'Fechar menu');
+    if (painel) {
+      painel.inert = false;
+      painel.querySelector<HTMLAnchorElement>('a')?.focus();
+    }
+  }
+  function atualizarVisivel(): void {
+    el('[data-menu-botao]')?.classList.toggle('vis', scrollY > innerHeight * 0.6 || raiz.classList.contains('aberto'));
+  }
+
+  document.addEventListener('click', (e) => {
+    const alvo = e.target instanceof Element ? e.target : null;
+    if (!alvo) return;
+    if (alvo.closest('[data-menu-botao]')) {
+      if (raiz.classList.contains('aberto')) fechar();
+      else abrir();
+    } else if (alvo.closest('[data-menu-veu]')) fechar();
+    else if (alvo.closest('[data-menu-painel] a')) fechar(false);
+  });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fechar();
+  });
+  addEventListener('scroll', atualizarVisivel, { passive: true });
+  document.addEventListener('astro:before-swap', () => raiz.classList.remove('aberto'));
+  document.addEventListener('astro:page-load', atualizarVisivel);
 </script>

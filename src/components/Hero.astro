@@ -1,0 +1,342 @@
+---
+// Hero v7: guilloché, selo de local, papel, leque de 5 cartas e letreiro (h1) repetido.
+import { getProjetosVisiveis, getPerfil, type ArcanoId } from '../lib/conteudo';
+import CartaArcano from './CartaArcano.astro';
+
+const perfil = getPerfil();
+const [nome, ...resto] = perfil.nome.split(' ');
+const sobrenome = resto.join(' ');
+const visiveis = await getProjetosVisiveis();
+// Ordem no leque: Mago, Imperatriz | Justiça (centro) | Imperador, Hierofante
+const ORDEM: ArcanoId[] = ['mago', 'imperatriz', 'justica', 'imperador', 'hierofante'];
+const cartas = ORDEM.map((id) => visiveis.find((p) => p.arcano.id === id)).filter((p) => p !== undefined);
+const copias = [0, 1, 2, 3];
+---
+
+<section class="hero" id="topo" aria-labelledby="titulo">
+  <div class="hero__fundo" aria-hidden="true">
+    <img src="/guilloche.svg" alt="" width="1000" height="1000" decoding="async" />
+  </div>
+  <div class="hero__grid">
+    <div class="local sobe">
+      <span>
+        Baseado em
+        <br />
+        Guarulhos, SP
+      </span>
+      <span class="local__globo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#121A19" stroke-width="1.2" focusable="false">
+          <circle cx="12" cy="12" r="9"></circle>
+          <ellipse cx="12" cy="12" rx="4" ry="9"></ellipse>
+          <path d="M3 12h18M5 7h14M5 17h14"></path>
+        </svg>
+      </span>
+    </div>
+    <div class="papel sobe">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M6 6l12 12M18 9v9H9"></path>
+      </svg>
+      <p>Back-end para bancos e fintechs</p>
+    </div>
+    <div class="leque" role="group" aria-label="Cartas dos projetos">
+      {cartas.map((p, i) => (
+        <CartaArcano
+          projeto={p}
+          href={`/projetos/${p.slug}`}
+          class={`c${i + 1}`}
+          prioridade
+          sizes="(max-width: 48rem) 8rem, 13rem"
+          vt={`carta-${p.slug}`}
+        />
+      ))}
+    </div>
+  </div>
+  <h1 class="letreiro" id="titulo">
+    <span class="letreiro__trilho" data-letreiro>
+      {copias.map((i) => (
+        <span aria-hidden={i > 0 ? 'true' : undefined}>
+          {nome} <em>{sobrenome}</em> —
+        </span>
+      ))}
+    </span>
+  </h1>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    display: grid;
+    isolation: isolate;
+  }
+  .hero__fundo {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .hero__fundo img {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: min(110vw, 72rem);
+    height: auto;
+    max-width: none;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+  }
+  .local {
+    position: absolute;
+    left: 0;
+    top: 38%;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.1rem 1.1rem 1.1rem 1.75rem;
+    background: var(--fundo-3);
+    color: #e9dec5;
+    border-radius: 0 999px 999px 0;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  .local__globo {
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    background: #c9a96a;
+    display: grid;
+    place-items: center;
+  }
+  .local__globo svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+  :global(html.js-motion) .local__globo svg {
+    animation: gira 9s linear infinite;
+  }
+  @keyframes gira {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .papel {
+    position: absolute;
+    right: var(--gutter);
+    top: 36%;
+    z-index: 3;
+    max-width: 15rem;
+  }
+  .papel svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-bottom: 1.6rem;
+    color: var(--ouro);
+  }
+  .papel p {
+    margin: 0;
+    font: 300 clamp(1.5rem, 1.2rem + 1vw, 2.1rem) / 1.15 var(--serifa);
+    letter-spacing: -0.02em;
+  }
+
+  /* ---- leque de 5 ---- */
+  .leque {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    translate: -50% -50%;
+    width: min(36rem, 90vw);
+    height: clamp(20rem, 40vw, 28rem);
+    perspective: 1400px;
+    z-index: 1;
+  }
+  .leque :global(.carta) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    transform: rotate(var(--r)) translate(var(--x), var(--y));
+    transition:
+      transform 0.9s var(--saida),
+      filter 0.4s;
+  }
+  .leque :global(.c1) {
+    --r: -16deg;
+    --x: -92%;
+    --y: 12%;
+    z-index: 1;
+    filter: brightness(0.72);
+  }
+  .leque :global(.c2) {
+    --r: -8deg;
+    --x: -48%;
+    --y: 3%;
+    z-index: 2;
+    filter: brightness(0.85);
+  }
+  .leque :global(.c3) {
+    --r: 0deg;
+    --x: 0%;
+    --y: -3%;
+    z-index: 5;
+  }
+  .leque :global(.c4) {
+    --r: 8deg;
+    --x: 48%;
+    --y: 3%;
+    z-index: 2;
+    filter: brightness(0.85);
+  }
+  .leque :global(.c5) {
+    --r: 16deg;
+    --x: 92%;
+    --y: 12%;
+    z-index: 1;
+    filter: brightness(0.72);
+  }
+  .leque :global(.carta:focus-visible) {
+    z-index: 6;
+    filter: none;
+  }
+  /* estado inicial da entrada: só com JS de movimento */
+  :global(html.js-motion) .hero:not(:global(.on)) .leque :global(.carta) {
+    opacity: 0;
+    transform: rotate(0) translate(0, 35%) scale(0.9);
+  }
+  :global(html.js-motion) .hero:global(.on) .leque :global(.carta) {
+    transition:
+      transform 1.2s var(--expo),
+      opacity 0.5s,
+      filter 0.4s;
+  }
+  :global(html.js-motion) .hero:global(.on) .leque :global(.c2),
+  :global(html.js-motion) .hero:global(.on) .leque :global(.c4) {
+    transition-delay: 0.08s;
+  }
+  :global(html.js-motion) .hero:global(.on) .leque :global(.c1),
+  :global(html.js-motion) .hero:global(.on) .leque :global(.c5) {
+    transition-delay: 0.16s;
+  }
+
+  .letreiro {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2vh;
+    z-index: 2;
+    margin: 0;
+    overflow: hidden;
+    pointer-events: none;
+    font: inherit;
+  }
+  .letreiro__trilho {
+    display: flex;
+    width: max-content;
+  }
+  .letreiro__trilho span {
+    font: 300 var(--t-letreiro) / 1 var(--serifa);
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    padding-right: 0.35em;
+  }
+  .letreiro__trilho em {
+    color: var(--ouro);
+    font-style: italic;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .leque:hover :global(.c1) {
+      --r: -21deg;
+      --x: -124%;
+    }
+    .leque:hover :global(.c2) {
+      --r: -11deg;
+      --x: -64%;
+    }
+    .leque:hover :global(.c4) {
+      --r: 11deg;
+      --x: 64%;
+    }
+    .leque:hover :global(.c5) {
+      --r: 21deg;
+      --x: 124%;
+    }
+    .leque :global(.carta:hover) {
+      z-index: 6;
+      filter: none;
+    }
+  }
+  @media (max-width: 61.99rem) {
+    .hero {
+      min-height: auto;
+      padding-block: 7rem 0;
+    }
+    .local,
+    .papel {
+      position: relative;
+      top: auto;
+      right: auto;
+    }
+    .hero__grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .leque {
+      position: relative;
+      left: auto;
+      top: auto;
+      translate: none;
+      margin: 1rem auto 0;
+    }
+    .letreiro {
+      position: relative;
+      bottom: auto;
+      margin-top: 2rem;
+    }
+  }
+  @media (max-width: 47.99rem) {
+    .hero {
+      padding-top: 9rem;
+    }
+    .local {
+      font-size: 0.92rem;
+      padding: 0.8rem 0.8rem 0.8rem 1.1rem;
+      align-self: flex-start;
+    }
+    .local__globo {
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+    .papel {
+      padding-inline: var(--gutter);
+    }
+    .leque {
+      height: 17rem;
+    }
+    .leque :global(.carta) {
+      --w: clamp(5.5rem, 24vw, 8rem);
+    }
+    .leque :global(.carta .carta__nome) {
+      font-size: 0.72rem;
+      padding: 1.6rem 0.25rem 0.6rem;
+    }
+    .leque :global(.carta .carta__num) {
+      top: 0.6rem;
+      font-size: 0.7rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .leque :global(.carta) {
+      transition: none;
+    }
+  }
+</style>

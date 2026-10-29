@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Sobre from '../components/Sobre.astro';
 import Timeline from '../components/Timeline.astro';
 import SkillGroup from '../components/SkillGroup.astro';
 import { getCompetencias, getMarcos, getPerfil, type Project, type Trilha } from '../lib/conteudo';
@@ -28,41 +29,35 @@ const trajetoria = marcos.filter((m) => m.tipo !== 'formacao');
 ---
 
 <Layout titulo={`Sobre · ${perfil.nome}`} descricao={perfil.apresentacao ?? `Sobre ${perfil.nome}.`}>
-  <section class="secao envoltorio" aria-labelledby="titulo-sobre">
-    <h1 id="titulo-sobre">Sobre</h1>
-    {perfil.apresentacao && <p class="abertura">{perfil.apresentacao}</p>}
-  </section>
+  <Sobre nivel="h1" id="quem" />
 
   {trajetoria.length > 0 && (
-    <section class="secao envoltorio" aria-labelledby="titulo-trajetoria">
-      <h2 id="titulo-trajetoria">Trajetória</h2>
+    <section class="s px" aria-labelledby="titulo-trajetoria">
+      <div class="rotulo mono">
+        <h2 id="titulo-trajetoria">Trajetória</h2>
+        <span>Marcos</span>
+      </div>
       <Timeline marcos={trajetoria} />
     </section>
   )}
 
   {formacao.length > 0 && (
-    <section class="secao envoltorio" aria-labelledby="titulo-formacao">
-      <h2 id="titulo-formacao">Formação</h2>
+    <section class="s px" aria-labelledby="titulo-formacao">
+      <div class="rotulo mono">
+        <h2 id="titulo-formacao">Formação</h2>
+        <span>Estudos</span>
+      </div>
       <Timeline marcos={formacao} />
-      {perfil.idiomas.length > 0 && (
-        <>
-          <h3>Idiomas</h3>
-          <ul class="idiomas">
-            {perfil.idiomas.map((i) => (
-              <li>
-                {i.idioma} <span class="texto-2">· {i.nivel}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
     </section>
   )}
 
   {grupos.size > 0 && (
-    <section class="secao envoltorio" aria-labelledby="titulo-competencias">
-      <h2 id="titulo-competencias">Competências</h2>
-      <p class="texto-2">Só entra aqui o que um projeto publicado comprova; cada item leva à prova.</p>
+    <section class="s px" aria-labelledby="titulo-competencias">
+      <div class="rotulo mono">
+        <h2 id="titulo-competencias">Competências</h2>
+        <span>Cada item leva à prova</span>
+      </div>
+      <p class="sobre__nota">Só entra aqui o que um projeto publicado comprova.</p>
       {[...grupos].map(([chave, itens]) => (
         <SkillGroup titulo={NOME_TRILHA[chave]} itens={itens} />
       ))}
@@ -71,12 +66,8 @@ const trajetoria = marcos.filter((m) => m.tipo !== 'formacao');
 </Layout>
 
 <style>
-  .abertura {
-    font-size: var(--t-1);
+  .sobre__nota {
     color: var(--texto-2);
-  }
-  .idiomas {
-    list-style: none;
-    padding: 0;
+    margin: 0 0 2rem;
   }
 </style>
