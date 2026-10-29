@@ -1,0 +1,211 @@
+---
+// O que o Louco revela ao ser tirado: o resumo do GitHub, num <dialog> nativo (Esc, foco e backdrop de graça).
+import { GITHUB_RESUMO, linguagensDoResumo } from '../content/github-resumo';
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const linguagens = linguagensDoResumo();
+const titulo = `${id}-titulo`;
+---
+
+<dialog id={id} class="louco" aria-labelledby={titulo} data-dialogo-louco>
+  <div class="louco__folha">
+    <header class="louco__topo">
+      <p class="louco__numeral">0 · O Louco</p>
+      <h2 id={titulo}>O começo da jornada</h2>
+      <p class="louco__leitura">{GITHUB_RESUMO.leitura}</p>
+    </header>
+
+    <dl class="louco__numeros">
+      <div>
+        <dt>repositórios em destaque</dt>
+        <dd>{GITHUB_RESUMO.repos.length}</dd>
+      </div>
+      <div>
+        <dt>linguagens</dt>
+        <dd>{linguagens.join(' · ')}</dd>
+      </div>
+    </dl>
+
+    <ol class="louco__repos">
+      {GITHUB_RESUMO.repos.map((r) => (
+        <li>
+          <a href={`${GITHUB_RESUMO.url}/${r.repo}`} rel="noopener">
+            {r.nome}
+          </a>
+          <span class="louco__lingua">{r.linguagem}</span>
+          <p>{r.frase}</p>
+        </li>
+      ))}
+    </ol>
+
+    <footer class="louco__acoes">
+      <a class="louco__cta" href={GITHUB_RESUMO.url} rel="noopener">
+        Abrir o GitHub <span class="mono">@{GITHUB_RESUMO.usuario}</span>
+      </a>
+      <form method="dialog">
+        <button class="louco__fechar" type="submit">
+          Fechar
+        </button>
+      </form>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  .louco {
+    width: min(40rem, calc(100vw - 2 * var(--s-4)));
+    max-height: calc(100dvh - 2 * var(--s-6));
+    padding: 0;
+    color: var(--creme);
+    background: var(--petroleo-900);
+    border: var(--traco) solid var(--ouro);
+    border-radius: var(--raio-carta);
+    box-shadow: 0 30px 60px -20px color-mix(in srgb, var(--petroleo-950) 90%, transparent);
+  }
+  .louco::backdrop {
+    background: color-mix(in srgb, var(--petroleo-950) 78%, transparent);
+    backdrop-filter: blur(3px);
+  }
+  .louco[open] {
+    animation: louco-entra var(--dur-ui) var(--ease-out-quart) both;
+  }
+  @keyframes louco-entra {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+  .louco__folha {
+    /* moldura interna fina, como a da carta */
+    margin: 6px;
+    padding: var(--s-6) var(--s-5) var(--s-5);
+    border: var(--traco) solid color-mix(in srgb, var(--ouro) 45%, transparent);
+    border-radius: 6px;
+    display: grid;
+    gap: var(--s-5);
+  }
+  .louco__numeral {
+    margin: 0;
+    font-family: var(--fonte-serifa);
+    color: var(--ouro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: var(--t--1);
+  }
+  .louco h2 {
+    margin: var(--s-1) 0 var(--s-3);
+    font-size: var(--t-3);
+  }
+  .louco__leitura {
+    margin: 0;
+    color: var(--creme-2);
+    line-height: var(--entrelinha-texto);
+  }
+  .louco__numeros {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s-4);
+    margin: 0;
+    padding-block: var(--s-4);
+    border-block: var(--traco) solid color-mix(in srgb, var(--ouro) 30%, transparent);
+  }
+  .louco__numeros dt {
+    font-size: var(--t--1);
+    color: var(--creme-2);
+  }
+  .louco__numeros dd {
+    margin: 0;
+    font-family: var(--fonte-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ouro);
+  }
+  .louco__repos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--s-4);
+    counter-reset: arcano;
+  }
+  .louco__repos li {
+    counter-increment: arcano;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--s-3);
+    padding-left: var(--s-6);
+    position: relative;
+  }
+  .louco__repos li::before {
+    content: counter(arcano, upper-roman);
+    position: absolute;
+    left: 0;
+    top: 0.15em;
+    font-family: var(--fonte-serifa);
+    font-size: var(--t--1);
+    color: var(--ouro);
+  }
+  .louco__repos a {
+    color: var(--creme);
+    text-decoration-color: color-mix(in srgb, var(--ouro) 70%, transparent);
+    text-underline-offset: 3px;
+    font-family: var(--fonte-serifa);
+    font-size: var(--t-1);
+  }
+  .louco__lingua {
+    font-family: var(--fonte-mono);
+    font-size: var(--t--1);
+    color: var(--creme-2);
+    align-self: baseline;
+  }
+  .louco__repos p {
+    grid-column: 1 / -1;
+    margin: var(--s-1) 0 0;
+    color: var(--creme-2);
+    font-size: 0.9375rem;
+  }
+  .louco__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+  }
+  .louco__acoes form {
+    margin: 0;
+  }
+  .louco__cta {
+    display: inline-flex;
+    gap: var(--s-2);
+    align-items: baseline;
+    padding: var(--s-2) var(--s-4);
+    color: var(--petroleo-950);
+    background: var(--ouro);
+    border-radius: var(--raio);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .louco__cta:hover {
+    background: var(--creme);
+  }
+  .louco__fechar {
+    font: inherit;
+    color: var(--creme-2);
+    background: none;
+    border: var(--traco) solid color-mix(in srgb, var(--creme-2) 40%, transparent);
+    border-radius: var(--raio);
+    padding: var(--s-2) var(--s-4);
+    cursor: pointer;
+  }
+  .louco__fechar:hover {
+    color: var(--creme);
+    border-color: var(--creme);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .louco[open] {
+      animation: none;
+    }
+  }
+</style>

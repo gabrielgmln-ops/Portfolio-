@@ -15,6 +15,8 @@ interface Props {
   sizes?: string;
   /** nome da View Transition (M5) */
   transicao?: string;
+  /** id de um <dialog>: a carta vira botão e abre o diálogo (O Louco → resumo do GitHub) */
+  abreDialogo?: string;
 }
 
 const {
@@ -23,13 +25,14 @@ const {
   semLink = false,
   sizes = '(min-width: 48rem) 15rem, 60vw',
   transicao,
+  abreDialogo,
 } = Astro.props;
 const carta = getCarta(projeto);
 if (carta.estado === 'revelada' && !projeto.resultado) {
   throw new Error(`[TarotCard] "${projeto.slug}" está concluído sem resultado medido: a carta não pode ser revelada.`);
 }
-const href = semLink || carta.estado === 'verso' ? undefined : `/projetos/${projeto.slug}`;
-const Tag = href ? 'a' : 'div';
+const href = abreDialogo || semLink || carta.estado === 'verso' ? undefined : `/projetos/${projeto.slug}`;
+const Tag = abreDialogo ? 'button' : href ? 'a' : 'div';
 const larguras = [320, 480, 720, 1080];
 const carregamento = prioridade ? 'eager' : 'lazy';
 // O verso só é visto durante a virada (ou quando a carta é só verso): não disputa banda com a frente.
@@ -43,7 +46,13 @@ const QUALIDADE = 60;
   data-estado={carta.estado}
   data-carta
   href={href}
-  aria-label={href ? nomeAcessivel(projeto) : undefined}
+  type={abreDialogo ? 'button' : undefined}
+  aria-haspopup={abreDialogo ? 'dialog' : undefined}
+  aria-controls={abreDialogo}
+  data-abre-dialogo={abreDialogo}
+  aria-label={
+    abreDialogo ? `${projeto.arcano.nome}: abrir o resumo do GitHub` : href ? nomeAcessivel(projeto) : undefined
+  }
   data-vt={transicao}
 >
   <div class="carta__corpo" data-carta-corpo>
@@ -108,6 +117,13 @@ const QUALIDADE = 60;
     text-decoration: none;
     transform: perspective(900px) translateY(var(--elev)) rotateX(var(--rx)) rotateY(var(--ry));
     transition: transform var(--dur-ui) ease;
+  }
+  button.carta {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
   }
   .carta:focus-visible {
     outline-offset: 4px;
@@ -219,14 +235,14 @@ const QUALIDADE = 60;
 
   /* M3: elevação + inclinação (as variáveis --rx/--ry vêm de scripts/motion/tilt.ts) */
   @media (hover: hover) and (pointer: fine) {
-    .carta[href]:hover {
+    .carta:is([href], [data-abre-dialogo]):hover {
       --elev: -6px;
     }
-    .carta[data-estado='em-desenvolvimento'][href]:hover .carta__face--frente :global(img) {
+    .carta[data-estado='em-desenvolvimento']:is([href], [data-abre-dialogo]):hover .carta__face--frente :global(img) {
       filter: grayscale(0.55) brightness(0.8);
     }
   }
-  .carta[href]:focus-visible {
+  .carta:is([href], [data-abre-dialogo]):focus-visible {
     --elev: -6px;
     --rx: 0deg;
     --ry: 0deg;

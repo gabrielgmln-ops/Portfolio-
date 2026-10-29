@@ -57,6 +57,19 @@ function abrir(carta: HTMLAnchorElement): void {
   });
 }
 
+/* O Louco — a carta vira e o diálogo do GitHub abre em seguida */
+function abrirDialogo(carta: HTMLButtonElement): void {
+  carta.addEventListener('click', () => {
+    const dialogo = document.getElementById(carta.dataset['abreDialogo'] ?? '');
+    if (!(dialogo instanceof HTMLDialogElement) || dialogo.open) return;
+    const corpo = carta.querySelector<HTMLElement>('[data-carta-corpo]');
+    const a = corpo ? virar(corpo) : undefined;
+    const mostrar = (): void => dialogo.showModal();
+    if (a) a.finished.then(mostrar, mostrar);
+    else mostrar();
+  });
+}
+
 /* M4 — brilho uma única vez, quando a carta revelada entra na viewport */
 const observador =
   'IntersectionObserver' in window
@@ -89,5 +102,11 @@ aCadaPagina(() => {
     inclinar(carta);
     abrir(carta);
     if (carta.dataset['estado'] === 'revelada') observador?.observe(carta);
+  }
+  for (const carta of document.querySelectorAll<HTMLButtonElement>('button[data-carta][data-abre-dialogo]')) {
+    if (carta.dataset['pronta'] !== undefined) continue;
+    carta.dataset['pronta'] = '';
+    inclinar(carta);
+    abrirDialogo(carta);
   }
 });
