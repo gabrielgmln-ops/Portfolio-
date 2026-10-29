@@ -43,12 +43,6 @@ export const GITHUB_RESUMO = {
       linguagem: 'Python',
       frase: 'SAST, varredura de segredos e imagens com gate de merge, e SIEM em ELK.',
     },
-    {
-      nome: 'JARVIS',
-      repo: 'jarvis',
-      linguagem: 'Python',
-      frase: 'Assistente de voz e automação para Windows com LLM rodando localmente.',
-    },
   ] satisfies RepoResumo[],
 } as const;
 
