@@ -157,3 +157,29 @@ test('/plataforma: SVG com role="img", <title>, <desc> e descrição em texto', 
   await expect(texto).toHaveAttribute('open', '');
   await expect(texto.locator('li').first()).toBeVisible();
 });
+
+test('home: índice em dois grupos (Plataforma bancária e Comércio exterior), por numeral', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const bancos = page.locator('[data-grupo="grupo-bancos"]');
+  const comex = page.locator('[data-grupo="grupo-comex"]');
+  await expect(bancos.locator('h3')).toHaveText('Plataforma bancária');
+  await expect(comex.locator('h3')).toHaveText('Comércio exterior');
+  const numerais = async (g: typeof bancos) => (await g.locator('.indice .n').allTextContents()).map((t) => t.trim());
+  expect(await numerais(bancos)).toEqual(['I', 'II', 'III', 'IV', 'V', 'XI']);
+  expect(await numerais(comex)).toEqual(['VI', 'VII', 'IX', 'X']);
+});
+
+for (const slug of ['rastreador-importacao', 'despachante-digital', 'landed', 'monitor-cambio', 'robo-fechamento']) {
+  test(`projeto novo ${slug}: abre com métricas`, async ({ page }) => {
+    const r = await page.goto(`/projetos/${slug}`, { waitUntil: 'networkidle' });
+    expect(r?.status()).toBe(200);
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('.proj__dados .nums b').first()).toBeVisible();
+  });
+}
+
+test('/plataforma: o diagrama inclui o Robô de Fechamento (XI)', async ({ page }) => {
+  await page.goto('/plataforma', { waitUntil: 'networkidle' });
+  expect(await page.locator('svg[role="img"] desc').first().textContent()).toContain('Robô de Fechamento');
+  await expect(page.locator('details.diagrama__texto')).toContainText('Robô de Fechamento Diário');
+});

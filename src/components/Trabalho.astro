@@ -1,6 +1,6 @@
 ---
 // Seção Trabalho: carta revelada (projeto principal) + log + índice dos secundários.
-import { getProjetosVisiveis } from '../lib/conteudo';
+import { getProjetosVisiveis, type Project } from '../lib/conteudo';
 import Numeros from './Numeros.astro';
 import FichaTecnica from './FichaTecnica.astro';
 import LinksProjeto from './LinksProjeto.astro';
@@ -10,9 +10,29 @@ import PreviaCursor from './PreviaCursor.astro';
 
 const visiveis = await getProjetosVisiveis();
 const principal = visiveis.find((p) => p.destaque === 'principal');
-const secundarios = visiveis
-  .filter((p) => p.destaque === 'secundario' && p.status === 'concluido')
-  .sort((a, b) => a.ordem - b.ordem);
+const secundarios = visiveis.filter((p) => p.destaque === 'secundario' && p.status === 'concluido');
+// Numeral romano → inteiro, para ordenar cada grupo pela carta (0 = O Louco).
+const ROMANO: Record<string, number> = { I: 1, V: 5, X: 10, L: 50 };
+const valorNumeral = (n: string): number =>
+  [...n].reduce((t, c, i) => {
+    const v = ROMANO[c] ?? 0;
+    const prox = ROMANO[n[i + 1] ?? ''] ?? 0;
+    return t + (v < prox ? -v : v);
+  }, 0);
+const porNumeral = (a: Project, b: Project): number => valorNumeral(a.arcano.numeral) - valorNumeral(b.arcano.numeral);
+// Dois eixos pela trilha (o schema não muda): bancos/cyber → plataforma bancária; comex → comércio exterior.
+const grupos = [
+  {
+    id: 'grupo-bancos',
+    rotulo: 'Plataforma bancária',
+    projetos: secundarios.filter((p) => p.trilha.some((t) => t === 'bancos' || t === 'cyber')).sort(porNumeral),
+  },
+  {
+    id: 'grupo-comex',
+    rotulo: 'Comércio exterior',
+    projetos: secundarios.filter((p) => p.trilha.includes('comex')).sort(porNumeral),
+  },
+].filter((g) => g.projetos.length > 0);
 const mes = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' });
 const mesAno = (d: Date): string => `${mes.format(d).replace('.', '')}/${d.getUTCFullYear()}`;
 const dois = (n: number): string => String(n).padStart(2, '0');
@@ -55,7 +75,15 @@ const dois = (n: number): string => String(n).padStart(2, '0');
       <h2 id="t-outras">Outras cartas reveladas</h2>
       <span>{dois(secundarios.length)} projetos concluídos</span>
     </div>
-    <Indice projetos={secundarios} />
+    {grupos.map((g) => (
+      <div class="grupo" data-grupo={g.id}>
+        <div class="grupo__rotulo mono">
+          <h3 id={`t-${g.id}`}>{g.rotulo}</h3>
+          <span>{dois(g.projetos.length)} cartas</span>
+        </div>
+        <Indice projetos={g.projetos} />
+      </div>
+    ))}
     <PreviaCursor />
   </section>
 )}
@@ -86,5 +114,23 @@ const dois = (n: number): string => String(n).padStart(2, '0');
   }
   #outras {
     padding-top: 0;
+  }
+  .grupo + .grupo {
+    margin-top: clamp(3rem, 7vw, 5.5rem);
+  }
+  .grupo__rotulo {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--ouro);
+    padding-bottom: 0.9rem;
+  }
+  .grupo__rotulo h3 {
+    margin: 0;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+  .grupo__rotulo span {
+    color: var(--texto-3);
   }
 </style>

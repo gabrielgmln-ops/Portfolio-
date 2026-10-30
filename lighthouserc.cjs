@@ -17,6 +17,7 @@ function config({ desktop }) {
           '/projetos/',
           '/projetos/ledger-api/',
           '/projetos/motor-antifraude/',
+          '/projetos/landed/',
           '/projetos/portfolio/',
           '/404.html',
         ],

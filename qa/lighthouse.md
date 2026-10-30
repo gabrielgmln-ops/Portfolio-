@@ -87,3 +87,21 @@ CLS: 0,035–0,039 em `/` e 0,036 em `/plataforma/` no mobile; 0,000–0,007 no 
 - SEO 66 na 404 é esperado (`noindex`), isento nas asserções.
 
 **Corrigido no v7 que mexe nessas medidas:** `html.js-motion` passou a ser ligado por `public/movimento.js` síncrono no `<head>` (sem quadro do estado final antes de esconder); leque do celular com `sizes` de 9rem para a carta maior.
+
+## v7.1 — 2026-10-30
+
+`LHCI_SEM_INJECAO=1 corepack pnpm lhci:mobile` (mobile, mediana de 3 execuções, sobre o `dist/` com os 5 projetos novos). Execução representativa:
+
+| Página                        | Performance | Acessibilidade | Boas práticas | SEO                        |
+| ----------------------------- | ----------- | -------------- | ------------- | -------------------------- |
+| `/`                           | 93          | 100            | 82            | 100                        |
+| `/plataforma/`                | 95          | 100            | 82            | 100                        |
+| `/sobre/`                     | 97          | 100            | 82            | 100                        |
+| `/projetos/`                  | 98          | 100            | 82            | 100                        |
+| `/projetos/ledger-api/`       | 95          | 100            | 82            | 100                        |
+| `/projetos/motor-antifraude/` | 96          | 100            | 82            | 100                        |
+| `/projetos/landed/` (nova)    | 95          | 100            | 82            | 100                        |
+| `/projetos/portfolio/`        | 97          | 100            | 82            | 100                        |
+| `/404.html`                   | 97          | 100            | 82            | 66 (noindex, não avaliado) |
+
+A asserção falhou só em Boas práticas (82 < 95), em todas as páginas, pela mesma auditoria: `is-on-https`, apontando um script HTTP do antivírus Kaspersky (`gc.kis.v2.scr.kaspersky-labs.com`) injetado na página. Mesmo com o bloqueio do `LHCI_SEM_INJECAO`, a requisição ainda é contada. Não vem do site; precisa ser repetido numa máquina sem o antivírus (ou na CI) para confirmar o valor real.
