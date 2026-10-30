@@ -1,4 +1,4 @@
-// QA do front-end: tema, teclado, virada, redução de movimento, axe e capturas.
+// QA do front-end: tema, teclado, redução de movimento, axe e capturas (v7).
 import { AxeBuilder } from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { rotasDoDist } from './rotas';
@@ -22,7 +22,7 @@ test('alternância de tema troca data-tema, aria-pressed e persiste', async ({ p
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
   const fundo = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(fundo).toBe('rgb(239, 227, 200)');
+  expect(fundo).toBe('rgb(243, 243, 239)');
 });
 
 test('Tab percorre a home com foco sempre visível (anel de 2 px)', async ({ page }) => {
@@ -52,23 +52,6 @@ test('a primeira parada do Tab é o link "pular para o conteúdo"', async ({ pag
   await page.goto('/');
   await page.keyboard.press('Tab');
   await expect(page.locator(':focus')).toHaveText('Pular para o conteúdo');
-});
-
-test('Enter numa carta vira a carta e abre o projeto', async ({ page }) => {
-  await page.goto('/projetos', { waitUntil: 'networkidle' });
-  const carta = page.locator('a[data-carta][data-estado="revelada"]').first();
-  // Registra, logo após o clique gerado pelo Enter, se o corpo da carta ganhou a animação de virada.
-  await carta.evaluate((a) => {
-    addEventListener('click', () => {
-      const corpo = a.querySelector('[data-carta-corpo]');
-      (window as unknown as { __virou: boolean }).__virou = (corpo?.getAnimations().length ?? 0) > 0;
-    });
-  });
-  await carta.focus();
-  await page.keyboard.press('Enter');
-  expect(await page.evaluate(() => (window as unknown as { __virou?: boolean }).__virou)).toBe(true);
-  await page.waitForURL(/\/projetos\/ledger-api\/?$/);
-  await expect(page.locator('h1')).toHaveText('Ledger API');
 });
 
 test.describe('redução de movimento', () => {

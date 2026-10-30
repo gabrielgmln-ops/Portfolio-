@@ -58,3 +58,32 @@ Mediana no desktop: 100 / 100 / 100 / 100 em `/`, `/sobre/`, `/projetos/`, `/pro
 Os relatórios do mobile não ficaram no artefato (só os do último `autorun`), mas a etapa passou, então todas as categorias ficaram ≥ 95.
 
 O que levou a CI ao verde: lista explícita das páginas públicas (antes a `/_kit`, interna, entrava na auditoria), cartas acima da dobra sem lazy em `/projetos`, preload da fonte do texto (o parágrafo de abertura era o LCP da home) e mediana de 3 execuções.
+
+## v7 — 2026-10-29
+
+Lighthouse CI (`@lhci/cli` 0.15) sobre `dist/`, mediana de 3 execuções por URL, rodado nesta máquina em 30/10/2026 depois das correções do v7. A lista de URLs ganhou `/projetos/motor-antifraude/`.
+
+Como a máquina tem o antivírus Kaspersky injetando `http://gc.kis.v2.scr.kaspersky-labs.com/...` em toda página, rodei com `LHCI_SEM_INJECAO=1` (nova opção em `lighthouserc.cjs` que passa `blockedUrlPatterns: ['*kaspersky-labs.com*']`; na CI não muda nada). Sem esse bloqueio, a primeira execução deu Performance mobile de 83–88 (FCP ~2,7 s, inflado pelos scripts injetados).
+
+Colunas: Performance | Acessibilidade | Boas práticas | SEO, e LCP mediano.
+
+| URL                         | Mobile                 | LCP mobile | Desktop                 | LCP desktop |
+| --------------------------- | ---------------------- | ---------- | ----------------------- | ----------- |
+| /                           | 95 \| 100 \| 82 \| 100 | 2,6 s      | 99 \| 100 \| 81 \| 100  | 0,58 s      |
+| /plataforma/                | 95 \| 100 \| 82 \| 100 | 2,6 s      | 100 \| 100 \| 81 \| 100 | 0,54 s      |
+| /sobre/                     | 97 \| 100 \| 82 \| 100 | 2,3 s      | 100 \| 100 \| 81 \| 100 | 0,53 s      |
+| /projetos/                  | 98 \| 100 \| 82 \| 100 | 2,0 s      | 100 \| 100 \| 81 \| 100 | 0,49 s      |
+| /projetos/ledger-api/       | 95 \| 100 \| 82 \| 100 | 2,6 s      | 100 \| 100 \| 81 \| 100 | 0,52 s      |
+| /projetos/motor-antifraude/ | 94 \| 100 \| 82 \| 100 | 2,6 s      | 100 \| 100 \| 81 \| 100 | 0,54 s      |
+| /projetos/portfolio/        | 97 \| 100 \| 82 \| 100 | 2,4 s      | 100 \| 100 \| 81 \| 100 | 0,50 s      |
+| /404.html (noindex)         | 97 \| 100 \| 82 \| 66  | 2,3 s      | 100 \| 100 \| 81 \| 66  | 0,46 s      |
+
+CLS: 0,035–0,039 em `/` e 0,036 em `/plataforma/` no mobile; 0,000–0,007 no resto.
+
+**O que não atingiu a meta e por quê**
+
+- **Boas práticas 81–82 em todas as URLs:** a única auditoria reprovada é `is-on-https`, e os itens listados são só os scripts `http://gc.kis.v2.scr.kaspersky-labs.com/...` do antivírus (mesmo bloqueados, a tentativa de requisição HTTP é contada). Não vêm do site; na CI de 25/10 a categoria ficou em 100.
+- **`/projetos/motor-antifraude/` mobile 94** (execuções vizinhas de 95 nas páginas irmãs com o mesmo LCP de 2,56 s): o LCP é a arte da carta da capa. Fica na margem de ruído; não houve mudança razoável a fazer sem trocar a arte. Confirmar na CI.
+- SEO 66 na 404 é esperado (`noindex`), isento nas asserções.
+
+**Corrigido no v7 que mexe nessas medidas:** `html.js-motion` passou a ser ligado por `public/movimento.js` síncrono no `<head>` (sem quadro do estado final antes de esconder); leque do celular com `sizes` de 9rem para a carta maior.

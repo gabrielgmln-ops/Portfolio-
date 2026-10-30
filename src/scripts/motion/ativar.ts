@@ -1,4 +1,5 @@
-// Liga o movimento o mais cedo possível (módulo no <head>; a CSP proíbe script inline).
+// O primeiro ligamento é feito por public/movimento.js (síncrono, antes do paint); este módulo confirma,
+// reaplica após navegação e mantém o seguro.
 // html.js-motion só existe sem prefers-reduced-motion; data-intro só se a sessão ainda não viu a abertura.
 import { movimentoReduzido } from './util';
 

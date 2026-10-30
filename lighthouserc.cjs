@@ -16,6 +16,7 @@ function config({ desktop }) {
           '/sobre/',
           '/projetos/',
           '/projetos/ledger-api/',
+          '/projetos/motor-antifraude/',
           '/projetos/portfolio/',
           '/404.html',
         ],
@@ -25,6 +26,8 @@ function config({ desktop }) {
         settings: {
           ...(desktop ? { preset: 'desktop' } : {}),
           chromeFlags: '--headless=new --no-sandbox',
+          // Máquina local com antivírus que injeta scripts HTTP em toda página: LHCI_SEM_INJECAO=1 os bloqueia.
+          ...(process.env.LHCI_SEM_INJECAO ? { blockedUrlPatterns: ['*kaspersky-labs.com*'] } : {}),
         },
       },
       // A 404 é noindex de propósito, então SEO não se aplica a ela; as outras 3 categorias valem.
