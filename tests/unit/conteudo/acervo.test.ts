@@ -62,7 +62,7 @@ describe('acervo real (src/content/projetos)', () => {
       expect(def?.slug, e.id).toBe(e.data.slug);
     }
   });
-  it('os 7 projetos concluídos esperados existem com o arcano certo', () => {
+  it('os 11 projetos concluídos esperados existem com o arcano certo (+ portfólio = 12 cartas reveladas ou em curso)', () => {
     const esperado: Record<string, string> = {
       'ledger-api': 'justica',
       'motor-antifraude': 'mago',
@@ -70,13 +70,34 @@ describe('acervo real (src/content/projetos)', () => {
       'pix-simulado': 'imperatriz',
       'gateway-seguranca': 'imperador',
       'devsecops-siem': 'hierofante',
+      'rastreador-importacao': 'enamorados',
+      'despachante-digital': 'carro',
+      landed: 'eremita',
+      'monitor-cambio': 'roda',
+      'robo-fechamento': 'forca',
     };
     const concluidos = Object.fromEntries(
       validas.filter((e) => e.data.status === 'concluido').map((e) => [e.data.slug, e.data.arcano]),
     );
     expect(concluidos).toEqual(esperado);
-    // o 7º é o portfólio (O Louco), em desenvolvimento
+    // o 12º é o portfólio (O Louco), em desenvolvimento
     expect(validas.find((e) => e.data.slug === 'portfolio')?.data.arcano).toBe('louco');
+  });
+  it('enforcado (XII) e diabo (XV) existem; VI chama "Os Amantes"; agendamento saiu', () => {
+    const def = (id: string) => ARCANOS.find((a) => a.id === id);
+    expect(def('enforcado')).toMatchObject({ numeral: 'XII', nome: 'O Enforcado', slug: 'open-finance' });
+    expect(def('diabo')).toMatchObject({ numeral: 'XV', nome: 'O Diabo', slug: 'motor-de-busca' });
+    expect(def('enamorados')?.nome).toBe('Os Amantes');
+    expect(validas.find((e) => e.data.slug === 'open-finance')?.data.arcano).toBe('enforcado');
+    expect(validas.find((e) => e.data.slug === 'motor-de-busca')?.data.arcano).toBe('diabo');
+    expect(validas.some((e) => e.data.slug === 'agendamento')).toBe(false);
+  });
+  it('só o Robô de Fechamento, entre os novos, entra na plataforma bancária', () => {
+    const novos = ['rastreador-importacao', 'despachante-digital', 'landed', 'monitor-cambio', 'robo-fechamento'];
+    const naPlataforma = validas
+      .filter((e) => novos.includes(e.data.slug) && e.data.plataforma === 'bank-platform')
+      .map((e) => e.data.slug);
+    expect(naPlataforma).toEqual(['robo-fechamento']);
   });
   it('nenhum arquivo de conteúdo contém "navcargo"', () => {
     for (const f of listarRecursivo(RAIZ)) {

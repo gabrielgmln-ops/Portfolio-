@@ -1,21 +1,105 @@
 ---
 titulo: 'Landed'
 slug: landed
-ordem: 9
-status: planejado
-trilha: '[PENDENTE]'
-arcano: roda
-resumo: '[PENDENTE]'
-papel: '[PENDENTE]'
-tecnologias: []
-competencias: []
+ordem: 10
+status: concluido
+trilha: comex
+arcano: eremita
+resumo: 'API que calcula o custo de importação em reais: valor aduaneiro, II, IPI, PIS/COFINS, Siscomex, AFRMM e ICMS por dentro, com parâmetros sintéticos.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - FastAPI
+  - Decimal
+  - pytest
+  - Docker
+  - GitHub Actions
+competencias:
+  - Cálculo de tributos de importação
+  - ICMS por dentro
+  - Arredondamento monetário
+  - Dinheiro em Decimal
+  - Validação de entrada
+  - Testes contra casos calculados à mão
 prova: '5 casos calculados à mão batendo até o centavo.'
-repo: '[PENDENTE]'
-demo: '[PENDENTE]'
-estudoDeCaso: false
+resultado: 'Os 5 casos calculados à mão bateram até o centavo na primeira execução; 16 testes com 100% de cobertura'
+resultadoNumero: 5
+medidoEm: 2026-10-30
+metricas:
+  - numero: 5
+    rotulo: 'casos à mão batendo até o centavo'
+  - numero: 16
+    rotulo: 'testes'
+  - numero: 100
+    sufixo: '%'
+    rotulo: 'de cobertura'
+  - numero: 6
+    rotulo: 'NCMs na tabela sintética'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Python 3.12 + FastAPI'
+  - rotulo: 'Dinheiro'
+    valor: 'Decimal, string com 2 casas no JSON'
+  - rotulo: 'Testes'
+    valor: 'pytest, 16 testes, 100% de cobertura'
+  - rotulo: 'Entrega'
+    valor: 'Docker, GitHub Actions'
+stackCurta: 'Python · FastAPI · Decimal'
+linhaIndice: '5 casos calculados à mão batendo até o centavo; 100% de cobertura'
+repo: 'https://github.com/gabrielgmln-ops/Landed'
+githubRepo: 'gabrielgmln-ops/Landed'
+destaque: secundario
+estudoDeCaso: true
 ano: 2026
-atualizadoEm: 2026-10-21
-changelog: []
+atualizadoEm: 2026-10-30
+changelog:
+  - data: 2026-10-30
+    texto: 'Cinco casos calculados à mão conferidos até o centavo; CI verde.'
 ---
 
-[PENDENTE]
+## Problema
+
+O custo de uma mercadoria importada não é o FOB: em cima dele entram frete, seguro, câmbio e vários tributos, e o ICMS ainda entra na própria base. A Landed calcula esse custo total (landed cost) em reais e é o serviço de custo do Rastreador de Importação.
+
+## Como funciona
+
+`POST /calcular` recebe NCM, moeda, valor FOB, frete, seguro, UF e modal, e devolve cada parcela e o custo total:
+
+1. **Valor aduaneiro (VA)** = (FOB + frete + seguro) × câmbio
+2. **II** = VA × alíquota do II
+3. **IPI** = (VA + II) × alíquota do IPI
+4. **PIS** = VA × 2,10%; **COFINS** = VA × 9,65%
+5. **AFRMM** = frete × câmbio × 8% (só no marítimo); **taxa Siscomex** fixa
+6. **ICMS por dentro:** base = (VA + II + IPI + PIS + COFINS + despesas) ÷ (1 − alíquota); ICMS = base × alíquota
+7. **Custo total** = VA + tributos + despesas, igual à base do ICMS
+
+`GET /ncm` lista os NCMs cobertos e `GET /health` mostra se a API está no ar.
+
+## Decisões
+
+- **Sem banco:** as tabelas de alíquotas, câmbio e taxas ficam no código, num único arquivo.
+- **Arredondamento a cada passo:** cada parcela é arredondada a 2 casas (meio para cima) antes do passo seguinte.
+- **`Decimal` e string no JSON:** todo valor sai com 2 casas, sem passar por float.
+- **Parâmetros sintéticos:** as fórmulas seguem a mecânica real, mas alíquotas, câmbio e taxas são fictícios, e a resposta traz um aviso disso.
+
+## Testes
+
+Medido em 30/10/2026, com pytest.
+
+- 5 casos calculados à mão, conta a conta, comparados com a API. Eles exercitam arredondamento de ,475 para ,48, valor aduaneiro com três casas, AFRMM zerado fora do marítimo e AFRMM zerado no marítimo sem frete.
+- Total igual à soma das parcelas; tributos iguais a II + IPI + PIS + COFINS + ICMS.
+- NCM, moeda ou UF fora das tabelas e entradas inválidas (FOB negativo, 3 casas decimais, NCM curto, modal desconhecido) dão 422.
+- 16 testes com 100% de cobertura (o mínimo exigido é 95%); CI verde no GitHub Actions, com testes e imagem Docker.
+
+## Resultado
+
+Os 5 casos calculados à mão bateram até o centavo na primeira execução. No caso 1 (rolamentos, USD, SP, marítimo, FOB 10.000,00), o total é R$ 101.570,76. A Landed está ligada ao Rastreador de Importação, que grava o custo devolvido por ela.
+
+## Limitações
+
+- Os números são fictícios e não servem para fins fiscais.
+- A tabela cobre só 6 NCMs, 4 moedas (USD, EUR, CNY e BRL) e 4 UFs (SP, RJ, MG e SC).
+
+## Próximos passos
+
+- Trocar os parâmetros sintéticos por alíquotas reais de alguns NCMs; a troca fica toda no arquivo de tabelas.

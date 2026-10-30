@@ -1,0 +1,117 @@
+---
+titulo: 'Despachante Digital'
+slug: despachante-digital
+ordem: 9
+status: concluido
+trilha: comex
+arcano: carro
+resumo: 'Automação em Python que lê PDFs de importação (NF e fatura) em lote, aponta divergências, gera planilha Excel e envia relatório por e-mail.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - watchdog
+  - pdfplumber
+  - pandas
+  - openpyxl
+  - Jinja2
+  - smtplib
+  - APScheduler
+  - pytest
+competencias:
+  - Extração de dados de PDF
+  - Conferência entre documentos
+  - Processamento em lote tolerante a falhas
+  - Geração de planilha Excel
+  - Relatório HTML por e-mail
+  - Agendamento de tarefas
+  - Logs JSON estruturados
+prova: 'Lote sintético de 8 processos: 3 conformes, 5 divergentes e 1 PDF ilegível, sem parar o lote.'
+resultado: 'No lote sintético de 8 processos, apontou 3 conformes e 5 divergentes, isolou 1 PDF ilegível e seguiu; 23 testes passando'
+resultadoNumero: 8
+medidoEm: 2026-10-30
+metricas:
+  - numero: 8
+    rotulo: 'processos no lote sintético'
+  - numero: 5
+    rotulo: 'divergências apontadas'
+  - numero: 1
+    rotulo: 'PDF ilegível isolado sem parar o lote'
+  - numero: 23
+    rotulo: 'testes passando'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Python 3.12+'
+  - rotulo: 'Leitura'
+    valor: 'watchdog, pdfplumber'
+  - rotulo: 'Saídas'
+    valor: 'pandas + openpyxl, Jinja2, smtplib'
+  - rotulo: 'Agenda e testes'
+    valor: 'APScheduler, pytest'
+stackCurta: 'Python · pdfplumber · pandas · APScheduler'
+linhaIndice: 'Lote de 8 processos: 3 conformes, 5 divergentes, 1 PDF ilegível isolado'
+repo: 'https://github.com/gabrielgmln-ops/despachante-digital'
+githubRepo: 'gabrielgmln-ops/despachante-digital'
+destaque: secundario
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-30
+changelog:
+  - data: 2026-10-30
+    texto: 'Lote sintético processado e e-mail real recebido pelo Gmail com o relatório e a planilha.'
+---
+
+## Problema
+
+Num processo de importação, a nota fiscal e a fatura comercial precisam bater: valor, peso e NCM. Conferir isso PDF por PDF é lento e fácil de errar. O Despachante Digital faz essa conferência em lote, com documentos sintéticos.
+
+## Como funciona
+
+- **Monitor de pasta (watchdog):** cada PDF que chega na pasta de entrada é lido.
+- **Extração (pdfplumber):** os dados de cada NF e fatura vão para um registro; PDF corrompido ou sem texto vai para uma pasta de erros.
+- **Agrupamento e divergências:** os documentos são agrupados por processo e comparados.
+- **Saídas:** planilha Excel consolidada (pandas + openpyxl) e relatório HTML (Jinja2) enviado por e-mail via SMTP.
+- **Agendamento (APScheduler):** o relatório sai no horário configurado; também há um modo de lote único.
+
+| Divergência          | Regra                                               |
+| -------------------- | --------------------------------------------------- |
+| `valor`              | valor FOB da NF difere da fatura além da tolerância |
+| `peso`               | peso líquido difere além da tolerância              |
+| `ncm`                | conjunto de NCMs diferente entre NF e fatura        |
+| `campo_ausente`      | campo obrigatório não encontrado no PDF             |
+| `documento_ausente`  | processo sem NF ou sem fatura                       |
+| `documento_ilegivel` | PDF corrompido ou sem texto                         |
+
+## Decisões
+
+- **Nenhum erro para o lote:** cada PDF problemático é registrado e movido, e o processamento continua.
+- **Tolerâncias configuráveis** para valor e peso, em vez de comparação exata.
+- **Sem credencial no código:** o SMTP usa senha de app guardada só no `.env`, que não é versionado; sem SMTP configurado, o envio é pulado com aviso no log.
+- **Logs JSON:** uma linha por evento, no console e num arquivo rotativo.
+- **Dados sintéticos com gabarito:** um gerador com semente fixa cria os PDFs e os valores esperados de cada um.
+
+## Testes
+
+Medido em 30/10/2026, com pytest: 23 testes passando. Cobrem a extração comparada ao gabarito, o monitor com um arquivo real chegando na pasta, as divergências por cenário, as abas da planilha, o relatório, o e-mail com SMTP falso, os logs JSON, o agendador e o lote ponta a ponta.
+
+Cenários do lote sintético:
+
+- 3 processos conformes.
+- Valor da NF 1.350 USD acima da fatura → divergência de valor.
+- Peso da NF 42,75 kg abaixo → divergência de peso.
+- Fatura ausente → documento ausente.
+- NF sem a linha de peso → campo ausente.
+- NF corrompida de propósito → documento ilegível, e o lote seguiu.
+
+## Resultado
+
+O lote sintético deu 8 processos: 3 conformes, 5 divergentes e 1 PDF ilegível, cada um com o motivo esperado. No mesmo dia, um e-mail real enviado pelo Gmail chegou com o relatório HTML e a planilha anexa.
+
+## Limitações
+
+- Não faz OCR: documentos escaneados ficam de fora.
+- Não tem interface gráfica; roda pela linha de comando.
+- Só foi testado com PDFs sintéticos gerados pelo próprio projeto.
+
+## Próximos passos
+
+- Avaliar OCR para documentos escaneados, que ficou fora do escopo desta versão.

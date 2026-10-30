@@ -1,0 +1,104 @@
+---
+titulo: 'Robô de Fechamento Diário'
+slug: robo-fechamento
+ordem: 12
+status: concluido
+trilha: bancos
+arcano: forca
+resumo: 'Automação de fim de dia sobre a Ledger API: recalcula saldos, verifica as partidas dobradas, detecta inconsistências e emite o fechamento em PDF.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - SQLAlchemy 2
+  - PostgreSQL 16
+  - pandas
+  - ReportLab
+  - APScheduler
+  - pytest
+  - Docker Compose
+competencias:
+  - Fechamento contábil diário
+  - Verificação de partidas dobradas
+  - Detecção de inconsistências
+  - Acesso somente leitura a banco de produção
+  - Geração de PDF
+  - Agendamento de tarefas
+  - Dinheiro em Decimal
+prova: 'Detecta as 5 anomalias plantadas e fechou o dia 29/10 da Ledger real como CONFORME, só com SELECT.'
+resultado: 'Detecta as 5 anomalias plantadas e, ligado à Ledger real só com leitura, fechou 29/10 como CONFORME; 37 testes com 98% de cobertura'
+resultadoNumero: 5
+medidoEm: 2026-10-30
+metricas:
+  - numero: 5
+    rotulo: 'anomalias plantadas detectadas'
+  - numero: 37
+    rotulo: 'testes'
+  - numero: 98
+    sufixo: '%'
+    rotulo: 'de cobertura'
+  - numero: 34
+    rotulo: 'lançamentos da Ledger real conferidos'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Python 3.12'
+  - rotulo: 'Leitura'
+    valor: 'PostgreSQL 16 da Ledger, usuário só de leitura'
+  - rotulo: 'Saídas'
+    valor: 'PDF (ReportLab), e-mail, histórico próprio'
+  - rotulo: 'Testes'
+    valor: 'pytest, 37 testes, 98% de cobertura'
+stackCurta: 'Python · PostgreSQL · ReportLab'
+linhaIndice: 'Pega as 5 anomalias plantadas; fechou 29/10 da Ledger real como CONFORME'
+repo: 'https://github.com/gabrielgmln-ops/robo-fechamento'
+githubRepo: 'gabrielgmln-ops/robo-fechamento'
+destaque: secundario
+plataforma: bank-platform
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-30
+changelog:
+  - data: 2026-10-30
+    texto: 'Ligado à Ledger real com usuário só de leitura; fechamento de 29/10 CONFORME.'
+---
+
+## Problema
+
+Ao fim de cada dia, um banco precisa confirmar que os livros fecham: que cada movimento tem contrapartida, que nenhuma conta de cliente ficou negativa e que ninguém alterou o passado. O Robô de Fechamento faz esse end-of-day sobre a Ledger API.
+
+## Como funciona
+
+1. Lê os lançamentos do dia e o acumulado na Ledger, só com SELECT.
+2. Recalcula o saldo de cada conta e verifica a integridade: as somas dão zero e o saldo de ontem mais o movimento de hoje bate com o recalculado.
+3. Procura inconsistências e classifica cada uma como GRAVE ou ATENÇÃO.
+4. Gera o PDF do fechamento, arquiva por data e envia por e-mail.
+5. Grava o histórico e marca o dia como **CONFORME** ou **NÃO CONFORME**; um agendador roda o fechamento às 23h30.
+
+Verificações: soma global diferente de zero, lançamento órfão, transação inexistente, valor do lançamento diferente da transação, saldo negativo indevido em conta de cliente, saldo divergente do fechamento anterior (todas GRAVE) e valor atípico (ATENÇÃO). Basta um alerta GRAVE para o dia sair NÃO CONFORME.
+
+## Decisões
+
+- **A Ledger é só leitura:** o robô usa um usuário de banco somente leitura e nunca escreve lá.
+- **Banco próprio do robô:** guarda o saldo de D-1, o que permite pegar um lançamento antigo adulterado.
+- **Somas em `Decimal` puro**, sem deixar o pandas converter para float.
+- **Dia contábil no fuso de São Paulo**, consultado como intervalo UTC.
+- **ReportLab em vez de WeasyPrint:** é Python puro; o WeasyPrint exige GTK no Windows.
+
+## Testes
+
+Medido em 30/10/2026.
+
+- 37 testes com pytest e 98% de cobertura. Cada anomalia plantada é detectada, e um dia limpo não gera nenhum alerta. A suíte cobre ainda a adulteração de um lançamento antigo, a idempotência ao reexecutar, o e-mail com SMTP simulado, o agendador sobrevivendo a erro e a linha de comando.
+- Em SQLite e em PostgreSQL 16 com uma Ledger sintética de 3 dias: os dois primeiros saíram CONFORME e o terceiro NÃO CONFORME, com as 5 anomalias plantadas e 1 alerta de atenção.
+
+## Resultado
+
+Ligado à Ledger real com um usuário somente leitura, o robô fechou o dia 29/10 como CONFORME, conferindo 34 lançamentos no total, e o e-mail do fechamento chegou pelo Gmail. Nessa ligação apareceu um erro de conversão dos ids UUID da Ledger, corrigido com um teste a mais.
+
+## Limitações
+
+- Só dados sintéticos.
+- O robô depende de acesso direto ao banco da Ledger, não da API dela.
+
+## Próximos passos
+
+- Deixar o agendador das 23h30 rodando de forma contínua sobre a Ledger real.

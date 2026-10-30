@@ -1,21 +1,110 @@
 ---
-titulo: 'Rastreador de importação'
+titulo: 'Rastreador de Processos de Importação'
 slug: rastreador-importacao
-ordem: 6
-status: planejado
-trilha: '[PENDENTE]'
-arcano: carro
-resumo: '[PENDENTE]'
-papel: '[PENDENTE]'
-tecnologias: []
-competencias: []
-prova: '[PENDENTE]'
-repo: '[PENDENTE]'
-demo: '[PENDENTE]'
-estudoDeCaso: false
+ordem: 8
+status: concluido
+trilha: comex
+arcano: enamorados
+resumo: 'Painel web que acompanha processos de importação em cinco etapas, sinaliza atrasos, mede o lead time e busca o custo estimado na API Landed.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - FastAPI
+  - SQLAlchemy 2
+  - PostgreSQL 16
+  - React 18
+  - Vite
+  - TypeScript
+  - pytest
+  - vitest
+  - Docker Compose
+  - GitHub Actions
+competencias:
+  - Modelagem de processo por etapas
+  - Regras de atraso e lead time
+  - Integração entre serviços HTTP
+  - Tratamento de falha de serviço externo
+  - Dinheiro em Decimal
+  - Testes em SQLite e PostgreSQL
+  - Front-end React com TypeScript
+prova: 'Nos 6 processos de demonstração, o custo gravado bateu com o que a Landed devolve chamada diretamente.'
+resultado: 'Ligado à Landed real, o custo gravado bateu nos 6 processos de demonstração; 45 testes no back-end com 98,26% de cobertura'
+resultadoNumero: 6
+medidoEm: 2026-10-30
+metricas:
+  - numero: 6
+    rotulo: 'processos com custo idêntico ao da Landed'
+  - numero: 45
+    rotulo: 'testes pytest no back-end'
+  - numero: 98.26
+    casas: 2
+    sufixo: '%'
+    rotulo: 'de cobertura no back-end'
+  - numero: 5
+    rotulo: 'etapas por processo'
+ficha:
+  - rotulo: 'Back-end'
+    valor: 'Python 3.12, FastAPI, SQLAlchemy 2'
+  - rotulo: 'Banco'
+    valor: 'PostgreSQL 16'
+  - rotulo: 'Front-end'
+    valor: 'React 18, Vite, TypeScript'
+  - rotulo: 'Entrega'
+    valor: 'Docker Compose, GitHub Actions'
+stackCurta: 'Python · FastAPI · React · PostgreSQL'
+linhaIndice: 'Custo idêntico ao da Landed nos 6 processos; 98,26% de cobertura'
+repo: 'https://github.com/gabrielgmln-ops/Rastreador-de-Importacao'
+githubRepo: 'gabrielgmln-ops/Rastreador-de-Importacao'
+destaque: secundario
+estudoDeCaso: true
 ano: 2026
-atualizadoEm: 2026-10-21
-changelog: []
+atualizadoEm: 2026-10-30
+changelog:
+  - data: 2026-10-30
+    texto: 'Ligado à Landed real; custo conferido nos 6 processos de demonstração.'
 ---
 
-[PENDENTE]
+## Problema
+
+Um processo de importação passa por várias etapas, e cada uma tem uma data prevista e uma data real. Sem um painel, fica difícil ver o que está atrasado, quanto tempo um processo leva do pedido à entrega e quanto ele vai custar. O Rastreador acompanha isso com dados sintéticos.
+
+## Como funciona
+
+- **Cinco etapas por processo:** PEDIDO → EMBARQUE → CHEGADA → DESEMBARAÇO → ENTREGA, cada uma com data prevista e data real.
+- **Avanço de etapa:** grava a data real da etapa atual e passa para a próxima. Recusa data futura e data anterior à da etapa anterior. Avançar a ENTREGA conclui o processo.
+- **Atraso:** uma etapa está atrasada se foi realizada depois da prevista ou se continua pendente com a prevista vencida. O processo em andamento está atrasado se qualquer etapa estiver; o concluído, só se a ENTREGA atrasou.
+- **Lead time:** dias entre o PEDIDO real e a ENTREGA real; o painel mostra a média dos concluídos.
+- **Custo:** o back-end chama a API Landed e grava o custo estimado do processo.
+- **Front React:** painel com indicadores, lista com filtros, detalhe e cadastro, atrás de um login simples.
+
+## Decisões
+
+- **Dinheiro em `Decimal`:** `Numeric(14,2)` no banco e string no JSON. Alterar FOB, frete ou seguro apaga o custo já calculado.
+- **Atraso calculado na hora:** depende de "hoje", então não é gravado no banco.
+- **Falha da Landed não grava nada:** fora do ar, HTTP 500 ou resposta inválida viram 502; uma recusa 422 da Landed é repassada com o motivo.
+- **Navegação por estado no React, sem roteador:** são só quatro telas.
+- **Datas montadas à mão no front:** `new Date("2026-06-01")` cairia em 31/05 no fuso UTC-3.
+
+## Testes
+
+Medido em 30/10/2026.
+
+- Back-end com pytest em SQLite: 45 testes passando, cobertura de 98,26% (o mínimo exigido é 90%). Na rodada inicial contra PostgreSQL real, 42 de 42.
+- Front com vitest: 3 testes de formatação de data, dinheiro e decimal.
+- A CI no GitHub Actions roda o back-end contra PostgreSQL 16, o front e o build das imagens.
+- Os testes fixam "hoje" em 15/06/2026. Um fluxo completo de 01/05 a 09/06 dá lead time de 39 dias; um PEDIDO previsto para 01/06 e ainda pendente em 15/06 dá 14 dias de atraso.
+- Login com token adulterado, expirado ou malformado dá 401.
+
+## Resultado
+
+Com a Landed real no ar, o custo que o Rastreador gravou bateu, nos 6 processos de demonstração, com o que a Landed devolve quando chamada diretamente. Um NCM fora da tabela sintética voltou 422 com o motivo dado pela Landed. Com os 6 processos, o painel mostrou 4 em andamento, 2 concluídos, 3 atrasados e lead time médio de 53,5 dias.
+
+## Limitações
+
+- Só dados sintéticos; não há integração com o Siscomex.
+- A autenticação é um login simples, não uma autenticação robusta.
+- Ainda não há Alembic: as tabelas são criadas na subida.
+
+## Próximos passos
+
+- Adotar o Alembic se o esquema do banco evoluir.

@@ -44,3 +44,7 @@ Tipos completos: `src/types/index.ts` (reexportados por `conteudo.ts`).
   - Item de `ficha` com `[PENDENTE]` é retirado inteiro; `metricas` só chega quando `concluido`.
   - Novo arcano `imperatriz` (III). Mapeamento: I Mago → motor-antifraude, II Sacerdotisa → operacao-cofre, III Imperatriz → pix-simulado, IV Imperador → gateway-seguranca, V Hierofante → devsecops-siem. Planejados remanejados: comex-stat → lua, agendamento → forca, assistente-aduaneiro → torre.
   - Artes 01–05 declaradas como `.png`; enquanto o arquivo não existir, a carta usa o verso. O glob das cartas aceita `*.{jpg,png}`.
+- 2026-10-30 · v1.3.1 (só conteúdo; o schema não muda)
+  - Novos arcanos `enforcado` (XII, O Enforcado) e `diabo` (XV, O Diabo). `enamorados` passa a se chamar "Os Amantes".
+  - Mapeamento: VI Amantes → rastreador-importacao, VII Carro → despachante-digital, IX Eremita → landed, X Roda da Fortuna → monitor-cambio, XI Força → robo-fechamento. Planejados remanejados: open-finance → enforcado, motor-de-busca → diabo; `agendamento` saiu do acervo (ficou sem carta livre).
+  - Artes 06, 07 e 09–11 declaradas como `.png`; enquanto o arquivo não existir, a carta usa o verso.

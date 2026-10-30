@@ -1,0 +1,104 @@
+---
+titulo: 'Monitor de Câmbio'
+slug: monitor-cambio
+ordem: 11
+status: concluido
+trilha: comex
+arcano: roda
+resumo: 'Serviço que coleta a PTAX oficial do Banco Central (API Olinda), guarda o histórico, calcula variações e dispara alertas por regra.'
+papel: 'Projeto individual de estudo, desenvolvido com assistência de IA: eu defino requisitos, reviso e estudo o código, testo, documento e publico.'
+tecnologias:
+  - Python 3.12
+  - FastAPI
+  - SQLAlchemy 2
+  - PostgreSQL 16
+  - pandas
+  - APScheduler
+  - pytest
+  - Docker Compose
+  - GitHub Actions
+competencias:
+  - Consumo de API pública do Banco Central
+  - Séries históricas de câmbio
+  - Variação diária e acumulada
+  - Regras de alerta
+  - Dinheiro em Decimal
+  - Autenticação por token com falha fechada
+  - Agendamento de coletas
+prova: 'Validado com a API real do Banco Central: carga de outubro e alerta de variação diária disparado em 30/10.'
+resultado: 'Com a API real, carregou os 21 dias úteis de outubro (USD e EUR) e a regra de variação diária de 0,5% disparou em 30/10 com o USD a +0,8708%'
+resultadoNumero: 21
+medidoEm: 2026-10-30
+metricas:
+  - numero: 21
+    rotulo: 'dias úteis de outubro carregados da API real'
+  - numero: 0.8708
+    casas: 4
+    prefixo: '+'
+    sufixo: '%'
+    rotulo: 'variação do USD que disparou o alerta'
+  - numero: 26
+    rotulo: 'testes em SQLite e PostgreSQL 16'
+ficha:
+  - rotulo: 'Linguagem'
+    valor: 'Python 3.12 + FastAPI'
+  - rotulo: 'Fonte'
+    valor: 'PTAX do Banco Central (API Olinda)'
+  - rotulo: 'Banco'
+    valor: 'PostgreSQL 16, Numeric(18,6)'
+  - rotulo: 'Entrega'
+    valor: 'Docker Compose, GitHub Actions'
+stackCurta: 'Python · FastAPI · PostgreSQL'
+linhaIndice: 'PTAX real de outubro; alerta de 0,5% disparou com o USD a +0,8708%'
+repo: 'https://github.com/gabrielgmln-ops/monitor-cambio'
+githubRepo: 'gabrielgmln-ops/monitor-cambio'
+destaque: secundario
+estudoDeCaso: true
+ano: 2026
+atualizadoEm: 2026-10-30
+changelog:
+  - data: 2026-10-30
+    texto: 'Validado com a API real do Banco Central; revisão de segurança com token de API.'
+---
+
+## Problema
+
+Quem importa ou exporta precisa acompanhar o câmbio oficial e saber quando ele passa de um limite. O Monitor de Câmbio coleta a PTAX publicada pelo Banco Central, guarda o histórico e avisa quando uma regra cadastrada é atingida.
+
+## Como funciona
+
+- **Coleta:** lê a PTAX na API pública Olinda do Banco Central, em dias úteis às 13:30 e às 18:00 (horário de Brasília), ou sob demanda.
+- **Histórico e variação:** guarda as cotações no PostgreSQL e calcula a variação diária e a acumulada de um período.
+- **Dia sem cotação:** fim de semana ou feriado devolve o último dia útil anterior.
+- **Regras de alerta:** `acima` e `abaixo` (preço de venda em R$) e `variacao_diaria` (% em módulo). Cada regra dispara no máximo uma vez por dia de cotação; o alerta vai para o log e, se configurado, por e-mail.
+- **API:** cotação atual, histórico, variação, coleta manual, regras e alertas.
+
+## Decisões
+
+- **`Decimal` do começo ao fim:** o JSON da PTAX é lido com `parse_float=Decimal`; `Numeric(18,6)` no banco; percentuais com 4 casas e arredondamento bancário.
+- **Só o boletim "Fechamento"** conta como PTAX do dia; uma janela de 10 dias para trás cobre feriados.
+- **Base da variação do período:** o fechamento anterior ao início.
+- **Unicidade regra + data** para que cada regra dispare uma vez por dia.
+- **Falha fechada:** coleta, regras e alertas exigem o cabeçalho `X-API-Token`; sem token configurado, essas rotas respondem 503. Cotações e saúde são públicas.
+
+## Testes
+
+Medido em 30/10/2026.
+
+- 26 testes com pytest: localmente em SQLite em memória e, na CI do GitHub Actions, em PostgreSQL 16. CI verde.
+- Revisão de segurança: token de API, e-mail validado, limite de 366 dias na coleta e cotação menor ou igual a zero rejeitada.
+- Validação contra a API real: carga de outubro com 21 dias úteis de USD e EUR. O feriado de 12/10 caiu na cotação de 09/10.
+
+## Resultado
+
+Com dados reais do Banco Central, a carga de outubro trouxe 21 dias úteis de USD e EUR, e a regra de variação diária de 0,5% disparou em 30/10, com o USD a +0,8708%.
+
+## Limitações
+
+- Usa só a PTAX oficial: não há cotação de mercado em tempo real.
+- O envio de e-mail ainda não foi testado com um SMTP real.
+
+## Próximos passos
+
+- Configurar um SMTP real para os e-mails de alerta.
+- Definir o token de API antes de expor o serviço fora da máquina.
