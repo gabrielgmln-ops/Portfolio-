@@ -194,6 +194,9 @@ test('O Louco no Sobre abre o resumo do GitHub e Esc fecha', async ({ page }) =>
   const dialogo = page.locator('dialog[data-dialogo-louco]');
   await expect(dialogo).toBeVisible();
   await expect(dialogo.getByRole('link', { name: /Abrir o GitHub/ })).toBeVisible();
+  await expect(dialogo.locator('.louco__repos li')).toHaveCount(10);
+  await expect(dialogo.locator('.louco__grupo')).toHaveText(['Plataforma bancária', 'Comércio exterior']);
+  await expect(dialogo).toContainText('Java · Kotlin · Python · Go · TypeScript');
   await page.keyboard.press('Escape');
   await expect(dialogo).toBeHidden();
 });

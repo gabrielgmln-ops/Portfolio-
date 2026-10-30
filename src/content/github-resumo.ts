@@ -1,10 +1,18 @@
 // O que a carta do Louco revela: o resumo do GitHub. Só fatos dos READMEs públicos de cada repositório.
+export type Grupo = 'Plataforma bancária' | 'Comércio exterior';
+
 export interface RepoResumo {
   nome: string;
   repo: string;
+  /** como aparece ao lado do nome */
   linguagem: string;
+  /** linguagens que entram na contagem do topo */
+  linguagens: string[];
+  grupo: Grupo;
   frase: string;
 }
+
+export const GRUPOS: Grupo[] = ['Plataforma bancária', 'Comércio exterior'];
 
 export const GITHUB_RESUMO = {
   usuario: 'gabrielgmln-ops',
@@ -17,35 +25,89 @@ export const GITHUB_RESUMO = {
       nome: 'Ledger API',
       repo: 'Projeto-B-A',
       linguagem: 'Java',
+      linguagens: ['Java'],
+      grupo: 'Plataforma bancária',
       frase: 'Livro-razão com partidas dobradas, idempotência e auditoria append-only.',
     },
     {
       nome: 'Pix Simulado',
       repo: 'Pix-Simulado-',
       linguagem: 'Kotlin',
+      linguagens: ['Kotlin'],
+      grupo: 'Plataforma bancária',
       frase: 'Pagamentos instantâneos sobre a Ledger API, com Testcontainers e CI.',
     },
     {
       nome: 'Motor Antifraude',
       repo: 'motor-antifraude',
       linguagem: 'Python',
+      linguagens: ['Python'],
+      grupo: 'Plataforma bancária',
       frase: 'Kafka, regras e IsolationForest classificando transações em tempo real.',
     },
     {
       nome: 'Gateway de Segurança',
       repo: 'Gateway-de-Seguran-a',
       linguagem: 'Go',
-      frase: 'Gateway de API que autentica, autoriza, limita e registra antes de encaminhar.',
+      linguagens: ['Go'],
+      grupo: 'Plataforma bancária',
+      frase: 'Autentica, autoriza, limita e registra antes de encaminhar.',
     },
     {
       nome: 'Esteira DevSecOps',
       repo: 'esteira-devsecops-bancaria',
       linguagem: 'Python',
-      frase: 'SAST, varredura de segredos e imagens com gate de merge, e SIEM em ELK.',
+      linguagens: ['Python'],
+      grupo: 'Plataforma bancária',
+      frase: 'SAST, segredos e imagens com gate de merge, e SIEM em ELK.',
+    },
+    {
+      nome: 'Robô de Fechamento Diário',
+      repo: 'robo-fechamento',
+      linguagem: 'Python',
+      linguagens: ['Python'],
+      grupo: 'Plataforma bancária',
+      frase: 'Fecha o dia da Ledger e aponta as anomalias em relatório PDF.',
+    },
+    {
+      nome: 'Landed',
+      repo: 'Landed',
+      linguagem: 'Python',
+      linguagens: ['Python'],
+      grupo: 'Comércio exterior',
+      frase: 'Custo de importação até o centavo, conferido contra cálculos feitos à mão.',
+    },
+    {
+      nome: 'Rastreador de Importação',
+      repo: 'Rastreador-de-Importacao',
+      linguagem: 'Python + React',
+      linguagens: ['Python', 'TypeScript'],
+      grupo: 'Comércio exterior',
+      frase: 'Etapas do processo, alertas de atraso e custo vindo da Landed.',
+    },
+    {
+      nome: 'Despachante Digital',
+      repo: 'despachante-digital',
+      linguagem: 'Python',
+      linguagens: ['Python'],
+      grupo: 'Comércio exterior',
+      frase: 'Lê NF e fatura em PDF, cruza por processo e relata as divergências.',
+    },
+    {
+      nome: 'Monitor de Câmbio',
+      repo: 'monitor-cambio',
+      linguagem: 'Python',
+      linguagens: ['Python'],
+      grupo: 'Comércio exterior',
+      frase: 'PTAX real com alerta de variação configurável.',
     },
   ] satisfies RepoResumo[],
 } as const;
 
 export function linguagensDoResumo(): string[] {
-  return [...new Set(GITHUB_RESUMO.repos.map((r) => r.linguagem))];
+  return [...new Set(GITHUB_RESUMO.repos.flatMap((r) => r.linguagens))];
+}
+
+export function reposDoGrupo(g: Grupo): readonly RepoResumo[] {
+  return GITHUB_RESUMO.repos.filter((r) => r.grupo === g);
 }

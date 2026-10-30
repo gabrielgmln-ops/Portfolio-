@@ -1,6 +1,6 @@
 ---
 // O que o Louco revela ao ser tirado: o resumo do GitHub, num <dialog> nativo (Esc, foco e backdrop de graça).
-import { GITHUB_RESUMO, linguagensDoResumo } from '../content/github-resumo';
+import { GITHUB_RESUMO, GRUPOS, linguagensDoResumo, reposDoGrupo } from '../content/github-resumo';
 
 interface Props {
   id: string;
@@ -29,17 +29,24 @@ const titulo = `${id}-titulo`;
       </div>
     </dl>
 
-    <ol class="louco__repos">
-      {GITHUB_RESUMO.repos.map((r) => (
-        <li>
-          <a href={`${GITHUB_RESUMO.url}/${r.repo}`} rel="noopener">
-            {r.nome}
-          </a>
-          <span class="louco__lingua">{r.linguagem}</span>
-          <p>{r.frase}</p>
-        </li>
+    <div class="louco__grupos">
+      {GRUPOS.map((g) => (
+        <section aria-label={g}>
+          <h3 class="louco__grupo">{g}</h3>
+          <ol class="louco__repos">
+            {reposDoGrupo(g).map((r) => (
+              <li>
+                <a href={`${GITHUB_RESUMO.url}/${r.repo}`} rel="noopener">
+                  {r.nome}
+                </a>
+                <span class="louco__lingua">{r.linguagem}</span>
+                <p>{r.frase}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
       ))}
-    </ol>
+    </div>
 
     <footer class="louco__acoes">
       <a class="louco__cta" href={GITHUB_RESUMO.url} rel="noopener">
@@ -128,7 +135,19 @@ const titulo = `${id}-titulo`;
     margin: 0;
     display: grid;
     gap: var(--s-4);
+  }
+  .louco__grupos {
+    display: grid;
+    gap: var(--s-5);
     counter-reset: arcano;
+  }
+  .louco__grupo {
+    margin: 0 0 var(--s-3);
+    font-family: var(--fonte-mono);
+    font-size: var(--t--1);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--creme-2);
   }
   .louco__repos li {
     counter-increment: arcano;
@@ -139,7 +158,7 @@ const titulo = `${id}-titulo`;
     position: relative;
   }
   .louco__repos li::before {
-    content: counter(arcano, upper-roman);
+    content: counter(arcano) '.';
     position: absolute;
     left: 0;
     top: 0.15em;
