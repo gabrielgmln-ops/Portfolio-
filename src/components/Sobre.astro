@@ -3,7 +3,9 @@
 // Usado na home (section#sobre, h2) e na página /sobre (com titulo="h1").
 import { Picture } from 'astro:assets';
 import retrato from '../assets/retrato.png';
-import { getPerfil } from '../lib/conteudo';
+import { getPerfil, getProjeto } from '../lib/conteudo';
+import CartaArcano from './CartaArcano.astro';
+import GithubLouco from './GithubLouco.astro';
 
 interface Props {
   /** nível do título do rótulo: h1 na página /sobre */
@@ -13,6 +15,8 @@ interface Props {
 const { nivel = 'h2', id = 'sobre' } = Astro.props;
 const Titulo = nivel;
 const perfil = getPerfil();
+const louco = await getProjeto('portfolio');
+const dialogo = `${id}-github`;
 const idiomas = perfil.idiomas.map((i, n) => (n === 0 ? i.idioma : `${i.idioma.toLowerCase()} ${i.nivel}`)).join(', ');
 ---
 
@@ -72,11 +76,51 @@ const idiomas = perfil.idiomas.map((i, n) => (n === 0 ? i.idioma : `${i.idioma.t
         <dd>{idiomas}</dd>
       </div>
     </dl>
+    {louco && (
+      <div class="louco-carta sobe">
+        <CartaArcano projeto={louco} abreDialogo={dialogo} sizes="9rem" />
+        <p class="mono">Tire o Louco: o GitHub está atrás dele.</p>
+        <GithubLouco id={dialogo} />
+      </div>
+    )}
   </div>
   <slot />
 </section>
 
+<script>
+  // O Louco abre o resumo do GitHub (<dialog> nativo: Esc, foco e backdrop vêm do navegador).
+  function ligar(): void {
+    for (const b of document.querySelectorAll<HTMLButtonElement>('button[data-abre-dialogo]')) {
+      if (b.dataset['ligado'] !== undefined) continue;
+      b.dataset['ligado'] = '';
+      b.addEventListener('click', () => {
+        const d = document.getElementById(b.dataset['abreDialogo'] ?? '');
+        if (d instanceof HTMLDialogElement && !d.open) d.showModal();
+      });
+    }
+  }
+  ligar();
+  document.addEventListener('astro:page-load', ligar);
+</script>
+
 <style>
+  .louco-carta {
+    display: grid;
+    justify-items: start;
+    gap: 0.8rem;
+  }
+  .louco-carta :global(.carta) {
+    --w: 9rem;
+  }
+  .louco-carta p {
+    margin: 0;
+    color: var(--texto-3);
+  }
+  @media (min-width: 62rem) {
+    .louco-carta {
+      grid-column: 3;
+    }
+  }
   .sobre-grid {
     display: grid;
     gap: clamp(2rem, 5vw, 4.5rem);

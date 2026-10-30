@@ -16,16 +16,37 @@ interface Props {
   vt?: string | undefined;
   /** esconde numeral/nome (miniaturas) */
   semLegenda?: boolean;
+  /** id de um <dialog>: a carta vira botão que abre o diálogo (O Louco → resumo do GitHub) */
+  abreDialogo?: string | undefined;
 }
-const { projeto, href, class: classe, prioridade = false, sizes = '13rem', vt, semLegenda = false } = Astro.props;
+const {
+  projeto,
+  href,
+  class: classe,
+  prioridade = false,
+  sizes = '13rem',
+  vt,
+  semLegenda = false,
+  abreDialogo,
+} = Astro.props;
 const carta = getCarta(projeto);
-const Tag = href ? 'a' : 'div';
+const Tag = abreDialogo ? 'button' : href ? 'a' : 'div';
 ---
 
 <Tag
   class:list={['carta', classe]}
   href={href}
-  aria-label={href ? `${projeto.arcano.nome}: ${projeto.titulo}` : undefined}
+  type={abreDialogo ? 'button' : undefined}
+  aria-haspopup={abreDialogo ? 'dialog' : undefined}
+  aria-controls={abreDialogo}
+  data-abre-dialogo={abreDialogo}
+  aria-label={
+    abreDialogo
+      ? `${projeto.arcano.nome}: abrir o resumo do GitHub`
+      : href
+        ? `${projeto.arcano.nome}: ${projeto.titulo}`
+        : undefined
+  }
   data-estado={carta.estado}
   data-vt={vt}
 >
@@ -52,6 +73,12 @@ const Tag = href ? 'a' : 'div';
 </Tag>
 
 <style>
+  button.carta {
+    padding: 0;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+  }
   .carta {
     --w: clamp(9.5rem, 15vw, 13rem);
     position: relative;

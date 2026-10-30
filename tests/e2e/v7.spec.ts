@@ -183,3 +183,17 @@ test('/plataforma: o diagrama inclui o Robô de Fechamento (XI)', async ({ page 
   expect(await page.locator('svg[role="img"] desc').first().textContent()).toContain('Robô de Fechamento');
   await expect(page.locator('details.diagrama__texto')).toContainText('Robô de Fechamento Diário');
 });
+
+test('O Louco no Sobre abre o resumo do GitHub e Esc fecha', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const louco = page.locator('#sobre button[data-abre-dialogo]');
+  await louco.scrollIntoViewIfNeeded();
+  await expect(louco).toHaveAttribute('aria-haspopup', 'dialog');
+  await louco.click();
+  const dialogo = page.locator('dialog[data-dialogo-louco]');
+  await expect(dialogo).toBeVisible();
+  await expect(dialogo.getByRole('link', { name: /Abrir o GitHub/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialogo).toBeHidden();
+});
