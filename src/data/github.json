@@ -1,12 +1,100 @@
 {
-  "gabrielgmln-ops/Projeto-B-A": {
-    "buscadoEm": "2026-10-24T02:43:03.403Z",
+  "gabrielgmln-ops/gateway-seguranca": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 1324,
+      "Go": 173516,
+      "Makefile": 1560,
+      "Shell": 9179
+    },
+    "ultimoCommit": "2026-10-29T16:16:22.000Z",
+    "url": "https://github.com/gabrielgmln-ops/gateway-seguranca"
+  },
+  "gabrielgmln-ops/Landed": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 475,
+      "Python": 11201
+    },
+    "ultimoCommit": "2026-10-30T16:36:24.000Z",
+    "url": "https://github.com/gabrielgmln-ops/Landed"
+  },
+  "gabrielgmln-ops/pix-simulado": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 1117,
+      "Kotlin": 227744,
+      "Shell": 4978
+    },
+    "ultimoCommit": "2026-10-29T14:47:09.000Z",
+    "url": "https://github.com/gabrielgmln-ops/pix-simulado"
+  },
+  "gabrielgmln-ops/ledger-api": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
     "linguagens": {
       "Dockerfile": 647,
-      "Java": 94637,
+      "Java": 144915,
       "PLpgSQL": 1005
     },
-    "ultimoCommit": "2026-10-21T21:50:29.000Z",
-    "url": "https://github.com/gabrielgmln-ops/Projeto-B-A"
+    "ultimoCommit": "2026-10-29T14:44:03.000Z",
+    "url": "https://github.com/gabrielgmln-ops/ledger-api"
+  },
+  "gabrielgmln-ops/Rastreador-de-Importacao": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "CSS": 6118,
+      "Dockerfile": 776,
+      "HTML": 367,
+      "Python": 48559,
+      "TypeScript": 26035
+    },
+    "ultimoCommit": "2026-10-30T16:36:24.000Z",
+    "url": "https://github.com/gabrielgmln-ops/Rastreador-de-Importacao"
+  },
+  "gabrielgmln-ops/despachante-digital": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Jinja": 2740,
+      "Python": 65223
+    },
+    "ultimoCommit": "2026-10-30T12:37:49.000Z",
+    "url": "https://github.com/gabrielgmln-ops/despachante-digital"
+  },
+  "gabrielgmln-ops/esteira-devsecops-bancaria": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 2616,
+      "PowerShell": 4895,
+      "Python": 112662,
+      "Shell": 12685
+    },
+    "ultimoCommit": "2026-10-29T20:28:38.000Z",
+    "url": "https://github.com/gabrielgmln-ops/esteira-devsecops-bancaria"
+  },
+  "gabrielgmln-ops/monitor-cambio": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 408,
+      "Python": 40883
+    },
+    "ultimoCommit": "2026-10-30T18:30:11.000Z",
+    "url": "https://github.com/gabrielgmln-ops/monitor-cambio"
+  },
+  "gabrielgmln-ops/motor-antifraude": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Dockerfile": 553,
+      "Python": 74555
+    },
+    "ultimoCommit": "2026-10-27T00:27:09.000Z",
+    "url": "https://github.com/gabrielgmln-ops/motor-antifraude"
+  },
+  "gabrielgmln-ops/robo-fechamento": {
+    "buscadoEm": "2026-10-30T22:51:04.630Z",
+    "linguagens": {
+      "Python": 67258
+    },
+    "ultimoCommit": "2026-10-30T17:54:28.000Z",
+    "url": "https://github.com/gabrielgmln-ops/robo-fechamento"
   }
 }

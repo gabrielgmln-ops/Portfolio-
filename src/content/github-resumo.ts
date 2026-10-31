@@ -23,7 +23,7 @@ export const GITHUB_RESUMO = {
   repos: [
     {
       nome: 'Ledger API',
-      repo: 'Projeto-B-A',
+      repo: 'ledger-api',
       linguagem: 'Java',
       linguagens: ['Java'],
       grupo: 'Plataforma bancária',
@@ -31,7 +31,7 @@ export const GITHUB_RESUMO = {
     },
     {
       nome: 'Pix Simulado',
-      repo: 'Pix-Simulado-',
+      repo: 'pix-simulado',
       linguagem: 'Kotlin',
       linguagens: ['Kotlin'],
       grupo: 'Plataforma bancária',
@@ -47,7 +47,7 @@ export const GITHUB_RESUMO = {
     },
     {
       nome: 'Gateway de Segurança',
-      repo: 'Gateway-de-Seguran-a',
+      repo: 'gateway-seguranca',
       linguagem: 'Go',
       linguagens: ['Go'],
       grupo: 'Plataforma bancária',
