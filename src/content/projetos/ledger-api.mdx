@@ -59,7 +59,7 @@ ficha:
   - rotulo: 'Entrega'
     valor: 'Docker, GitHub Actions, Render'
 stackCurta: 'Java · Spring Boot · PostgreSQL'
-linhaIndice: '1.000 transferências simultâneas, R$ 0,00 de diferença; 94,7% de cobertura'
+linhaIndice: '1.000 transferências simultâneas, R$ 0,00 de diferença; 94,2% de cobertura'
 repo: 'https://github.com/gabrielgmln-ops/Projeto-B-A'
 githubRepo: 'gabrielgmln-ops/Projeto-B-A'
 demo: 'https://ledger-api-sk0d.onrender.com/swagger-ui.html'
@@ -93,11 +93,11 @@ O núcleo de um banco digital não pode criar nem perder dinheiro, nem cobrar du
 
 ## Testes
 
-Medido em 21/10/2026 com `mvnw verify`, contra PostgreSQL 16 real via Testcontainers (a mesma suíte roda na CI a cada push). Não foi executado contra a API publicada.
+Medido em 21/10/2026 (cenários de concorrência) e 30/10/2026 (suíte completa, já com a Operação Cofre) com `mvnw verify`, contra PostgreSQL 16 real via Testcontainers (a mesma suíte roda na CI a cada push). Não foi executado contra a API publicada.
 
 - 10 contas com R$ 1.000,00 cada (total R$ 10.000,00); 1.000 transferências simultâneas em 50 threads, em sentidos cruzados, com valores aleatórios entre R$ 0,01 e R$ 300,00.
 - 500 saques simultâneos de R$ 1,00 numa conta com R$ 100,00: exatamente 100 aceitos e saldo final R$ 0,00.
-- Suíte: 33 testes, 0 falhas; cobertura de linhas 94,7% (270 de 285, JaCoCo).
+- Suíte: 47 testes, 0 falhas; cobertura de linhas 94,2% (426 de 452, JaCoCo).
 
 Teste de fumaça contra a API publicada no Render: saúde e Swagger respondendo; a mesma transferência enviada 2 vezes com a mesma chave não duplicou; transferir R$ 500 com saldo de R$ 100 foi bloqueado com HTTP 422.
 
